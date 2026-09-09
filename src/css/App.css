@@ -155,7 +155,8 @@ footer .admin-link { color:var(--green); }
 @media (max-width:800px) {
 	.site-header { height:74px; padding:0 18px; }
 	.site-header .brand-image-nav { width:178px; }
-	.hero-section { min-height:calc(100svh - 74px); height:calc(100svh - 74px); max-height:570px; padding:34px 42px 44px; align-items:center; }
+	.hero-section { min-height:500px; height:500px; max-height:500px; padding:28px 42px; align-items:center; }
+	.hero-section .hero-background { object-position:center 42%; }
 	.hero-section .hero-copy { max-width:330px; gap:0; }
 	.hero-section .hero-copy h1 { max-width:300px; font-size:clamp(40px, 10.5vw, 54px); line-height:.98; }
 	.hero-section .hero-lede { max-width:275px; margin:20px 0 25px; font-size:13px; }

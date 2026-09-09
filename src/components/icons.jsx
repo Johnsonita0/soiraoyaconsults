@@ -1,0 +1,23 @@
+const Glyph = ({ symbol, size = 18 }) => <span className="glyph" style={{ fontSize: size }}>{symbol}</span>
+export const ArrowUpRight = (props) => <Glyph symbol="↗" {...props} />
+export const BarChart3 = (props) => <Glyph symbol="▥" {...props} />
+export const Building2 = (props) => <Glyph symbol="▦" {...props} />
+export const Check = (props) => <Glyph symbol="✓" {...props} />
+export const ChevronDown = (props) => <Glyph symbol="⌄" {...props} />
+export const ChevronLeft = (props) => <Glyph symbol="←" {...props} />
+export const ChevronRight = (props) => <Glyph symbol="→" {...props} />
+export const ClipboardList = (props) => <Glyph symbol="▤" {...props} />
+export const FileText = (props) => <Glyph symbol="▧" {...props} />
+export const Home = (props) => <Glyph symbol="⌂" {...props} />
+export const Leaf = (props) => <Glyph symbol="⌁" {...props} />
+export const Mail = (props) => <Glyph symbol="✉" {...props} />
+export const MapPin = (props) => <Glyph symbol="⌖" {...props} />
+export const Menu = (props) => <Glyph symbol="≡" {...props} />
+export const MessageSquareQuote = (props) => <Glyph symbol="❝" {...props} />
+export const Phone = (props) => <Glyph symbol="⌕" {...props} />
+export const Plus = (props) => <Glyph symbol="+" {...props} />
+export const Search = (props) => <Glyph symbol="⌕" {...props} />
+export const ShieldCheck = (props) => <Glyph symbol="◇" {...props} />
+export const Sparkles = (props) => <Glyph symbol="✦" {...props} />
+export const Users = (props) => <Glyph symbol="♧" {...props} />
+export const X = (props) => <Glyph symbol="×" {...props} />

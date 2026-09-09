@@ -6,7 +6,7 @@ import PropertyGallery from '../components/PropertyGallery'
 import ServiceModal from '../components/ServiceModal'
 import FaqSection from '../components/FaqSection'
 import InvestWithUs from '../components/InvestWithUs'
-import { ArrowUpRight, Check, Facebook, Instagram, Linkedin, Mail, MapPin, Menu, Phone, X, Youtube } from '../components/icons'
+import { ArrowUp, ArrowUpRight, Check, Facebook, Instagram, Linkedin, Mail, MapPin, Menu, Phone, Whatsapp, X, Youtube } from '../components/icons'
 import { heroSlides } from '../data/content'
 
 const trustMessages = [
@@ -27,10 +27,12 @@ export default function LandingPage({ content, goTo }) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [trustIndex, setTrustIndex] = useState(0)
   const [selectedService, setSelectedService] = useState(null)
+  const [showBackToTop, setShowBackToTop] = useState(false)
   const [form, setForm] = useState({ name: '', email: '', request: '' })
   const scrollToContact = () => document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' })
   const submit = (event) => { event.preventDefault(); setSent(true) }
   useEffect(() => { const timer = window.setInterval(() => setTrustIndex((index) => (index + 1) % trustMessages.length), 4000); return () => window.clearInterval(timer) }, [])
+  useEffect(() => { const onScroll = () => setShowBackToTop(window.scrollY > 500); window.addEventListener('scroll', onScroll, { passive: true }); return () => window.removeEventListener('scroll', onScroll) }, [])
 
   return <div className="site-shell">
     <header className="site-header"><Brand goTo={goTo} /><nav className={mobileOpen ? 'nav-open' : ''}><a href="#approach" onClick={() => setMobileOpen(false)}>Our approach</a><a href="#services" onClick={() => setMobileOpen(false)}>Expertise</a><a href="#insight" onClick={() => setMobileOpen(false)}>Insights</a><a href="#contact" onClick={() => setMobileOpen(false)}>Contact</a></nav><button className="mobile-toggle" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">{mobileOpen ? <X /> : <Menu />}</button><button className="header-cta" onClick={scrollToContact}>Start a conversation <ArrowUpRight size={16} /></button></header>
@@ -46,5 +48,7 @@ export default function LandingPage({ content, goTo }) {
     </main>
     <footer className="site-footer"><div className="footer-main"><div className="footer-brand"><Brand light goTo={goTo} /><p>Strategic real-estate advisory for decisions that create lasting value.</p></div><div className="footer-column"><p className="footer-label">Explore</p><a href="#approach">About us</a><a href="#services">Our services</a><a href="#properties">Properties</a><a href="#faq">FAQs</a></div><div className="footer-column"><p className="footer-label">Contact</p><a href="mailto:info@soiraoyaconsulting.com.ng">info@soiraoyaconsulting.com.ng</a><a href="tel:+2349074091408">0907 409 1408</a><span>Suite 30, Dolphin Plaza<br />Ikoyi, Lagos</span></div><div className="footer-column footer-socials"><p className="footer-label">Follow our work</p><div className="social-links"><a className="social-facebook" href="https://www.facebook.com" target="_blank" rel="noreferrer" aria-label="Facebook"><Facebook size={17} /></a><a className="social-instagram" href="https://www.instagram.com" target="_blank" rel="noreferrer" aria-label="Instagram"><Instagram size={17} /></a><a className="social-linkedin" href="https://www.linkedin.com" target="_blank" rel="noreferrer" aria-label="LinkedIn"><Linkedin size={17} /></a><a className="social-youtube" href="https://www.youtube.com" target="_blank" rel="noreferrer" aria-label="YouTube"><Youtube size={17} /></a></div></div></div><div className="footer-bottom"><span>© 2026 S.O.Iraoya Consulting. All rights reserved.</span><span>Registered with CAC · Licensed by ESVARBON</span></div></footer>
     <ServiceModal service={selectedService} onClose={() => setSelectedService(null)} onContact={() => { setSelectedService(null); scrollToContact() }} />
+    <a className="floating-whatsapp" href="https://wa.me/2349074091408" target="_blank" rel="noreferrer" aria-label="Chat with us on WhatsApp" title="Chat with us on WhatsApp"><Whatsapp size={25} /></a>
+    {showBackToTop && <button className="floating-back-to-top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Back to top" title="Back to top"><ArrowUp size={22} /></button>}
   </div>
 }

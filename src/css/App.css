@@ -241,3 +241,9 @@ html,body,#root,.site-shell { max-width:100%; overflow-x:clip; }
 .hero-section .hero-controls button:first-child { margin-right:auto; }
 .hero-section .hero-controls button:last-child { margin-left:auto; }
 @media (max-width:800px) { .mobile-toggle { width:44px; height:44px; display:grid; place-items:center; }.mobile-toggle svg { width:28px; height:28px; } }
+.floating-whatsapp,.floating-back-to-top { position:fixed; bottom:24px; z-index:25; display:grid; place-items:center; width:52px; height:52px; border:0; border-radius:50%; color:#fff; box-shadow:0 10px 24px rgba(6,20,52,.2); transition:transform .2s, opacity .2s; }
+.floating-whatsapp { right:24px; background:#25d366; animation:whatsapp-bounce 2.4s ease-in-out infinite; }
+.floating-back-to-top { left:24px; background:var(--ink); cursor:pointer; }
+.floating-whatsapp:hover,.floating-back-to-top:hover { transform:translateY(-4px); }
+@keyframes whatsapp-bounce { 0%,70%,100% { transform:translateY(0); } 78% { transform:translateY(-7px); } 86% { transform:translateY(0); } 92% { transform:translateY(-3px); } }
+@media (max-width:800px) { .floating-whatsapp,.floating-back-to-top { bottom:18px; width:48px; height:48px; }.floating-whatsapp { right:18px; }.floating-back-to-top { left:18px; } }

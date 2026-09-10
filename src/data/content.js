@@ -53,6 +53,11 @@ export const seedContent = {
     { title: 'Turn land into potential.', text: 'Understand the development story behind a site and the steps required to unlock it responsibly.', image: '/image/hero/hero-5.jpg', focus: ['Site due diligence', 'Feasibility studies', 'Development strategy'] },
     { title: 'Make the long view work.', text: 'Build a property portfolio around sound decisions, resilient assets, and sustainable value creation.', image: '/image/hero/hero-7.jpg', focus: ['Portfolio analysis', 'Return modelling', 'Advisory support'] },
   ],
+  testimonials: [
+    { quote: 'S.O.Iraoya gave us the clarity to move forward with confidence. Their advice was practical, measured, and easy to act on.', name: 'Mariam Bello', role: 'Private investor', rating: 5 },
+    { quote: 'They understood both the numbers and the people behind the decision. We felt properly advised at every stage.', name: 'Kola Adeyemi', role: 'Managing director, K&A Holdings', rating: 5 },
+    { quote: 'The team brought structure to a complicated property question and helped us see a much stronger route ahead.', name: 'Tolu Ogunleye', role: 'Development partner', rating: 5 },
+  ],
   faqs: [
     { question: 'What services does S.O.Iraoya Consulting provide?', answer: 'We advise across valuation, development strategy, property management, investment analysis, and property listing for owners, investors, institutions, and organisations.' },
     { question: 'Who do you work with?', answer: 'Our clients include private property owners, investors, financial institutions, corporate organisations, government agencies, and Nigerians investing from abroad.' },

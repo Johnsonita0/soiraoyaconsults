@@ -99,6 +99,10 @@ create policy "Admins can update site settings" on public.site_settings
 for update using (public.is_admin_user())
 with check (public.is_admin_user());
 
+drop policy if exists "Public can read landing content" on public.site_settings;
+create policy "Public can read landing content" on public.site_settings
+for select using (key = 'landing_content');
+
 create policy "Public can read published hero slides" on public.hero_slides
 for select using (is_active = true or public.is_admin_user());
 

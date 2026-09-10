@@ -1,28 +1,39 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Brand from '../components/Brand'
 import { ArrowUpRight, BarChart3, Building2, Check, ChevronDown, ChevronLeft, ChevronRight, ClipboardList, FileText, Home, Leaf, LogOut, MessageSquareQuote, Plus, Search, Sparkles, Upload, Users } from '../components/icons'
 import { seedRequests } from '../data/content'
 import { supabase } from '../lib/supabase'
+import SearchableSelect from '../components/SearchableSelect'
+import { useToast } from '../components/ToastProvider'
 
 export default function AdminPage({ content, setContent, goTo }) {
+  const { showToast } = useToast()
   const [tab, setTab] = useState('Overview')
   const [draft, setDraft] = useState(content)
   const [sidebarExpanded, setSidebarExpanded] = useState(true)
   const [mobileProfileMenuOpen, setMobileProfileMenuOpen] = useState(false)
   const [requestSearch, setRequestSearch] = useState('')
   const [searchOpen, setSearchOpen] = useState(false)
+  const [confirmAction, setConfirmAction] = useState(null)
+
+  useEffect(() => {
+    setDraft(content)
+  }, [content])
 
   const syncLandingContent = async (nextDraft) => {
     try {
       const { data: { session } } = await supabase.auth.getSession()
-      if (!session?.user) return
+      if (!session?.user) throw new Error('Your admin session has expired. Please sign in again.')
 
-      await supabase.from('site_settings').upsert({
+      const { error } = await supabase.from('site_settings').upsert({
         key: 'landing_content',
         value: nextDraft,
       }, { onConflict: 'key' })
+      if (error) throw error
+      showToast('Landing page changes saved.', 'success')
     } catch (error) {
       console.error('Failed to sync landing page content', error)
+      showToast(error.message || 'Could not save landing page changes.', 'error')
     }
   }
 
@@ -62,7 +73,14 @@ export default function AdminPage({ content, setContent, goTo }) {
     }
   }
 
-  return <div className="admin-shell"><aside className={`admin-sidebar ${sidebarExpanded ? 'expanded' : 'collapsed'}`}><button className="sidebar-toggle" type="button" onClick={() => setSidebarExpanded((current) => !current)} aria-label={sidebarExpanded ? 'Collapse sidebar' : 'Expand sidebar'}>{sidebarExpanded ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}</button><Brand admin goTo={goTo} /><div className="admin-nav">{tabs.map(([label, Icon]) => <button className={tab === label ? 'active' : ''} onClick={() => handleTabSelect(label)} key={label}><span className="nav-item-icon"><Icon size={17} />{label === 'Consult requests' && <b className="nav-count">3</b>}</span><span>{label}</span></button>)}</div><div className="sidebar-bottom"><button type="button" className="sidebar-logout" onClick={handleLogout} aria-label="Logout"><LogOut size={16} /><span>Logout</span></button><div className="profile"><span>OI</span><div><b>Iraoya</b><small>Principal partner</small></div><ChevronDown size={14} /></div></div></aside><main className="admin-main"><header className="admin-topbar"><div className="mobile-admin-brand"><Brand admin mobile goTo={goTo} /></div><div className="admin-breadcrumb">S.O.Iraoya / <b>{tab}</b></div><div className="admin-actions"><div className={`header-search-toggle ${searchOpen ? 'open' : ''}`}><button className="icon-button" aria-label="Toggle search" onClick={handleSearchAction}><Search size={18} /></button>{searchOpen && <input id="header-search-input" value={requestSearch} onChange={(event) => setRequestSearch(event.target.value)} placeholder="Search requests" aria-label="Search requests" />}</div><span className="notification-dot"></span><div className="mobile-profile-menu-wrap"><button type="button" className="avatar mobile-user-trigger" aria-label="User menu" onClick={() => setMobileProfileMenuOpen((current) => !current)}><span>OI</span><ChevronDown size={11} /></button>{mobileProfileMenuOpen && <div className="profile-dropdown mobile-dropdown"><div className="mobile-profile-summary"><span className="profile-badge">OI</span><div><b>Iraoya</b><small>Principal partner</small></div></div><button type="button" onClick={handleLogout}>Logout</button></div>}</div></div></header>{tab === 'Overview' && <Overview setTab={setTab} />}{tab === 'Consult requests' && <Requests requestSearch={requestSearch} setRequestSearch={setRequestSearch} />}{tab === 'Landing page' && <LandingEditor draft={draft} setDraft={setDraft} save={save} />}{tab === 'Testimonials' && <Testimonials />}</main><nav className="mobile-admin-tabs" aria-label="Admin navigation">{tabs.map(([label, Icon]) => <button className={tab === label ? 'active' : ''} onClick={() => handleTabSelect(label)} key={label}><Icon size={16} /><span>{label}</span></button>)}</nav></div>
+  const openConfirm = (action) => setConfirmAction(action)
+  const closeConfirm = () => setConfirmAction(null)
+  const completeConfirm = () => {
+    confirmAction?.onConfirm?.()
+    closeConfirm()
+  }
+
+  return <div className="admin-shell"><aside className={`admin-sidebar ${sidebarExpanded ? 'expanded' : 'collapsed'}`}><button className="sidebar-toggle" type="button" onClick={() => setSidebarExpanded((current) => !current)} aria-label={sidebarExpanded ? 'Collapse sidebar' : 'Expand sidebar'}>{sidebarExpanded ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}</button><Brand admin goTo={goTo} /><div className="admin-nav">{tabs.map(([label, Icon]) => <button className={tab === label ? 'active' : ''} onClick={() => handleTabSelect(label)} key={label}><span className="nav-item-icon"><Icon size={17} />{label === 'Consult requests' && <b className="nav-count">3</b>}</span><span>{label}</span></button>)}</div><div className="sidebar-bottom"><button type="button" className="sidebar-logout" onClick={handleLogout} aria-label="Logout"><LogOut size={16} /><span>Logout</span></button><div className="profile"><span>OI</span><div><b>Iraoya</b><small>Principal partner</small></div><ChevronDown size={14} /></div></div></aside><main className="admin-main"><header className="admin-topbar"><div className="mobile-admin-brand"><Brand admin mobile goTo={goTo} /></div><div className="admin-breadcrumb">S.O.Iraoya / <b>{tab}</b></div><div className="admin-actions"><div className={`header-search-toggle ${searchOpen ? 'open' : ''}`}><button className="icon-button" aria-label="Toggle search" onClick={handleSearchAction}><Search size={18} /></button>{searchOpen && <input id="header-search-input" value={requestSearch} onChange={(event) => setRequestSearch(event.target.value)} placeholder="Search requests" aria-label="Search requests" />}</div><span className="notification-dot"></span><div className="mobile-profile-menu-wrap"><button type="button" className="avatar mobile-user-trigger" aria-label="User menu" onClick={() => setMobileProfileMenuOpen((current) => !current)}><span>OI</span><ChevronDown size={11} /></button>{mobileProfileMenuOpen && <div className="profile-dropdown mobile-dropdown"><div className="mobile-profile-summary"><span className="profile-badge">OI</span><div><b>Iraoya</b><small>Principal partner</small></div></div><button type="button" onClick={handleLogout}>Logout</button></div>}</div></div></header>{tab === 'Overview' && <Overview setTab={setTab} />}{tab === 'Consult requests' && <Requests requestSearch={requestSearch} setRequestSearch={setRequestSearch} />}{tab === 'Landing page' && <LandingEditor draft={draft} setDraft={setDraft} save={save} persistDraft={persistDraft} openConfirm={openConfirm} />}{tab === 'Testimonials' && <Testimonials />}</main><nav className="mobile-admin-tabs" aria-label="Admin navigation">{tabs.map(([label, Icon]) => <button className={tab === label ? 'active' : ''} onClick={() => handleTabSelect(label)} key={label}><Icon size={16} /><span>{label}</span></button>)}</nav><ConfirmDialog action={confirmAction} onCancel={closeConfirm} onConfirm={completeConfirm} /></div>
 }
 
 const emptyGalleryItem = () => ({ title: '', location: '', type: 'Residential', price: '', description: '', image: '' })
@@ -105,7 +123,19 @@ function RequestList({ query = '' }) {
   return <div className="request-list">{filteredRequests.map((request) => <div className="request-row" key={request.name}><span className="request-avatar">{request.initials}</span><div><b>{request.name}</b><small>{request.type}</small></div><span className={`status status-${request.status.toLowerCase().replace(' ', '-')}`}>{request.status}</span><small className="request-date">{request.date}</small><ChevronRight size={16} /></div>)}</div> }
 function Requests({ requestSearch }) {
   return <div className="admin-content"><div className="admin-heading"><div><p className="eyebrow">Inbox</p><h1>Consult requests</h1><p className="admin-subtitle">A clear view of the people asking for your expertise.</p></div><button className="button button-dark"><Plus size={17} /> Add request</button></div><div className="filter-bar"><button className="filter-button">All requests <ChevronDown size={15} /></button><button className="filter-button">Newest first <ChevronDown size={15} /></button></div><div className="panel request-panel"><RequestList query={requestSearch} /></div></div> }
-function LandingEditor({ draft, setDraft, save }) {
+function ConfirmDialog({ action, onCancel, onConfirm }) {
+  if (!action) return null
+
+  return <div className="confirm-dialog-backdrop" role="presentation" onMouseDown={onCancel}>
+    <div className="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="confirm-dialog-title" onMouseDown={(event) => event.stopPropagation()}>
+      <p className="eyebrow">Please confirm</p>
+      <h2 id="confirm-dialog-title">{action.title}</h2>
+      <p>{action.message}</p>
+      <div className="confirm-dialog-actions"><button type="button" className="button button-quiet" onClick={onCancel}>Cancel</button><button type="button" className={`button ${action.confirmLabel === 'Delete' ? 'button-danger' : 'button-dark'}`} onClick={onConfirm}>{action.confirmLabel || 'Confirm'}</button></div>
+    </div>
+  </div>
+}
+function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
   const [galleryDraft, setGalleryDraft] = useState(emptyGalleryItem())
   const [heroDraft, setHeroDraft] = useState({ title: '', tagline: '', image: '', active: true })
   const [aboutDraft, setAboutDraft] = useState({ label: 'About us', title: '', text: '', image: '', points: '' })
@@ -170,9 +200,24 @@ function LandingEditor({ draft, setDraft, save }) {
     persistDraft({ ...draft, heroSlides: nextSlides })
   }
 
+  const requestHeroToggle = (index, nextState) => {
+    const slide = draft.heroSlides?.[index]
+    openConfirm({
+      title: nextState ? 'Publish hero slide?' : 'Unpublish hero slide?',
+      message: nextState ? `Publish “${slide?.title || 'this slide'}” to the public landing page?` : `Hide “${slide?.title || 'this slide'}” from the public landing page?`,
+      confirmLabel: nextState ? 'Publish' : 'Unpublish',
+      onConfirm: () => toggleHeroSlide(index, nextState),
+    })
+  }
+
   const deleteHeroSlide = (index) => {
     const nextSlides = (draft.heroSlides || []).filter((_, slideIndex) => slideIndex !== index)
     persistDraft({ ...draft, heroSlides: nextSlides })
+  }
+
+  const deleteGalleryItem = (index) => {
+    const nextGallery = (draft.gallery || []).filter((_, slideIndex) => slideIndex !== index)
+    persistDraft({ ...draft, gallery: nextGallery })
   }
 
   const handleGallerySubmit = (event) => {
@@ -228,6 +273,15 @@ function LandingEditor({ draft, setDraft, save }) {
     persistDraft({ ...draft, aboutSlides: nextSlides })
   }
 
+  const requestDelete = (label, onConfirm) => {
+    openConfirm({
+      title: `Delete ${label}?`,
+      message: `This action will remove this item from the public landing page. Do you want to continue?`,
+      confirmLabel: 'Delete',
+      onConfirm,
+    })
+  }
+
   const handleServiceSubmit = (event) => {
     event.preventDefault()
     if (!serviceDraft.title.trim()) return
@@ -243,6 +297,11 @@ function LandingEditor({ draft, setDraft, save }) {
   const deleteServiceCard = (index) => {
     const nextServices = (draft.services || []).filter((_, serviceIndex) => serviceIndex !== index)
     persistDraft({ ...draft, services: nextServices })
+  }
+
+  const requestDeleteService = (index) => {
+    const item = draft.services?.[index]
+    requestDelete(item?.title || 'service card', () => deleteServiceCard(index))
   }
 
   const handleInvestUpload = async (event) => {
@@ -277,6 +336,11 @@ function LandingEditor({ draft, setDraft, save }) {
     persistDraft({ ...draft, investOpportunities: nextItems })
   }
 
+  const requestDeleteInvest = (index) => {
+    const item = draft.investOpportunities?.[index]
+    requestDelete(item?.title || 'investment opportunity', () => deleteInvestCard(index))
+  }
+
   const handleFaqSubmit = (event) => {
     event.preventDefault()
     if (!faqDraft.question.trim()) return
@@ -291,6 +355,11 @@ function LandingEditor({ draft, setDraft, save }) {
   const deleteFaqCard = (index) => {
     const nextFaqs = (draft.faqs || []).filter((_, faqIndex) => faqIndex !== index)
     persistDraft({ ...draft, faqs: nextFaqs })
+  }
+
+  const requestDeleteFaq = (index) => {
+    const item = draft.faqs?.[index]
+    requestDelete(item?.question || 'FAQ entry', () => deleteFaqCard(index))
   }
 
   const handleContactSubmit = (event) => {
@@ -477,12 +546,7 @@ function LandingEditor({ draft, setDraft, save }) {
 
               <div className="field-group">
                 <label className="field-label">Icon</label>
-                <select className="field-input" value={serviceDraft.icon} onChange={(event) => setServiceDraft({ ...serviceDraft, icon: event.target.value })}>
-                  <option value="BarChart3">Valuation</option>
-                  <option value="Building2">Development</option>
-                  <option value="Home">Property management</option>
-                  <option value="Leaf">Investment analysis</option>
-                </select>
+                <SearchableSelect className="field-input" value={serviceDraft.icon} onChange={(value) => setServiceDraft({ ...serviceDraft, icon: value })} ariaLabel="Service icon" options={[{ value: 'BarChart3', label: 'Valuation' }, { value: 'Building2', label: 'Development' }, { value: 'Home', label: 'Property management' }, { value: 'Leaf', label: 'Investment analysis' }]} />
               </div>
 
               <button type="submit" className="button button-dark">Publish</button>
@@ -660,8 +724,8 @@ function LandingEditor({ draft, setDraft, save }) {
                     <span className={slide.active === false ? 'status muted' : 'status'}>{slide.active === false ? 'Unpublished' : 'Published'}</span>
                   </div>
                   <div className="hero-slide-actions">
-                    <button type="button" className="text-link" onClick={() => toggleHeroSlide(index, slide.active === false)}>{slide.active === false ? 'Publish' : 'Unpublish'}</button>
-                    <button type="button" className="text-link danger" onClick={() => deleteHeroSlide(index)}>Delete</button>
+                    <button type="button" className="text-link" onClick={() => requestHeroToggle(index, slide.active === false)}>{slide.active === false ? 'Publish' : 'Unpublish'}</button>
+                    <button type="button" className="text-link danger" onClick={() => requestDelete('hero slide', () => deleteHeroSlide(index))}>Delete</button>
                   </div>
                 </div>
               ))}
@@ -688,7 +752,7 @@ function LandingEditor({ draft, setDraft, save }) {
                   </div>
                   <div className="hero-slide-actions">
                     <button type="button" className="text-link">Edit</button>
-                    <button type="button" className="text-link danger">Delete</button>
+                    <button type="button" className="text-link danger" onClick={() => requestDelete(item?.title || 'gallery item', () => deleteGalleryItem(index))}>Delete</button>
                   </div>
                 </div>
               ))}
@@ -715,7 +779,7 @@ function LandingEditor({ draft, setDraft, save }) {
                   </div>
                   <div className="hero-slide-actions">
                     <button type="button" className="text-link">Edit</button>
-                    <button type="button" className="text-link danger" onClick={() => deleteServiceCard(index)}>Delete</button>
+                    <button type="button" className="text-link danger" onClick={() => requestDeleteService(index)}>Delete</button>
                   </div>
                 </div>
               ))}
@@ -742,7 +806,7 @@ function LandingEditor({ draft, setDraft, save }) {
                   </div>
                   <div className="hero-slide-actions">
                     <button type="button" className="text-link">Edit</button>
-                    <button type="button" className="text-link danger" onClick={() => deleteFaqCard(index)}>Delete</button>
+                    <button type="button" className="text-link danger" onClick={() => requestDeleteFaq(index)}>Delete</button>
                   </div>
                 </div>
               ))}
@@ -769,7 +833,7 @@ function LandingEditor({ draft, setDraft, save }) {
                   </div>
                   <div className="hero-slide-actions">
                     <button type="button" className="text-link">Edit</button>
-                    <button type="button" className="text-link danger" onClick={() => deleteAboutSlide(index)}>Delete</button>
+                    <button type="button" className="text-link danger" onClick={() => requestDelete(slide?.title || 'about slide', () => deleteAboutSlide(index))}>Delete</button>
                   </div>
                 </div>
               ))}
@@ -796,7 +860,7 @@ function LandingEditor({ draft, setDraft, save }) {
                   </div>
                   <div className="hero-slide-actions">
                     <button type="button" className="text-link">Edit</button>
-                    <button type="button" className="text-link danger" onClick={() => deleteInvestCard(index)}>Delete</button>
+                    <button type="button" className="text-link danger" onClick={() => requestDeleteInvest(index)}>Delete</button>
                   </div>
                 </div>
               ))}

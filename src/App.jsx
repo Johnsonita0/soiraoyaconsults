@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import LandingPage from './pages/LandingPage'
 import AdminPage from './pages/AdminPage'
 import LoginPage from './pages/LoginPage'
 import { seedContent } from './data/content'
 import { supabase } from './lib/supabase'
+import { ToastProvider } from './components/ToastProvider'
 import './css/App.css'
 
 const isAuthenticatedUser = (user) => Boolean(user)
@@ -17,12 +18,14 @@ const mergeContent = (incoming = {}) => ({
   gallery: incoming.gallery || seedContent.gallery,
   investOpportunities: incoming.investOpportunities || seedContent.investOpportunities,
   faqs: incoming.faqs || seedContent.faqs,
+  testimonials: incoming.testimonials || seedContent.testimonials,
   contact: incoming.contact || seedContent.contact,
 })
 
 export default function App() {
   const [route, setRoute] = useState(window.location.pathname)
   const [adminUser, setAdminUser] = useState(null)
+  const contentDirtyRef = useRef(false)
   const [content, setContent] = useState(() => {
     try {
       const stored = JSON.parse(localStorage.getItem('soiraoya-content'))
@@ -36,7 +39,7 @@ export default function App() {
     const loadSavedContent = async () => {
       try {
         const { data, error } = await supabase.from('site_settings').select('key, value').eq('key', 'landing_content').maybeSingle()
-        if (error || !data?.value) return
+        if (error || !data?.value || contentDirtyRef.current) return
         const nextContent = mergeContent(data.value)
         setContent(nextContent)
         localStorage.setItem('soiraoya-content', JSON.stringify(nextContent))
@@ -104,6 +107,29 @@ export default function App() {
     }
   }, [])
 
+  useEffect(() => {
+    let focusedControl = null
+    const isFormControl = (control) => control instanceof HTMLElement && control.matches('input, textarea, select, button.searchable-select-trigger')
+    const centerFocusedControl = () => {
+      if (!focusedControl || !window.matchMedia('(max-width: 900px)').matches) return
+      focusedControl.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    }
+    const bringFocusedControlIntoView = (event) => {
+      if (!window.matchMedia('(max-width: 900px)').matches) return
+      const control = event.target
+      if (!isFormControl(control)) return
+      focusedControl = control
+      window.setTimeout(centerFocusedControl, 250)
+    }
+
+    document.addEventListener('focusin', bringFocusedControlIntoView)
+    window.visualViewport?.addEventListener('resize', centerFocusedControl)
+    return () => {
+      document.removeEventListener('focusin', bringFocusedControlIntoView)
+      window.visualViewport?.removeEventListener('resize', centerFocusedControl)
+    }
+  }, [])
+
   const goTo = (path) => {
     window.history.pushState({}, '', path)
     setRoute(path)
@@ -111,18 +137,14 @@ export default function App() {
   }
 
   const canAccessDashboard = isAuthenticatedUser(adminUser)
-
-  if (route === '/login') {
-    return canAccessDashboard ? <AdminPage content={content} setContent={setContent} goTo={goTo} /> : <LoginPage goTo={goTo} />
+  const updateContent = (nextContent) => {
+    contentDirtyRef.current = true
+    setContent(nextContent)
   }
 
-  if (route === '/dashboard') {
-    return canAccessDashboard ? <AdminPage content={content} setContent={setContent} goTo={goTo} /> : <LoginPage goTo={goTo} />
-  }
+  const page = route === '/login' || route === '/dashboard' || route === '/admin'
+    ? canAccessDashboard ? <AdminPage content={content} setContent={updateContent} goTo={goTo} /> : <LoginPage goTo={goTo} />
+    : <LandingPage content={content} goTo={goTo} />
 
-  if (route === '/admin') {
-    return canAccessDashboard ? <AdminPage content={content} setContent={setContent} goTo={goTo} /> : <LoginPage goTo={goTo} />
-  }
-
-  return <LandingPage content={content} goTo={goTo} />
+  return <ToastProvider>{page}</ToastProvider>
 }

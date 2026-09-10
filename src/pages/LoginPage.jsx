@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import Brand from '../components/Brand'
 import { supabase } from '../lib/supabase'
+import { useToast } from '../components/ToastProvider'
 
 export default function LoginPage({ goTo }) {
+  const { showToast } = useToast()
   const [form, setForm] = useState({ email: '', password: '' })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -34,9 +36,11 @@ export default function LoginPage({ goTo }) {
         throw new Error('Login failed. Please try again.')
       }
 
+      showToast('Welcome back. Opening your dashboard.', 'success')
       goTo('/dashboard')
     } catch (submitError) {
       setError(submitError?.message || 'Login failed. Please try again.')
+      showToast(submitError?.message || 'Login failed. Please try again.', 'error')
     } finally {
       setLoading(false)
     }

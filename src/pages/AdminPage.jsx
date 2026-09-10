@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import Brand from '../components/Brand'
-import { ArrowUpRight, BarChart3, Building2, Check, ChevronDown, ChevronLeft, ChevronRight, ClipboardList, FileText, Home, Leaf, LogOut, MessageSquareQuote, Plus, Search, Sparkles, Upload, Users } from '../components/icons'
+import { ArrowUp, ArrowUpRight, BarChart3, Building2, Check, ChevronDown, ChevronLeft, ChevronRight, ClipboardList, FileText, Home, Leaf, LogOut, MessageSquareQuote, Plus, Search, Sparkles, Upload, Users } from '../components/icons'
 import { seedRequests } from '../data/content'
 import { supabase } from '../lib/supabase'
 import SearchableSelect from '../components/SearchableSelect'
@@ -124,16 +124,22 @@ function RequestList({ query = '' }) {
 function Requests({ requestSearch }) {
   return <div className="admin-content"><div className="admin-heading"><div><p className="eyebrow">Inbox</p><h1>Consult requests</h1><p className="admin-subtitle">A clear view of the people asking for your expertise.</p></div><button className="button button-dark"><Plus size={17} /> Add request</button></div><div className="filter-bar"><button className="filter-button">All requests <ChevronDown size={15} /></button><button className="filter-button">Newest first <ChevronDown size={15} /></button></div><div className="panel request-panel"><RequestList query={requestSearch} /></div></div> }
 function ConfirmDialog({ action, onCancel, onConfirm }) {
-  if (!action) return null
+  const [showBackToTop, setShowBackToTop] = useState(false)
 
-  return <div className="confirm-dialog-backdrop" role="presentation" onMouseDown={onCancel}>
+  useEffect(() => {
+    const onScroll = () => setShowBackToTop(window.scrollY > 420)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  return <>{showBackToTop && <button type="button" className="admin-back-to-top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Back to top" title="Back to top"><ArrowUp size={19} /></button>}{action && <div className="confirm-dialog-backdrop" role="presentation" onMouseDown={onCancel}>
     <div className="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="confirm-dialog-title" onMouseDown={(event) => event.stopPropagation()}>
       <p className="eyebrow">Please confirm</p>
       <h2 id="confirm-dialog-title">{action.title}</h2>
       <p>{action.message}</p>
       <div className="confirm-dialog-actions"><button type="button" className="button button-quiet" onClick={onCancel}>Cancel</button><button type="button" className={`button ${action.confirmLabel === 'Delete' ? 'button-danger' : 'button-dark'}`} onClick={onConfirm}>{action.confirmLabel || 'Confirm'}</button></div>
     </div>
-  </div>
+  </div>}</>
 }
 function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
   const [galleryDraft, setGalleryDraft] = useState(emptyGalleryItem())

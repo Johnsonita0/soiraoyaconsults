@@ -100,6 +100,7 @@ drop policy if exists "Admins can manage storage files" on public.files;
 drop policy if exists "Public can submit testimonials" on public.testimonials;
 drop policy if exists "Admins can read testimonials" on public.testimonials;
 drop policy if exists "Admins can manage testimonials" on public.testimonials;
+drop policy if exists "Admins can delete testimonials" on public.testimonials;
 drop policy if exists "Public read access to public images" on storage.objects;
 drop policy if exists "Admin write access to public images" on storage.objects;
 drop policy if exists "Admin update access to public images" on storage.objects;

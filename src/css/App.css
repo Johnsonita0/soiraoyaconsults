@@ -1005,7 +1005,10 @@ input, textarea, select, button.searchable-select-trigger { scroll-margin-block:
 .confirm-dialog-actions { display:flex; justify-content:flex-end; gap:10px; margin-top:28px; }
 .confirm-dialog-actions .button-quiet { color:var(--ink); background:transparent; border:1px solid var(--line); }
 .confirm-dialog-actions .button-danger { color:#fff; background:#a4453a; }
+.admin-back-to-top { position:fixed; right:26px; bottom:26px; z-index:45; display:grid; place-items:center; width:44px; height:44px; border:0; border-radius:50%; color:#fff; background:var(--ink); box-shadow:0 10px 24px rgba(6,20,52,.22); cursor:pointer; transition:transform .2s, background .2s; }
+.admin-back-to-top:hover { transform:translateY(-4px); background:var(--green); }
 @media (max-width:650px) { .confirm-dialog { padding:27px 22px; }.confirm-dialog-actions { flex-direction:column-reverse; }.confirm-dialog-actions .button { width:100%; } }
+@media (max-width:800px) { .admin-back-to-top { right:18px; bottom:78px; width:42px; height:42px; } }
 .toast-region { position:fixed; z-index:100; top:22px; right:22px; display:grid; gap:10px; width:min(360px, calc(100vw - 44px)); pointer-events:none; }
 .toast { display:grid; grid-template-columns:28px 1fr 24px; align-items:center; gap:10px; padding:13px 14px; color:#fff; background:#1e497f; border-left:4px solid #8bb7e8; box-shadow:0 14px 30px rgba(6,20,52,.22); pointer-events:auto; animation:toast-in .25s ease both; }
 .toast>span { display:grid; place-items:center; width:24px; height:24px; color:#1e497f; background:#d9ebff; border-radius:50%; font-weight:700; font-size:13px; }

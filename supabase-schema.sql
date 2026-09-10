@@ -59,11 +59,24 @@ create table if not exists public.files (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.testimonials (
+  id uuid primary key default uuid_generate_v4(),
+  name text not null,
+  email text,
+  role text,
+  quote text not null,
+  rating int not null default 5 check (rating between 1 and 5),
+  status text not null default 'pending' check (status in ('pending', 'published')), 
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 alter table public.site_settings enable row level security;
 alter table public.hero_slides enable row level security;
 alter table public.gallery_items enable row level security;
 alter table public.contact_messages enable row level security;
 alter table public.files enable row level security;
+alter table public.testimonials enable row level security;
 
 create or replace function public.is_admin_user()
 returns boolean
@@ -84,6 +97,9 @@ drop policy if exists "Admins can write gallery" on public.gallery_items;
 drop policy if exists "Public can submit contacts" on public.contact_messages;
 drop policy if exists "Admins can read contacts" on public.contact_messages;
 drop policy if exists "Admins can manage storage files" on public.files;
+drop policy if exists "Public can submit testimonials" on public.testimonials;
+drop policy if exists "Admins can read testimonials" on public.testimonials;
+drop policy if exists "Admins can manage testimonials" on public.testimonials;
 drop policy if exists "Public read access to public images" on storage.objects;
 drop policy if exists "Admin write access to public images" on storage.objects;
 drop policy if exists "Admin update access to public images" on storage.objects;
@@ -126,6 +142,19 @@ for select using (public.is_admin_user());
 create policy "Admins can manage storage files" on public.files
 for all using (public.is_admin_user())
 with check (public.is_admin_user());
+
+create policy "Public can submit testimonials" on public.testimonials
+for insert with check (status = 'pending');
+
+create policy "Admins can read testimonials" on public.testimonials
+for select using (public.is_admin_user());
+
+create policy "Admins can manage testimonials" on public.testimonials
+for update using (public.is_admin_user())
+with check (public.is_admin_user());
+
+create policy "Admins can delete testimonials" on public.testimonials
+for delete using (public.is_admin_user());
 
 create or replace function public.handle_updated_at()
 returns trigger

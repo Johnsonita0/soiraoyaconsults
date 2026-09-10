@@ -1015,5 +1015,20 @@ input, textarea, select, button.searchable-select-trigger { scroll-margin-block:
 .toast-success>span { color:#176044; background:#d8f5e5; }
 .toast-error { background:#963d35; border-left-color:#f1aaa2; }
 .toast-error>span { color:#963d35; background:#ffe0dc; }
+.testimonial-admin-tabs { margin:18px 0 22px; }
+.testimonial-admin-tabs .nav-count { display:inline-grid; place-items:center; min-width:18px; height:18px; margin-left:5px; padding:0 4px; border-radius:999px; color:#fff; background:var(--red); font-size:10px; }
+.testimonial-admin-form { max-width:720px; }
+.testimonial-admin-form .content-form-card { display:grid; gap:18px; }
+.testimonial-admin-list { display:grid; gap:14px; }
+.testimonial-review-card { padding:22px; }
+.testimonial-review-card.is-published { border-left:3px solid var(--green); }
+.testimonial-review-meta { display:flex; align-items:center; gap:12px; }
+.testimonial-review-meta h3 { margin:0 0 3px; font:500 20px var(--serif); color:var(--ink); }
+.testimonial-review-meta small { color:var(--muted); font-size:11px; }
+.testimonial-review-meta .status { margin-left:auto; }
+.testimonial-review-card blockquote { max-width:760px; margin:18px 0; color:var(--ink); font:500 20px/1.45 var(--serif); }
+.testimonial-review-card .hero-slide-actions { justify-content:flex-end; }
+.testimonial-preview-dialog blockquote { margin:22px 0 28px; color:var(--ink); font:500 24px/1.4 var(--serif); }
+@media (max-width:650px) { .testimonial-review-meta { align-items:flex-start; flex-wrap:wrap; }.testimonial-review-meta .status { width:100%; margin-left:50px; }.testimonial-review-card blockquote { font-size:17px; }.testimonial-review-card .hero-slide-actions { justify-content:flex-start; flex-wrap:wrap; }.testimonial-admin-tabs { overflow:auto; white-space:nowrap; } }
 @keyframes toast-in { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
 @media (max-width:650px) { .toast-region { top:12px; right:12px; width:min(292px, calc(100vw - 24px)); gap:7px; }.toast { grid-template-columns:22px 1fr 20px; gap:7px; padding:9px 10px; border-left-width:3px; }.toast>span { width:20px; height:20px; font-size:11px; }.toast p { font-size:11px; line-height:1.3; }.toast button { padding:0; font-size:17px; } }

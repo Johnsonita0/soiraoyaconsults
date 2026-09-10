@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { ArrowUpRight, Check } from './icons'
 import SearchableSelect from './SearchableSelect'
 import { useToast } from './ToastProvider'
+import { supabase } from '../lib/supabase'
 
 const emptyForm = { name: '', email: '', role: '', rating: '5', testimonial: '' }
 
@@ -33,6 +34,16 @@ export default function TestimonialsSection({ testimonials = [], contactEmail })
     setSubmitError('')
 
     try {
+      const { error: saveError } = await supabase.from('testimonials').insert({
+        name: form.name.trim(),
+        email: form.email.trim() || null,
+        role: form.role.trim() || null,
+        quote: form.testimonial.trim(),
+        rating: Number(form.rating),
+        status: 'pending',
+      })
+      if (saveError) throw saveError
+
       const response = await fetch('/api/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

@@ -11,8 +11,159 @@ export default function AdminPage({ content, setContent, goTo }) {
   return <div className="admin-shell"><aside className="admin-sidebar"><Brand goTo={goTo} /><div className="workspace-label">Workspace <ChevronDown size={14} /></div><div className="admin-nav">{tabs.map(([label, Icon]) => <button className={tab === label ? 'active' : ''} onClick={() => setTab(label)} key={label}><Icon size={17} />{label}{label === 'Consult requests' && <b className="nav-count">3</b>}</button>)}</div><div className="sidebar-bottom"><div className="profile"><span>OI</span><div><b>Olusegun Iraoya</b><small>Principal partner</small></div><ChevronDown size={14} /></div><button onClick={() => goTo('/')}><ArrowUpRight size={15} /> View public site</button></div></aside><main className="admin-main"><header className="admin-topbar"><div className="mobile-admin-brand"><Brand goTo={goTo} /></div><div className="admin-breadcrumb">S.O.Iraoya / <b>{tab}</b></div><div className="admin-actions"><button className="icon-button" aria-label="Search"><Search size={18} /></button><span className="notification-dot"></span><span className="avatar">OI</span></div></header>{tab === 'Overview' && <Overview setTab={setTab} />}{tab === 'Consult requests' && <Requests />}{tab === 'Landing page' && <LandingEditor draft={draft} setDraft={setDraft} save={save} />}{tab === 'Testimonials' && <Testimonials />}</main></div>
 }
 
+const emptyGalleryItem = () => ({ title: '', location: '', type: 'Residential', price: '', description: '', image: '' })
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(String(reader.result))
+    reader.onerror = () => reject(new Error('Image upload failed'))
+    reader.readAsDataURL(file)
+  })
+}
+
 function Overview({ setTab }) { return <div className="admin-content"><div className="admin-heading"><div><p className="eyebrow">Wednesday, 09 September 2026</p><h1>Good morning, Olusegun.</h1><p className="admin-subtitle">Here is what is happening across your advisory practice.</p></div><button className="button button-dark" onClick={() => setTab('Landing page')}><Plus size={17} /> New update</button></div><div className="stat-grid"><div><span>Open requests</span><b>03</b><small className="positive">+2 this week</small></div><div><span>Published stories</span><b>08</b><small>Across your landing page</small></div><div><span>Profile views</span><b>1,284</b><small className="positive">+18.4% this month</small></div></div><div className="dashboard-grid"><div className="panel"><div className="panel-head"><div><p className="eyebrow">Needs your attention</p><h2>Recent consult requests</h2></div><button className="quiet-button" onClick={() => setTab('Consult requests')}>View all <ArrowUpRight size={14} /></button></div><RequestList /></div><div className="panel activity-panel"><div className="panel-head"><div><p className="eyebrow">Live preview</p><h2>Landing page health</h2></div><span className="live-badge"><span></span> Live</span></div><div className="health-score"><div className="score-ring"><b>92</b><small>/100</small></div><div><b>Looking good</b><p>Your public site is current and performing well.</p></div></div><div className="health-row"><span><Check size={14} /> Hero content</span><span><Check size={14} /> Services</span><span><Check size={14} /> Contact flow</span></div></div></div></div> }
 function RequestList() { return <div className="request-list">{seedRequests.map((request) => <div className="request-row" key={request.name}><span className="request-avatar">{request.initials}</span><div><b>{request.name}</b><small>{request.type}</small></div><span className={`status status-${request.status.toLowerCase().replace(' ', '-')}`}>{request.status}</span><small className="request-date">{request.date}</small><ChevronRight size={16} /></div>)}</div> }
 function Requests() { return <div className="admin-content"><div className="admin-heading"><div><p className="eyebrow">Inbox</p><h1>Consult requests</h1><p className="admin-subtitle">A clear view of the people asking for your expertise.</p></div><button className="button button-dark"><Plus size={17} /> Add request</button></div><div className="filter-bar"><div className="search-field"><Search size={16} /><input placeholder="Search requests" /></div><button className="filter-button">All requests <ChevronDown size={15} /></button><button className="filter-button">Newest first <ChevronDown size={15} /></button></div><div className="panel request-panel"><RequestList /></div></div> }
-function LandingEditor({ draft, setDraft, save }) { return <div className="admin-content"><div className="admin-heading"><div><p className="eyebrow">Content studio</p><h1>Landing page</h1><p className="admin-subtitle">Shape the story your clients meet first.</p></div><button className="button button-dark" onClick={save}><Check size={17} /> Save changes</button></div><div className="editor-layout"><div className="panel editor-panel"><div className="panel-head"><div><p className="eyebrow">Primary story</p><h2>Hero section</h2></div><span className="draft-badge">Draft</span></div><label>Headline<textarea rows="2" value={draft.heroTitle} onChange={(event) => setDraft({ ...draft, heroTitle: event.target.value })} /></label><label>Supporting copy<textarea rows="4" value={draft.heroText} onChange={(event) => setDraft({ ...draft, heroText: event.target.value })} /></label><div className="editor-note"><Sparkles size={17} /><span>Keep the headline focused on the client outcome. Your public site updates when you save.</span></div></div><div className="panel preview-panel"><div className="panel-head"><div><p className="eyebrow">Preview</p><h2>Hero card</h2></div><span className="live-badge"><span></span> Public</span></div><div className="mini-preview"><p className="eyebrow">Independent real-estate advisory <span>Since 2002</span></p><h3>{draft.heroTitle}</h3><p>{draft.heroText}</p><div className="mini-image"></div></div></div></div></div> }
+function LandingEditor({ draft, setDraft, save }) {
+  const [galleryDraft, setGalleryDraft] = useState(emptyGalleryItem())
+
+  const handleHeroUpload = async (event) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+    const image = await readFileAsDataUrl(file)
+    const nextSlides = (draft.heroSlides || []).length
+      ? draft.heroSlides.map((slide, index) => (index === 0 ? { ...slide, image, fallback: image } : slide))
+      : [{ image, fallback: image, title: draft.heroTitle, tagline: 'Perspective changes everything.' }]
+    setDraft({ ...draft, heroSlides: nextSlides })
+  }
+
+  const handleGallerySubmit = (event) => {
+    event.preventDefault()
+    if (!galleryDraft.title.trim()) return
+    const prepared = { ...galleryDraft, image: galleryDraft.image || '/image/hero/hero-1.jpg' }
+    setDraft({ ...draft, gallery: [prepared, ...(draft.gallery || [])] })
+    setGalleryDraft(emptyGalleryItem())
+  }
+
+  const onGalleryImage = async (event) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+    const image = await readFileAsDataUrl(file)
+    setGalleryDraft((current) => ({ ...current, image }))
+  }
+
+  return (
+    <div className="admin-content">
+      <div className="admin-heading">
+        <div>
+          <p className="eyebrow">Content studio</p>
+          <h1>Landing page</h1>
+          <p className="admin-subtitle">Shape the story your clients meet first.</p>
+        </div>
+        <button className="button button-dark" onClick={save}><Check size={17} /> Save changes</button>
+      </div>
+
+      <div className="editor-layout">
+        <div className="panel editor-panel">
+          <div className="panel-head">
+            <div>
+              <p className="eyebrow">Primary story</p>
+              <h2>Hero section</h2>
+            </div>
+            <span className="draft-badge">Draft</span>
+          </div>
+
+          <label>
+            Headline
+            <textarea
+              rows="2"
+              value={draft.heroTitle}
+              onChange={(event) => {
+                const value = event.target.value
+                const nextSlides = (draft.heroSlides || []).length
+                  ? draft.heroSlides.map((slide, index) => (index === 0 ? { ...slide, title: value } : slide))
+                  : [{ image: '/image/hero/hero-1.jpg', fallback: '/image/hero/hero-1.jpg', title: value, tagline: 'Perspective changes everything.' }]
+                setDraft({ ...draft, heroTitle: value, heroSlides: nextSlides })
+              }}
+            />
+          </label>
+
+          <label>
+            Supporting copy
+            <textarea rows="4" value={draft.heroText} onChange={(event) => setDraft({ ...draft, heroText: event.target.value })} />
+          </label>
+
+          <label className="upload-label">
+            Hero image upload
+            <input type="file" accept="image/*" onChange={handleHeroUpload} />
+          </label>
+
+          <div className="editor-note">
+            <Sparkles size={17} />
+            <span>Keep the headline focused on the client outcome. Your public site updates when you save.</span>
+          </div>
+        </div>
+
+        <div className="panel preview-panel">
+          <div className="panel-head">
+            <div>
+              <p className="eyebrow">Preview</p>
+              <h2>Hero card</h2>
+            </div>
+            <span className="live-badge"><span></span> Public</span>
+          </div>
+
+          <div className="mini-preview">
+            <p className="eyebrow">Independent real-estate advisory <span>Since 2002</span></p>
+            <h3>{draft.heroTitle}</h3>
+            <p>{draft.heroText}</p>
+            <div className="mini-image" style={{ backgroundImage: `url(${(draft.heroSlides && draft.heroSlides[0]?.image) || '/image/hero/hero-1.jpg'})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+          </div>
+        </div>
+
+        <div className="panel editor-panel gallery-panel">
+          <div className="panel-head">
+            <div>
+              <p className="eyebrow">Portfolio</p>
+              <h2>Add gallery item</h2>
+            </div>
+            <span className="draft-badge">New</span>
+          </div>
+
+          <form onSubmit={handleGallerySubmit} className="gallery-form">
+            <label>
+              Title
+              <input value={galleryDraft.title} onChange={(event) => setGalleryDraft({ ...galleryDraft, title: event.target.value })} placeholder="Ikoyi Garden Residence" />
+            </label>
+            <label>
+              Location
+              <input value={galleryDraft.location} onChange={(event) => setGalleryDraft({ ...galleryDraft, location: event.target.value })} placeholder="Ikoyi, Lagos" />
+            </label>
+            <label>
+              Type
+              <input value={galleryDraft.type} onChange={(event) => setGalleryDraft({ ...galleryDraft, type: event.target.value })} placeholder="Residential" />
+            </label>
+            <label>
+              Price
+              <input value={galleryDraft.price} onChange={(event) => setGalleryDraft({ ...galleryDraft, price: event.target.value })} placeholder="₦185m" />
+            </label>
+            <label>
+              Description
+              <textarea rows="3" value={galleryDraft.description} onChange={(event) => setGalleryDraft({ ...galleryDraft, description: event.target.value })} placeholder="A warm, well-located asset with strong appeal..." />
+            </label>
+            <label className="upload-label">
+              Gallery image
+              <input type="file" accept="image/*" onChange={onGalleryImage} />
+            </label>
+            {galleryDraft.image && (
+              <div className="gallery-image-preview" style={{ backgroundImage: `url(${galleryDraft.image})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+            )}
+            <button type="submit" className="button button-dark">Publish to gallery</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  )
+}
 function Testimonials() { return <div className="admin-content"><div className="admin-heading"><div><p className="eyebrow">Social proof</p><h1>Testimonials</h1><p className="admin-subtitle">Build confidence with the voices of your clients.</p></div><button className="button button-dark"><Plus size={17} /> Add testimonial</button></div><div className="testimonial-grid"><article className="testimonial-card"><MessageSquareQuote size={22} /><p>“The team gave us the confidence to make a complex acquisition with clear eyes and a clear plan.”</p><b>Private investor</b><small>Published · Aug 2026</small></article><article className="testimonial-card empty-testimonial"><Plus size={23} /><h3>Add a client voice</h3><p>Testimonials you approve will appear on the public site.</p><button className="text-link">Create testimonial <ArrowUpRight size={15} /></button></article></div></div> }

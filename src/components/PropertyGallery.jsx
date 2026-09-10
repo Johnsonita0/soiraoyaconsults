@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ArrowUpRight, X } from './icons'
 
-const properties = [
+const defaultProperties = [
   ['Ikoyi Garden Residence', 'Ikoyi, Lagos', 'Residential', '₦185m', 'A considered family residence with generous light, mature landscaping, and quiet access to the city.', 'hero-1.jpg'],
   ['Victoria Island Offices', 'Victoria Island, Lagos', 'Commercial', '₦420m', 'A flexible office asset positioned for businesses looking for a central Lagos address.', 'hero-4.jpg'],
   ['Lekki Waterside Villa', 'Lekki Phase 1, Lagos', 'Residential', '₦265m', 'Contemporary waterfront living with adaptable spaces for family life and entertaining.', 'hero-2.jpg'],
@@ -19,14 +19,15 @@ const properties = [
   ['Ikoyi Investment Block', 'Ikoyi, Lagos', 'Investment', '₦760m', 'A rare investment opportunity with a compelling location and multiple value-creation routes.', 'hero-4.jpg'],
 ].map(([title, location, type, price, description, image]) => ({ title, location, type, price, description, image: `/image/hero/${image}` }))
 
-export default function PropertyGallery({ onContact }) {
+export default function PropertyGallery({ onContact, properties = defaultProperties }) {
   const [selectedProperty, setSelectedProperty] = useState(null)
   const [marqueeDirection, setMarqueeDirection] = useState('normal')
+  const galleryItems = properties.length ? properties : defaultProperties
 
   return <>
     <section id="properties" className="property-section">
       <div className="property-section-head"><div><p className="eyebrow">Selected opportunities</p><h2>Property with<br /><em>potential.</em></h2></div><p>Explore a considered selection of residential, commercial, land, and development opportunities.</p></div>
-      <div className="property-viewport"><div className="property-controls"><button onClick={() => setMarqueeDirection('reverse')} aria-label="Move properties right">←</button><button onClick={() => setMarqueeDirection('normal')} aria-label="Move properties left">→</button></div><div className="property-track" style={{ animationDirection: marqueeDirection }}>{[...properties, ...properties].map((property, index) => <button className="property-card" key={`${property.title}-${index}`} onClick={() => setSelectedProperty(property)}><img src={property.image} alt={property.title} /><div className="property-card-body"><span>{property.type}</span><h3>{property.title}</h3><p>{property.location}</p><b>{property.price}</b><ArrowUpRight size={17} /></div></button>)}</div></div>
+      <div className="property-viewport"><div className="property-controls"><button onClick={() => setMarqueeDirection('reverse')} aria-label="Move properties right">←</button><button onClick={() => setMarqueeDirection('normal')} aria-label="Move properties left">→</button></div><div className="property-track" style={{ animationDirection: marqueeDirection }}>{[...galleryItems, ...galleryItems].map((property, index) => <button className="property-card" key={`${property.title}-${index}`} onClick={() => setSelectedProperty(property)}><img src={property.image} alt={property.title} /><div className="property-card-body"><span>{property.type}</span><h3>{property.title}</h3><p>{property.location}</p><b>{property.price}</b><ArrowUpRight size={17} /></div></button>)}</div></div>
     </section>
     {selectedProperty && <div className="property-modal-backdrop" onClick={() => setSelectedProperty(null)}><section className="property-modal" role="dialog" aria-modal="true" onClick={(event) => event.stopPropagation()}><button className="property-modal-close" onClick={() => setSelectedProperty(null)} aria-label="Close property details"><X size={20} /></button><img src={selectedProperty.image} alt={selectedProperty.title} /><div className="property-modal-body"><p className="eyebrow">{selectedProperty.type} · {selectedProperty.location}</p><h2>{selectedProperty.title}</h2><b className="property-modal-price">{selectedProperty.price}</b><p>{selectedProperty.description}</p><button className="button button-dark" onClick={() => { setSelectedProperty(null); onContact() }}>Contact us about this property <ArrowUpRight size={17} /></button></div></section></div>}
   </>

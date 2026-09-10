@@ -871,6 +871,30 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
             <div className="panel-head">
               <div>
                 <p className="eyebrow">Published</p>
+                <h2>Testimonial posts</h2>
+              </div>
+              <span className="live-badge"><span></span> Live</span>
+            </div>
+
+            <div className="hero-slide-list">
+              {((draft.testimonials || []).filter((testimonial) => testimonial.status !== 'pending').length === 0) ? <p className="empty-list-note">No published testimonials yet.</p> : (draft.testimonials || []).filter((testimonial) => testimonial.status !== 'pending').map((testimonial, index) => (
+                <div className="hero-slide-row testimonial-published-row" key={`${testimonial.name || 'testimonial'}-${testimonial.id || index}`}>
+                  <div className="hero-slide-thumb service-list-icon">{testimonial.name?.split(' ').map((part) => part[0]).join('').slice(0, 2) || 'TC'}</div>
+                  <div className="hero-slide-meta">
+                    <b>{testimonial.name || 'Anonymous client'}</b>
+                    <small>{testimonial.role || 'Client'} · {testimonial.rating || 5}/5</small>
+                    <small>{testimonial.quote || 'No testimonial text yet.'}</small>
+                    <span className="status">Published</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="panel editor-panel">
+            <div className="panel-head">
+              <div>
+                <p className="eyebrow">Published</p>
                 <h2>Contact details</h2>
               </div>
               <span className="live-badge"><span></span> Live</span>

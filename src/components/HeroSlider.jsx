@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { ShieldCheck } from './icons'
 
 export default function HeroSlider({ slides, content, onContact }) {
-  const safeSlides = Array.isArray(slides) && slides.length ? slides : [{ image: '/image/hero/hero-1.jpg', fallback: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1600&q=88', title: content.heroTitle, tagline: 'Perspective changes everything.' }]
+  const activeSlides = Array.isArray(slides) ? slides.filter((slide) => slide.active !== false) : []
+  const safeSlides = activeSlides.length ? activeSlides : [{ image: '/image/hero/hero-1.jpg', fallback: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1600&q=88', title: content.heroTitle, tagline: 'Perspective changes everything.', active: true }]
   const [activeIndex, setActiveIndex] = useState(0)
   const [imageSources, setImageSources] = useState(() => safeSlides.map((slide) => slide.image))
   const activeSlide = safeSlides[activeIndex] || safeSlides[0]

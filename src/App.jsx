@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import LandingPage from './pages/LandingPage'
 import AdminPage from './pages/AdminPage'
+import LoginPage from './pages/LoginPage'
 import { seedContent } from './data/content'
 import { supabase } from './lib/supabase'
 import './css/App.css'
@@ -10,11 +11,15 @@ const ADMIN_USER_ID = '8b4f5926-c6ec-43a0-aa34-7277a2732577'
 
 const isAllowedAdminUser = (user) => {
   if (!user) return false
-  return user.id === ADMIN_USER_ID || user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()
+
+  const emailMatches = user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()
+  const idMatches = user.id === ADMIN_USER_ID
+
+  return emailMatches && idMatches
 }
 
 export default function App() {
-  const [isAdmin, setIsAdmin] = useState(window.location.pathname.startsWith('/admin'))
+  const [route, setRoute] = useState(window.location.pathname)
   const [adminUser, setAdminUser] = useState(null)
   const [content, setContent] = useState(() => {
     try {
@@ -26,28 +31,55 @@ export default function App() {
   })
 
   useEffect(() => {
-    const syncAdminAccess = async () => {
+    const syncUser = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       setAdminUser(user)
-      if (window.location.pathname.startsWith('/admin') && !isAllowedAdminUser(user)) {
-        window.history.replaceState({}, '', '/')
-        setIsAdmin(false)
+
+      const path = window.location.pathname
+      if (path === '/admin' || path === '/dashboard') {
+        if (!isAllowedAdminUser(user)) {
+          window.history.replaceState({}, '', '/login')
+          setRoute('/login')
+          return
+        }
+
+        window.history.replaceState({}, '', '/dashboard')
+        setRoute('/dashboard')
+        return
+      }
+
+      if (path === '/login' && isAllowedAdminUser(user)) {
+        window.history.replaceState({}, '', '/dashboard')
+        setRoute('/dashboard')
       }
     }
 
-    syncAdminAccess()
+    syncUser()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       const user = session?.user ?? null
       setAdminUser(user)
 
-      if (window.location.pathname.startsWith('/admin') && !isAllowedAdminUser(user)) {
-        window.history.replaceState({}, '', '/')
-        setIsAdmin(false)
+      const path = window.location.pathname
+      if (path === '/admin' || path === '/dashboard') {
+        if (!isAllowedAdminUser(user)) {
+          window.history.replaceState({}, '', '/login')
+          setRoute('/login')
+          return
+        }
+
+        window.history.replaceState({}, '', '/dashboard')
+        setRoute('/dashboard')
+        return
+      }
+
+      if (path === '/login' && isAllowedAdminUser(user)) {
+        window.history.replaceState({}, '', '/dashboard')
+        setRoute('/dashboard')
       }
     })
 
-    const onPopState = () => setIsAdmin(window.location.pathname.startsWith('/admin'))
+    const onPopState = () => setRoute(window.location.pathname)
     window.addEventListener('popstate', onPopState)
 
     return () => {
@@ -58,11 +90,23 @@ export default function App() {
 
   const goTo = (path) => {
     window.history.pushState({}, '', path)
-    setIsAdmin(path.startsWith('/admin'))
+    setRoute(path)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  const canAccessAdmin = isAllowedAdminUser(adminUser)
+  const canAccessDashboard = isAllowedAdminUser(adminUser)
 
-  return isAdmin && canAccessAdmin ? <AdminPage content={content} setContent={setContent} goTo={goTo} /> : <LandingPage content={content} goTo={goTo} />
+  if (route === '/login') {
+    return canAccessDashboard ? <AdminPage content={content} setContent={setContent} goTo={goTo} /> : <LoginPage goTo={goTo} />
+  }
+
+  if (route === '/dashboard') {
+    return canAccessDashboard ? <AdminPage content={content} setContent={setContent} goTo={goTo} /> : <LoginPage goTo={goTo} />
+  }
+
+  if (route === '/admin') {
+    return canAccessDashboard ? <AdminPage content={content} setContent={setContent} goTo={goTo} /> : <LoginPage goTo={goTo} />
+  }
+
+  return <LandingPage content={content} goTo={goTo} />
 }

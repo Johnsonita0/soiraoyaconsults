@@ -1,6 +1,6 @@
--- Security: allow only the configured admin user to reach admin functionality.
--- This assumes the admin is authenticated in Supabase Auth with id = '8b4f5926-c6ec-43a0-aa34-7277a2732577'
--- and/or email = 'admin@soiraoyaconsulting.com.ng'.
+-- Comprehensive Supabase schema for S.O. Iraoya
+-- Exact admin-only access: admin@soiraoyaconsulting.com.ng
+-- Exact user id: 8b4f5926-c6ec-43a0-aa34-7277a2732577
 
 create extension if not exists "uuid-ossp";
 
@@ -65,80 +65,77 @@ alter table public.gallery_items enable row level security;
 alter table public.contact_messages enable row level security;
 alter table public.files enable row level security;
 
-create policy "Admins can read site settings" on public.site_settings
-for select using (
-  auth.uid() = '8b4f5926-c6ec-43a0-aa34-7277a2732577'::uuid
-  or lower(auth.email()) = 'admin@soiraoyaconsulting.com.ng'
-);
+create or replace function public.is_admin_user()
+returns boolean
+language sql
+stable
+as $$
+  select auth.uid() = '8b4f5926-c6ec-43a0-aa34-7277a2732577'::uuid
+    and lower(auth.email()) = 'admin@soiraoyaconsulting.com.ng';
+$$;
 
-create policy "Admins can update site settings" on public.site_settings
-for update using (
-  auth.uid() = '8b4f5926-c6ec-43a0-aa34-7277a2732577'::uuid
-  or lower(auth.email()) = 'admin@soiraoyaconsulting.com.ng'
-) with check (
-  auth.uid() = '8b4f5926-c6ec-43a0-aa34-7277a2732577'::uuid
-  or lower(auth.email()) = 'admin@soiraoyaconsulting.com.ng'
-);
+drop policy if exists "Admins can read site settings" on public.site_settings;
+drop policy if exists "Admins can insert site settings" on public.site_settings;
+drop policy if exists "Admins can update site settings" on public.site_settings;
+drop policy if exists "Public can read published hero slides" on public.hero_slides;
+drop policy if exists "Admins can write hero slides" on public.hero_slides;
+drop policy if exists "Public can read published gallery" on public.gallery_items;
+drop policy if exists "Admins can write gallery" on public.gallery_items;
+drop policy if exists "Public can submit contacts" on public.contact_messages;
+drop policy if exists "Admins can read contacts" on public.contact_messages;
+drop policy if exists "Admins can manage storage files" on public.files;
+drop policy if exists "Public read access to public images" on storage.objects;
+drop policy if exists "Admin write access to public images" on storage.objects;
+drop policy if exists "Admin update access to public images" on storage.objects;
+drop policy if exists "Admin delete access to public images" on storage.objects;
+
+create policy "Admins can read site settings" on public.site_settings
+for select using (public.is_admin_user());
 
 create policy "Admins can insert site settings" on public.site_settings
-for insert with check (
-  auth.uid() = '8b4f5926-c6ec-43a0-aa34-7277a2732577'::uuid
-  or lower(auth.email()) = 'admin@soiraoyaconsulting.com.ng'
-);
+for insert with check (public.is_admin_user());
 
-create policy "Admins can read hero slides" on public.hero_slides
-for select using (
-  is_active = true
-  or auth.uid() = '8b4f5926-c6ec-43a0-aa34-7277a2732577'::uuid
-  or lower(auth.email()) = 'admin@soiraoyaconsulting.com.ng'
-);
+create policy "Admins can update site settings" on public.site_settings
+for update using (public.is_admin_user())
+with check (public.is_admin_user());
+
+create policy "Public can read published hero slides" on public.hero_slides
+for select using (is_active = true or public.is_admin_user());
 
 create policy "Admins can write hero slides" on public.hero_slides
-for all using (
-  auth.uid() = '8b4f5926-c6ec-43a0-aa34-7277a2732577'::uuid
-  or lower(auth.email()) = 'admin@soiraoyaconsulting.com.ng'
-) with check (
-  auth.uid() = '8b4f5926-c6ec-43a0-aa34-7277a2732577'::uuid
-  or lower(auth.email()) = 'admin@soiraoyaconsulting.com.ng'
-);
+for all using (public.is_admin_user())
+with check (public.is_admin_user());
 
 create policy "Public can read published gallery" on public.gallery_items
 for select using (is_active = true);
 
 create policy "Admins can write gallery" on public.gallery_items
-for all using (
-  auth.uid() = '8b4f5926-c6ec-43a0-aa34-7277a2732577'::uuid
-  or lower(auth.email()) = 'admin@soiraoyaconsulting.com.ng'
-) with check (
-  auth.uid() = '8b4f5926-c6ec-43a0-aa34-7277a2732577'::uuid
-  or lower(auth.email()) = 'admin@soiraoyaconsulting.com.ng'
-);
+for all using (public.is_admin_user())
+with check (public.is_admin_user());
 
 create policy "Public can submit contacts" on public.contact_messages
 for insert with check (true);
 
 create policy "Admins can read contacts" on public.contact_messages
-for select using (
-  auth.uid() = '8b4f5926-c6ec-43a0-aa34-7277a2732577'::uuid
-  or lower(auth.email()) = 'admin@soiraoyaconsulting.com.ng'
-);
+for select using (public.is_admin_user());
 
 create policy "Admins can manage storage files" on public.files
-for all using (
-  auth.uid() = '8b4f5926-c6ec-43a0-aa34-7277a2732577'::uuid
-  or lower(auth.email()) = 'admin@soiraoyaconsulting.com.ng'
-) with check (
-  auth.uid() = '8b4f5926-c6ec-43a0-aa34-7277a2732577'::uuid
-  or lower(auth.email()) = 'admin@soiraoyaconsulting.com.ng'
-);
+for all using (public.is_admin_user())
+with check (public.is_admin_user());
 
 create or replace function public.handle_updated_at()
-returns trigger as $$
+returns trigger
+language plpgsql
+as $$
 begin
   new.updated_at = now();
   return new;
 end;
-$$ language plpgsql;
+$$;
+
+drop trigger if exists set_site_settings_updated_at on public.site_settings;
+drop trigger if exists set_hero_slides_updated_at on public.hero_slides;
+drop trigger if exists set_gallery_items_updated_at on public.gallery_items;
 
 create trigger set_site_settings_updated_at
 before update on public.site_settings
@@ -152,15 +149,6 @@ create trigger set_gallery_items_updated_at
 before update on public.gallery_items
 for each row execute procedure public.handle_updated_at();
 
-create or replace function public.is_admin_user()
-returns boolean
-language sql
-stable
-as $$
-  select auth.uid() = '8b4f5926-c6ec-43a0-aa34-7277a2732577'::uuid
-    or lower(auth.email()) = 'admin@soiraoyaconsulting.com.ng';
-$$;
-
 create or replace function public.seed_default_content()
 returns void
 language plpgsql
@@ -168,8 +156,8 @@ as $$
 begin
   insert into public.site_settings (key, value)
   values
-    ('hero_title', '{"text": "Property decisions, made with conviction."}'),
-    ('hero_text', '{"text": "Strategic real-estate advisory for people and institutions who want to protect capital, unlock opportunity, and build lasting value."}'),
+    ('hero_title', '{"text": "Property decisions, made with conviction."}'::jsonb),
+    ('hero_text', '{"text": "Strategic real-estate advisory for people and institutions who want to protect capital, unlock opportunity, and build lasting value."}'::jsonb),
     ('hero_slides', '{"items": [{"title": "Property decisions, made with conviction.", "tagline": "Perspective changes everything.", "image_url": "/image/hero/hero-1.jpg"}, {"title": "Build value that lasts.", "tagline": "The long view creates stronger assets.", "image_url": "/image/hero/hero-2.jpg"}]}'::jsonb)
   on conflict (key) do nothing;
 end;
@@ -188,17 +176,15 @@ begin
 end;
 $$;
 
-create storage bucket if not exists public-images with (
-  public = true,
-  file_size_limit = 5242880,
-  allowed_mime_types = 'image/png,image/jpeg,image/webp,image/jpg,image/gif'
-);
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values
+  ('public-images', 'public-images', true, 5242880, ARRAY['image/png','image/jpeg','image/webp','image/jpg','image/gif'])
+on conflict (id) do nothing;
 
-create storage bucket if not exists public-uploads with (
-  public = true,
-  file_size_limit = 10485760,
-  allowed_mime_types = 'image/png,image/jpeg,image/webp,image/jpg,image/gif'
-);
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values
+  ('public-uploads', 'public-uploads', true, 10485760, ARRAY['image/png','image/jpeg','image/webp','image/jpg','image/gif'])
+on conflict (id) do nothing;
 
 create policy "Public read access to public images" on storage.objects
 for select using (bucket_id in ('public-images', 'public-uploads'));
@@ -206,32 +192,22 @@ for select using (bucket_id in ('public-images', 'public-uploads'));
 create policy "Admin write access to public images" on storage.objects
 for insert with check (
   bucket_id in ('public-images', 'public-uploads')
-  and (
-    auth.uid() = '8b4f5926-c6ec-43a0-aa34-7277a2732577'::uuid
-    or lower(auth.email()) = 'admin@soiraoyaconsulting.com.ng'
-  )
+  and public.is_admin_user()
 );
 
-create policy "Admin update/delete access to public images" on storage.objects
+create policy "Admin update access to public images" on storage.objects
 for update using (
   bucket_id in ('public-images', 'public-uploads')
-  and (
-    auth.uid() = '8b4f5926-c6ec-43a0-aa34-7277a2732577'::uuid
-    or lower(auth.email()) = 'admin@soiraoyaconsulting.com.ng'
-  )
-) with check (
+  and public.is_admin_user()
+)
+with check (
   bucket_id in ('public-images', 'public-uploads')
-  and (
-    auth.uid() = '8b4f5926-c6ec-43a0-aa34-7277a2732577'::uuid
-    or lower(auth.email()) = 'admin@soiraoyaconsulting.com.ng'
-  )
+  and public.is_admin_user()
 );
 
 create policy "Admin delete access to public images" on storage.objects
 for delete using (
   bucket_id in ('public-images', 'public-uploads')
-  and (
-    auth.uid() = '8b4f5926-c6ec-43a0-aa34-7277a2732577'::uuid
-    or lower(auth.email()) = 'admin@soiraoyaconsulting.com.ng'
-  )
+  and public.is_admin_user()
 );
+

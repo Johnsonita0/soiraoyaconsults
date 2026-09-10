@@ -1,29 +1,29 @@
-const Glyph = ({ symbol, size = 18 }) => <span className="glyph" style={{ fontSize: size }}>{symbol}</span>
-export const ArrowUpRight = (props) => <Glyph symbol="↗" {...props} />
+export const ArrowUpRight = ({ size = 18, ...props }) => <i className="fa-solid fa-arrow-up-right" style={{ fontSize: size, ...props.style }} {...props} />
 export const BarChart3 = ({ size = 18, ...props }) => <i className="fa-solid fa-chart-line" style={{ fontSize: size, ...props.style }} {...props} />
 export const Building2 = ({ size = 18, ...props }) => <i className="fa-solid fa-building" style={{ fontSize: size, ...props.style }} {...props} />
-export const Check = (props) => <Glyph symbol="✓" {...props} />
-export const ChevronDown = (props) => <Glyph symbol="⌄" {...props} />
-export const ChevronLeft = (props) => <Glyph symbol="←" {...props} />
-export const ChevronRight = (props) => <Glyph symbol="→" {...props} />
-export const ClipboardList = (props) => <Glyph symbol="▤" {...props} />
-export const FileText = (props) => <Glyph symbol="▧" {...props} />
+export const Check = ({ size = 18, ...props }) => <i className="fa-solid fa-check" style={{ fontSize: size, ...props.style }} {...props} />
+export const ChevronDown = ({ size = 18, ...props }) => <i className="fa-solid fa-chevron-down" style={{ fontSize: size, ...props.style }} {...props} />
+export const ChevronLeft = ({ size = 18, ...props }) => <i className="fa-solid fa-chevron-left" style={{ fontSize: size, ...props.style }} {...props} />
+export const ChevronRight = ({ size = 18, ...props }) => <i className="fa-solid fa-chevron-right" style={{ fontSize: size, ...props.style }} {...props} />
+export const ClipboardList = ({ size = 18, ...props }) => <i className="fa-solid fa-clipboard-list" style={{ fontSize: size, ...props.style }} {...props} />
+export const FileText = ({ size = 18, ...props }) => <i className="fa-solid fa-file-lines" style={{ fontSize: size, ...props.style }} {...props} />
 export const Home = ({ size = 18, ...props }) => <i className="fa-solid fa-house" style={{ fontSize: size, ...props.style }} {...props} />
 export const Leaf = ({ size = 18, ...props }) => <i className="fa-solid fa-leaf" style={{ fontSize: size, ...props.style }} {...props} />
-export const Mail = (props) => <Glyph symbol="✉" {...props} />
-export const MapPin = (props) => <Glyph symbol="⌖" {...props} />
-export const Menu = (props) => <Glyph symbol="≡" {...props} />
-export const MessageSquareQuote = (props) => <Glyph symbol="❝" {...props} />
-export const Phone = (props) => <Glyph symbol="⌕" {...props} />
-export const Plus = (props) => <Glyph symbol="+" {...props} />
-export const Search = (props) => <Glyph symbol="⌕" {...props} />
-export const ShieldCheck = (props) => <Glyph symbol="◇" {...props} />
-export const Sparkles = (props) => <Glyph symbol="✦" {...props} />
-export const Users = (props) => <Glyph symbol="♧" {...props} />
-export const X = (props) => <Glyph symbol="×" {...props} />
+export const Mail = ({ size = 18, ...props }) => <i className="fa-solid fa-envelope" style={{ fontSize: size, ...props.style }} {...props} />
+export const MapPin = ({ size = 18, ...props }) => <i className="fa-solid fa-location-dot" style={{ fontSize: size, ...props.style }} {...props} />
+export const Menu = ({ size = 18, ...props }) => <i className="fa-solid fa-bars" style={{ fontSize: size, ...props.style }} {...props} />
+export const MessageSquareQuote = ({ size = 18, ...props }) => <i className="fa-regular fa-comment-dots" style={{ fontSize: size, ...props.style }} {...props} />
+export const Phone = ({ size = 18, ...props }) => <i className="fa-solid fa-phone" style={{ fontSize: size, ...props.style }} {...props} />
+export const Plus = ({ size = 18, ...props }) => <i className="fa-solid fa-plus" style={{ fontSize: size, ...props.style }} {...props} />
+export const Search = ({ size = 18, ...props }) => <i className="fa-solid fa-magnifying-glass" style={{ fontSize: size, ...props.style }} {...props} />
+export const ShieldCheck = ({ size = 18, ...props }) => <i className="fa-solid fa-shield-check" style={{ fontSize: size, ...props.style }} {...props} />
+export const Sparkles = ({ size = 18, ...props }) => <i className="fa-solid fa-wand-sparkles" style={{ fontSize: size, ...props.style }} {...props} />
+export const Users = ({ size = 18, ...props }) => <i className="fa-solid fa-users" style={{ fontSize: size, ...props.style }} {...props} />
+export const Upload = ({ size = 18, ...props }) => <i className="fa-solid fa-upload" style={{ fontSize: size, ...props.style }} {...props} />
+export const X = ({ size = 18, ...props }) => <i className="fa-solid fa-xmark" style={{ fontSize: size, ...props.style }} {...props} />
 export const Facebook = ({ size = 18, ...props }) => <i className="fa-brands fa-facebook-f" style={{ fontSize: size, ...props.style }} {...props} />
 export const Instagram = ({ size = 18, ...props }) => <i className="fa-brands fa-instagram" style={{ fontSize: size, ...props.style }} {...props} />
 export const Linkedin = ({ size = 18, ...props }) => <i className="fa-brands fa-linkedin-in" style={{ fontSize: size, ...props.style }} {...props} />
 export const Youtube = ({ size = 18, ...props }) => <i className="fa-brands fa-youtube" style={{ fontSize: size, ...props.style }} {...props} />
-export const ArrowUp = (props) => <Glyph symbol="↑" {...props} />
+export const ArrowUp = ({ size = 18, ...props }) => <i className="fa-solid fa-arrow-up" style={{ fontSize: size, ...props.style }} {...props} />
 export const Whatsapp = ({ size = 18, ...props }) => <i className="fa-brands fa-whatsapp" style={{ fontSize: size, ...props.style }} {...props} />

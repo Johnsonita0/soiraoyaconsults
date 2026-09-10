@@ -4,13 +4,13 @@ export const seedContent = {
   heroTitle: 'Property decisions, made with conviction.',
   heroText: 'Strategic real-estate advisory for people and institutions who want to protect capital, unlock opportunity, and build lasting value.',
   heroSlides: [
-    { image: '/image/hero/hero-1.jpg', fallback: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1600&q=88', title: 'Property decisions, made with conviction.', tagline: 'Perspective changes everything.' },
-    { image: '/image/hero/hero-2.jpg', fallback: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=1600&q=88', title: 'Build value that lasts.', tagline: 'The long view creates stronger assets.' },
-    { image: '/image/hero/hero-3.jpg', fallback: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1600&q=88', title: 'See the opportunity behind the property.', tagline: 'Clarity gives ambition somewhere to go.' },
-    { image: '/image/hero/hero-4.jpg', fallback: 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1600&q=88', title: 'Make every square metre count.', tagline: 'Performance starts with a considered plan.' },
-    { image: '/image/hero/hero-5.jpg', fallback: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1600&q=88', title: 'Move from possibility to proof.', tagline: 'Rigour turns good ideas into real outcomes.' },
-    { image: '/image/hero/hero-6.jpg', fallback: 'https://images.unsplash.com/photo-1554469384-e58fac16e23a?auto=format&fit=crop&w=1600&q=88', title: 'A better next step starts here.', tagline: 'Independent advice for consequential decisions.' },
-    { image: '/image/hero/hero-7.jpg', fallback: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=1600&q=88', title: 'Your property. Our priority.', tagline: 'Protecting capital. Growing confidence.' },
+    { image: '/image/hero/hero-1.jpg', fallback: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1600&q=88', title: 'Property decisions, made with conviction.', tagline: 'Perspective changes everything.', active: true },
+    { image: '/image/hero/hero-2.jpg', fallback: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=1600&q=88', title: 'Build value that lasts.', tagline: 'The long view creates stronger assets.', active: true },
+    { image: '/image/hero/hero-3.jpg', fallback: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1600&q=88', title: 'See the opportunity behind the property.', tagline: 'Clarity gives ambition somewhere to go.', active: true },
+    { image: '/image/hero/hero-4.jpg', fallback: 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1600&q=88', title: 'Make every square metre count.', tagline: 'Performance starts with a considered plan.', active: true },
+    { image: '/image/hero/hero-5.jpg', fallback: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1600&q=88', title: 'Move from possibility to proof.', tagline: 'Rigour turns good ideas into real outcomes.', active: true },
+    { image: '/image/hero/hero-6.jpg', fallback: 'https://images.unsplash.com/photo-1554469384-e58fac16e23a?auto=format&fit=crop&w=1600&q=88', title: 'A better next step starts here.', tagline: 'Independent advice for consequential decisions.', active: true },
+    { image: '/image/hero/hero-7.jpg', fallback: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=1600&q=88', title: 'Your property. Our priority.', tagline: 'Protecting capital. Growing confidence.', active: true },
   ],
   services: [
     { title: 'Valuation & Advisory', text: 'Independent valuations that give lenders, owners, and investors a clear basis for action.', icon: BarChart3 },
@@ -24,6 +24,49 @@ export const seedContent = {
     { title: 'Victoria Island Offices', location: 'Victoria Island, Lagos', type: 'Commercial', price: '₦420m', description: 'A flexible office asset positioned for businesses looking for a central Lagos address.', image: '/image/hero/hero-4.jpg' },
     { title: 'Lekki Waterside Villa', location: 'Lekki Phase 1, Lagos', type: 'Residential', price: '₦265m', description: 'Contemporary waterfront living with adaptable spaces for family life and entertaining.', image: '/image/hero/hero-2.jpg' },
   ],
+  aboutSlides: [
+    {
+      label: 'About us',
+      title: 'Mission',
+      text: 'To deliver clear, independent, and commercially useful real-estate advice that protects our clients interests and helps their property decisions create lasting value.',
+      image: '/image/hero/hero-2.jpg',
+      points: ['Client-centred advice', 'Practical market intelligence'],
+    },
+    {
+      label: 'About us',
+      title: 'Vision',
+      text: 'To be the trusted advisory partner people and institutions turn to when property decisions carry long-term financial, social, and strategic importance.',
+      image: '/image/hero/hero-5.jpg',
+      points: ['A trusted Nigerian practice', 'Long-term value creation'],
+    },
+    {
+      label: 'About us',
+      title: 'Core values',
+      text: 'Integrity, transparency, reliability, innovation, and sustainable value guide every instruction we accept and every recommendation we make.',
+      image: '/image/hero/hero-7.jpg',
+      points: ['Integrity in every recommendation', 'Accountability in every outcome'],
+    },
+  ],
+  investOpportunities: [
+    { title: 'Build with a clearer view.', text: 'Development opportunities assessed with market intelligence, practical assumptions, and a long-term view of value.', image: '/image/hero/hero-6.jpg', focus: ['Development appraisal', 'Market positioning', 'Risk assessment'] },
+    { title: 'Invest where momentum is building.', text: 'Identify well-positioned residential and commercial opportunities before the market catches up.', image: '/image/hero/hero-2.jpg', focus: ['Location intelligence', 'Cash-flow analysis', 'Investment planning'] },
+    { title: 'Turn land into potential.', text: 'Understand the development story behind a site and the steps required to unlock it responsibly.', image: '/image/hero/hero-5.jpg', focus: ['Site due diligence', 'Feasibility studies', 'Development strategy'] },
+    { title: 'Make the long view work.', text: 'Build a property portfolio around sound decisions, resilient assets, and sustainable value creation.', image: '/image/hero/hero-7.jpg', focus: ['Portfolio analysis', 'Return modelling', 'Advisory support'] },
+  ],
+  faqs: [
+    { question: 'What services does S.O.Iraoya Consulting provide?', answer: 'We advise across valuation, development strategy, property management, investment analysis, and property listing for owners, investors, institutions, and organisations.' },
+    { question: 'Who do you work with?', answer: 'Our clients include private property owners, investors, financial institutions, corporate organisations, government agencies, and Nigerians investing from abroad.' },
+    { question: 'How do I request a property valuation?', answer: 'Send us a consultation request with the property location and the purpose of the valuation. Our team will follow up with the right scope and next steps.' },
+    { question: 'Can you help with a new development?', answer: 'Yes. We support development decisions from site identification and due diligence through feasibility, market positioning, appraisal, and project coordination.' },
+    { question: 'Do you manage residential and commercial properties?', answer: 'Yes. Our property management work covers leasing, tenant selection, rent reviews, service charges, brokerage, and portfolio performance.' },
+    { question: 'How quickly can we start?', answer: 'Once we understand your instruction and objectives, we will confirm the scope, information required, and a practical timeline for commencement.' },
+  ],
+  contact: {
+    title: 'Let’s talk property',
+    location: 'Suite 30, Dolphin Plaza, Ikoyi, Lagos',
+    phone: '0907 409 1408',
+    email: 'info@soiraoyaconsulting.com.ng',
+  },
 }
 
 export const seedRequests = [

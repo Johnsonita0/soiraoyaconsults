@@ -6,17 +6,7 @@ import { seedContent } from './data/content'
 import { supabase } from './lib/supabase'
 import './css/App.css'
 
-const ADMIN_EMAIL = 'admin@soiraoyaconsulting.com.ng'
-const ADMIN_USER_ID = '8b4f5926-c6ec-43a0-aa34-7277a2732577'
-
-const isAllowedAdminUser = (user) => {
-  if (!user) return false
-
-  const emailMatches = user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()
-  const idMatches = user.id === ADMIN_USER_ID
-
-  return emailMatches && idMatches
-}
+const isAuthenticatedUser = (user) => Boolean(user)
 
 export default function App() {
   const [route, setRoute] = useState(window.location.pathname)
@@ -37,7 +27,7 @@ export default function App() {
 
       const path = window.location.pathname
       if (path === '/admin' || path === '/dashboard') {
-        if (!isAllowedAdminUser(user)) {
+        if (!isAuthenticatedUser(user)) {
           window.history.replaceState({}, '', '/login')
           setRoute('/login')
           return
@@ -48,7 +38,7 @@ export default function App() {
         return
       }
 
-      if (path === '/login' && isAllowedAdminUser(user)) {
+      if (path === '/login' && isAuthenticatedUser(user)) {
         window.history.replaceState({}, '', '/dashboard')
         setRoute('/dashboard')
       }
@@ -62,7 +52,7 @@ export default function App() {
 
       const path = window.location.pathname
       if (path === '/admin' || path === '/dashboard') {
-        if (!isAllowedAdminUser(user)) {
+        if (!isAuthenticatedUser(user)) {
           window.history.replaceState({}, '', '/login')
           setRoute('/login')
           return
@@ -73,7 +63,7 @@ export default function App() {
         return
       }
 
-      if (path === '/login' && isAllowedAdminUser(user)) {
+      if (path === '/login' && isAuthenticatedUser(user)) {
         window.history.replaceState({}, '', '/dashboard')
         setRoute('/dashboard')
       }
@@ -94,7 +84,7 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  const canAccessDashboard = isAllowedAdminUser(adminUser)
+  const canAccessDashboard = isAuthenticatedUser(adminUser)
 
   if (route === '/login') {
     return canAccessDashboard ? <AdminPage content={content} setContent={setContent} goTo={goTo} /> : <LoginPage goTo={goTo} />

@@ -1,19 +1,47 @@
 import { useState } from 'react'
 import Brand from '../components/Brand'
-import { ArrowUpRight, BarChart3, Building2, Check, ChevronDown, ChevronLeft, ChevronRight, ClipboardList, FileText, Home, Leaf, MessageSquareQuote, Plus, Search, Sparkles, Upload, Users } from '../components/icons'
+import { ArrowUpRight, BarChart3, Building2, Check, ChevronDown, ChevronLeft, ChevronRight, ClipboardList, FileText, Home, Leaf, LogOut, MessageSquareQuote, Plus, Search, Sparkles, Upload, Users } from '../components/icons'
 import { seedRequests } from '../data/content'
+import { supabase } from '../lib/supabase'
 
 export default function AdminPage({ content, setContent, goTo }) {
   const [tab, setTab] = useState('Overview')
   const [draft, setDraft] = useState(content)
   const [sidebarExpanded, setSidebarExpanded] = useState(true)
+  const [mobileProfileMenuOpen, setMobileProfileMenuOpen] = useState(false)
+  const [requestSearch, setRequestSearch] = useState('')
+  const [searchOpen, setSearchOpen] = useState(false)
+
   const save = () => { setContent(draft); localStorage.setItem('soiraoya-content', JSON.stringify(draft)); setTab('Overview') }
   const handleTabSelect = (label) => {
     setTab(label)
     setSidebarExpanded(false)
   }
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut()
+    } catch (error) {
+      console.error('Logout failed', error)
+    } finally {
+      setMobileProfileMenuOpen(false)
+      goTo('/login')
+    }
+  }
+
   const tabs = [['Overview', ClipboardList], ['Consult requests', MessageSquareQuote], ['Landing page', FileText], ['Testimonials', Users]]
-  return <div className="admin-shell"><aside className={`admin-sidebar ${sidebarExpanded ? 'expanded' : 'collapsed'}`}><button className="sidebar-toggle" type="button" onClick={() => setSidebarExpanded((current) => !current)} aria-label={sidebarExpanded ? 'Collapse sidebar' : 'Expand sidebar'}>{sidebarExpanded ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}</button><Brand admin goTo={goTo} /><div className="admin-nav">{tabs.map(([label, Icon]) => <button className={tab === label ? 'active' : ''} onClick={() => handleTabSelect(label)} key={label}><span className="nav-item-icon"><Icon size={17} />{label === 'Consult requests' && <b className="nav-count">3</b>}</span><span>{label}</span></button>)}</div><div className="sidebar-bottom"><div className="profile"><span>OI</span><div><b>Iraoya</b><small>Principal partner</small></div><ChevronDown size={14} /></div></div></aside><main className="admin-main"><header className="admin-topbar"><div className="mobile-admin-brand"><Brand admin mobile goTo={goTo} /></div><div className="admin-breadcrumb">S.O.Iraoya / <b>{tab}</b></div><div className="admin-actions"><button className="icon-button" aria-label="Search"><Search size={18} /></button><span className="notification-dot"></span><span className="avatar">OI</span></div></header>{tab === 'Overview' && <Overview setTab={setTab} />}{tab === 'Consult requests' && <Requests />}{tab === 'Landing page' && <LandingEditor draft={draft} setDraft={setDraft} save={save} />}{tab === 'Testimonials' && <Testimonials />}</main><nav className="mobile-admin-tabs" aria-label="Admin navigation">{tabs.map(([label, Icon]) => <button className={tab === label ? 'active' : ''} onClick={() => handleTabSelect(label)} key={label}><Icon size={16} /><span>{label}</span></button>)}</nav></div>
+  const handleSearchAction = () => {
+    const nextState = !searchOpen
+    setSearchOpen(nextState)
+    if (nextState) {
+      setTab('Consult requests')
+      window.setTimeout(() => {
+        document.getElementById('header-search-input')?.focus()
+      }, 0)
+    }
+  }
+
+  return <div className="admin-shell"><aside className={`admin-sidebar ${sidebarExpanded ? 'expanded' : 'collapsed'}`}><button className="sidebar-toggle" type="button" onClick={() => setSidebarExpanded((current) => !current)} aria-label={sidebarExpanded ? 'Collapse sidebar' : 'Expand sidebar'}>{sidebarExpanded ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}</button><Brand admin goTo={goTo} /><div className="admin-nav">{tabs.map(([label, Icon]) => <button className={tab === label ? 'active' : ''} onClick={() => handleTabSelect(label)} key={label}><span className="nav-item-icon"><Icon size={17} />{label === 'Consult requests' && <b className="nav-count">3</b>}</span><span>{label}</span></button>)}</div><div className="sidebar-bottom"><button type="button" className="sidebar-logout" onClick={handleLogout} aria-label="Logout"><LogOut size={16} /><span>Logout</span></button><div className="profile"><span>OI</span><div><b>Iraoya</b><small>Principal partner</small></div><ChevronDown size={14} /></div></div></aside><main className="admin-main"><header className="admin-topbar"><div className="mobile-admin-brand"><Brand admin mobile goTo={goTo} /></div><div className="admin-breadcrumb">S.O.Iraoya / <b>{tab}</b></div><div className="admin-actions"><div className={`header-search-toggle ${searchOpen ? 'open' : ''}`}><button className="icon-button" aria-label="Toggle search" onClick={handleSearchAction}><Search size={18} /></button>{searchOpen && <input id="header-search-input" value={requestSearch} onChange={(event) => setRequestSearch(event.target.value)} placeholder="Search requests" aria-label="Search requests" />}</div><span className="notification-dot"></span><div className="mobile-profile-menu-wrap"><button type="button" className="avatar mobile-user-trigger" aria-label="User menu" onClick={() => setMobileProfileMenuOpen((current) => !current)}><span>OI</span><ChevronDown size={11} /></button>{mobileProfileMenuOpen && <div className="profile-dropdown mobile-dropdown"><div className="mobile-profile-summary"><span className="profile-badge">OI</span><div><b>Iraoya</b><small>Principal partner</small></div></div><button type="button" onClick={handleLogout}>Logout</button></div>}</div></div></header>{tab === 'Overview' && <Overview setTab={setTab} />}{tab === 'Consult requests' && <Requests requestSearch={requestSearch} setRequestSearch={setRequestSearch} />}{tab === 'Landing page' && <LandingEditor draft={draft} setDraft={setDraft} save={save} />}{tab === 'Testimonials' && <Testimonials />}</main><nav className="mobile-admin-tabs" aria-label="Admin navigation">{tabs.map(([label, Icon]) => <button className={tab === label ? 'active' : ''} onClick={() => handleTabSelect(label)} key={label}><Icon size={16} /><span>{label}</span></button>)}</nav></div>
 }
 
 const emptyGalleryItem = () => ({ title: '', location: '', type: 'Residential', price: '', description: '', image: '' })
@@ -27,9 +55,35 @@ function readFileAsDataUrl(file) {
   })
 }
 
-function Overview({ setTab }) { return <div className="admin-content"><div className="admin-heading"><div><p className="eyebrow">Wednesday, 09 September 2026</p><h1>Good morning, Iraoya.</h1><p className="admin-subtitle">Here is what is happening across your advisory practice.</p></div><button className="button button-dark" onClick={() => setTab('Landing page')}><Plus size={17} /> New update</button></div><div className="stat-grid"><div><span>Open requests</span><b>03</b><small className="positive">+2 this week</small></div><div><span>Published stories</span><b>08</b><small>Across your landing page</small></div><div><span>Profile views</span><b>1,284</b><small className="positive">+18.4% this month</small></div></div><div className="dashboard-grid"><div className="panel"><div className="panel-head"><div><p className="eyebrow">Needs your attention</p><h2>Recent consult requests</h2></div><button className="quiet-button" onClick={() => setTab('Consult requests')}>View all <ArrowUpRight size={14} /></button></div><RequestList /></div><div className="panel activity-panel"><div className="panel-head"><div><p className="eyebrow">Live preview</p><h2>Landing page health</h2></div><span className="live-badge"><span></span> Live</span></div><div className="health-score"><div className="score-ring"><b>92</b><small>/100</small></div><div><b>Looking good</b><p>Your public site is current and performing well.</p></div></div><div className="health-row"><span><Check size={14} /> Hero content</span><span><Check size={14} /> Services</span><span><Check size={14} /> Contact flow</span></div></div></div></div> }
-function RequestList() { return <div className="request-list">{seedRequests.map((request) => <div className="request-row" key={request.name}><span className="request-avatar">{request.initials}</span><div><b>{request.name}</b><small>{request.type}</small></div><span className={`status status-${request.status.toLowerCase().replace(' ', '-')}`}>{request.status}</span><small className="request-date">{request.date}</small><ChevronRight size={16} /></div>)}</div> }
-function Requests() { return <div className="admin-content"><div className="admin-heading"><div><p className="eyebrow">Inbox</p><h1>Consult requests</h1><p className="admin-subtitle">A clear view of the people asking for your expertise.</p></div><button className="button button-dark"><Plus size={17} /> Add request</button></div><div className="filter-bar"><div className="search-field"><Search size={16} /><input placeholder="Search requests" /></div><button className="filter-button">All requests <ChevronDown size={15} /></button><button className="filter-button">Newest first <ChevronDown size={15} /></button></div><div className="panel request-panel"><RequestList /></div></div> }
+function Overview({ setTab }) {
+  const now = new Date()
+  const hour = now.getHours()
+  const period = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening'
+  const greeting = period === 'morning' ? 'Good morning' : period === 'afternoon' ? 'Good afternoon' : 'Good evening'
+  const formattedDate = now.toLocaleDateString('en-GB', {
+    weekday: 'long',
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  })
+  const formattedTime = now.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  })
+
+  return <div className="admin-content"><div className="admin-heading"><div><p className="eyebrow">{formattedDate} • {formattedTime}</p><h1>{greeting}, Iraoya.</h1><p className="admin-subtitle">Here is what is happening across your advisory practice.</p></div><button className="button button-dark" onClick={() => setTab('Landing page')}><Plus size={17} /> New update</button></div><div className="stat-grid"><div><span>Open requests</span><b>03</b><small className="positive">+2 this week</small></div><div><span>Published stories</span><b>08</b><small>Across your landing page</small></div><div><span>Profile views</span><b>1,284</b><small className="positive">+18.4% this month</small></div></div><div className="dashboard-grid"><div className="panel"><div className="panel-head"><div><p className="eyebrow">Needs your attention</p><h2>Recent consult requests</h2></div><button className="quiet-button" onClick={() => setTab('Consult requests')}>View all <ArrowUpRight size={14} /></button></div><RequestList /></div><div className="panel activity-panel"><div className="panel-head"><div><p className="eyebrow">Live preview</p><h2>Landing page health</h2></div><span className="live-badge"><span></span> Live</span></div><div className="health-score"><div className="score-ring"><b>92</b><small>/100</small></div><div><b>Looking good</b><p>Your public site is current and performing well.</p></div></div><div className="health-row"><span><Check size={14} /> Hero content</span><span><Check size={14} /> Services</span><span><Check size={14} /> Contact flow</span></div></div></div></div>
+}
+function RequestList({ query = '' }) {
+  const filteredRequests = seedRequests.filter((request) => {
+    if (!query) return true
+    const searchValue = query.toLowerCase()
+    return [request.name, request.type, request.status, request.date].some((value) => String(value).toLowerCase().includes(searchValue))
+  })
+
+  return <div className="request-list">{filteredRequests.map((request) => <div className="request-row" key={request.name}><span className="request-avatar">{request.initials}</span><div><b>{request.name}</b><small>{request.type}</small></div><span className={`status status-${request.status.toLowerCase().replace(' ', '-')}`}>{request.status}</span><small className="request-date">{request.date}</small><ChevronRight size={16} /></div>)}</div> }
+function Requests({ requestSearch }) {
+  return <div className="admin-content"><div className="admin-heading"><div><p className="eyebrow">Inbox</p><h1>Consult requests</h1><p className="admin-subtitle">A clear view of the people asking for your expertise.</p></div><button className="button button-dark"><Plus size={17} /> Add request</button></div><div className="filter-bar"><button className="filter-button">All requests <ChevronDown size={15} /></button><button className="filter-button">Newest first <ChevronDown size={15} /></button></div><div className="panel request-panel"><RequestList query={requestSearch} /></div></div> }
 function LandingEditor({ draft, setDraft, save }) {
   const [galleryDraft, setGalleryDraft] = useState(emptyGalleryItem())
   const [heroDraft, setHeroDraft] = useState({ title: '', tagline: '', image: '', active: true })

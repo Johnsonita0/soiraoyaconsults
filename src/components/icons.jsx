@@ -9,6 +9,7 @@ export const ClipboardList = ({ size = 18, ...props }) => <i className="fa-solid
 export const FileText = ({ size = 18, ...props }) => <i className="fa-solid fa-file-lines" style={{ fontSize: size, ...props.style }} {...props} />
 export const Home = ({ size = 18, ...props }) => <i className="fa-solid fa-house" style={{ fontSize: size, ...props.style }} {...props} />
 export const Leaf = ({ size = 18, ...props }) => <i className="fa-solid fa-leaf" style={{ fontSize: size, ...props.style }} {...props} />
+export const LogOut = ({ size = 18, ...props }) => <i className="fa-solid fa-right-from-bracket" style={{ fontSize: size, ...props.style }} {...props} />
 export const Mail = ({ size = 18, ...props }) => <i className="fa-solid fa-envelope" style={{ fontSize: size, ...props.style }} {...props} />
 export const MapPin = ({ size = 18, ...props }) => <i className="fa-solid fa-location-dot" style={{ fontSize: size, ...props.style }} {...props} />
 export const Menu = ({ size = 18, ...props }) => <i className="fa-solid fa-bars" style={{ fontSize: size, ...props.style }} {...props} />

@@ -28,6 +28,7 @@ export default function LandingPage({ content, goTo }) {
   const [selectedService, setSelectedService] = useState(null)
   const [showBackToTop, setShowBackToTop] = useState(false)
   const [form, setForm] = useState({ name: '', email: '', request: '' })
+  const [submitError, setSubmitError] = useState('')
   const navItems = [
     { label: 'Overview', id: '#approach' },
     { label: 'Services', id: '#services' },
@@ -48,7 +49,36 @@ export default function LandingPage({ content, goTo }) {
     setMobileOpen(false)
     scrollToSection(id)
   }
-  const submit = (event) => { event.preventDefault(); setSent(true) }
+  const submit = async (event) => {
+    event.preventDefault()
+    setSubmitError('')
+
+    try {
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: content.contact?.email || 'admin@soiraoyaconsulting.com.ng',
+          subject: `New consultation request from ${form.name || 'website visitor'}`,
+          text: [
+            `Name: ${form.name || 'Not provided'}`,
+            `Email: ${form.email || 'Not provided'}`,
+            `Request: ${form.request || 'Not provided'}`,
+            `Message: A new consultation request was submitted from the website.`,
+          ].join('\n'),
+        }),
+      })
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}))
+        throw new Error(payload.message || 'Email delivery failed.')
+      }
+
+      setSent(true)
+    } catch (error) {
+      setSubmitError(error.message || 'We could not send your request right now. Please try again.')
+    }
+  }
   useEffect(() => { const timer = window.setInterval(() => setTrustIndex((index) => (index + 1) % trustMessages.length), 4000); return () => window.clearInterval(timer) }, [])
   useEffect(() => { const onScroll = () => setShowBackToTop(window.scrollY > 500); window.addEventListener('scroll', onScroll, { passive: true }); return () => window.removeEventListener('scroll', onScroll) }, [])
 
@@ -62,7 +92,7 @@ export default function LandingPage({ content, goTo }) {
       <PropertyGallery onContact={scrollToContact} properties={content.gallery || []} />
       <FaqSection items={content.faqs || []} onContact={scrollToContact} />
       <InvestWithUs items={content.investOpportunities || []} onContact={scrollToContact} />
-      <section id="contact" className="contact-section"><div><p className="eyebrow">Let’s talk property</p><h2>{content.contact?.title || 'A better next step'}<br /><em>starts here.</em></h2><div className="contact-details"><span><MapPin size={17} /> {content.contact?.location || 'Suite 30, Dolphin Plaza, Ikoyi, Lagos'}</span><span><Phone size={17} /> {content.contact?.phone || '0907 409 1408'}</span><span><Mail size={17} /> {content.contact?.email || 'info@soiraoyaconsulting.com.ng'}</span></div></div><form onSubmit={submit}>{sent ? <div className="form-success"><span className="success-icon"><Check /></span><h3>Thank you, {form.name || 'we have your note'}.</h3><p>Our advisory team will be in touch shortly.</p><button type="button" className="text-link" onClick={() => setSent(false)}>Send another message <ArrowUpRight size={16} /></button></div> : <><label>Your name<input required value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder="e.g. Amaka Okafor" /></label><label>Work email<input required type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} placeholder="you@company.com" /></label><label>How can we help?<select required value={form.request} onChange={(event) => setForm({ ...form, request: event.target.value })}><option value="">Select an area of interest</option><option>Property valuation</option><option>Investment advisory</option><option>Development strategy</option><option>Property management</option><option>Property listing</option></select></label><button className="button button-light" type="submit">Request a consultation <ArrowUpRight size={18} /></button></>}</form></section>
+      <section id="contact" className="contact-section"><div><p className="eyebrow">Let’s talk property</p><h2>{content.contact?.title || 'A better next step'}<br /><em>starts here.</em></h2><div className="contact-details"><span><MapPin size={17} /> {content.contact?.location || 'Suite 30, Dolphin Plaza, Ikoyi, Lagos'}</span><span><Phone size={17} /> {content.contact?.phone || '0907 409 1408'}</span><span><Mail size={17} /> {content.contact?.email || 'info@soiraoyaconsulting.com.ng'}</span></div></div><form onSubmit={submit}>{sent ? <div className="form-success"><span className="success-icon"><Check /></span><h3>Thank you, {form.name || 'we have your note'}.</h3><p>Our advisory team will be in touch shortly.</p><button type="button" className="text-link" onClick={() => { setSent(false); setSubmitError('') }}>Send another message <ArrowUpRight size={16} /></button></div> : <><label>Your name<input required value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder="e.g. Amaka Okafor" /></label><label>Work email<input required type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} placeholder="you@company.com" /></label><label>How can we help?<select required value={form.request} onChange={(event) => setForm({ ...form, request: event.target.value })}><option value="">Select an area of interest</option><option>Property valuation</option><option>Investment advisory</option><option>Development strategy</option><option>Property management</option><option>Property listing</option></select></label>{submitError && <div className="login-error">{submitError}</div>}<button className="button button-light" type="submit">Request a consultation <ArrowUpRight size={18} /></button></>}</form></section>
     </main>
     <footer className="site-footer"><div className="footer-main"><div className="footer-brand"><Brand light goTo={goTo} /><p>Strategic real-estate advisory for decisions that create lasting value.</p></div><div className="footer-column"><p className="footer-label">Explore</p><a href="#approach">About us</a><a href="#services">Our services</a><a href="#properties">Properties</a><a href="#faq">FAQs</a></div><div className="footer-column"><p className="footer-label">Contact</p><a href="mailto:info@soiraoyaconsulting.com.ng">info@soiraoyaconsulting.com.ng</a><a href="tel:+2349074091408">0907 409 1408</a><span>Suite 30, Dolphin Plaza<br />Ikoyi, Lagos</span></div><div className="footer-column footer-socials"><p className="footer-label">Follow our work</p><div className="social-links"><a className="social-facebook" href="https://www.facebook.com" target="_blank" rel="noreferrer" aria-label="Facebook"><Facebook size={17} /></a><a className="social-instagram" href="https://www.instagram.com" target="_blank" rel="noreferrer" aria-label="Instagram"><Instagram size={17} /></a><a className="social-linkedin" href="https://www.linkedin.com" target="_blank" rel="noreferrer" aria-label="LinkedIn"><Linkedin size={17} /></a><a className="social-youtube" href="https://www.youtube.com" target="_blank" rel="noreferrer" aria-label="YouTube"><Youtube size={17} /></a></div></div></div><div className="footer-bottom"><span>© 2026 S.O.Iraoya Consulting. All rights reserved.</span><span>Registered with CAC · Licensed by ESVARBON</span></div></footer>
     <ServiceModal service={selectedService} onClose={() => setSelectedService(null)} onContact={() => { setSelectedService(null); scrollToContact() }} />

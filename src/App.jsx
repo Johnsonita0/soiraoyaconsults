@@ -8,19 +8,45 @@ import './css/App.css'
 
 const isAuthenticatedUser = (user) => Boolean(user)
 
+const mergeContent = (incoming = {}) => ({
+  ...seedContent,
+  ...incoming,
+  heroSlides: incoming.heroSlides || seedContent.heroSlides,
+  aboutSlides: incoming.aboutSlides || seedContent.aboutSlides,
+  services: incoming.services || seedContent.services,
+  gallery: incoming.gallery || seedContent.gallery,
+  investOpportunities: incoming.investOpportunities || seedContent.investOpportunities,
+  faqs: incoming.faqs || seedContent.faqs,
+  contact: incoming.contact || seedContent.contact,
+})
+
 export default function App() {
   const [route, setRoute] = useState(window.location.pathname)
   const [adminUser, setAdminUser] = useState(null)
   const [content, setContent] = useState(() => {
     try {
       const stored = JSON.parse(localStorage.getItem('soiraoya-content'))
-      return stored ? { ...seedContent, ...stored, heroSlides: stored.heroSlides || seedContent.heroSlides, gallery: stored.gallery || seedContent.gallery } : seedContent
+      return stored ? mergeContent(stored) : seedContent
     } catch {
       return seedContent
     }
   })
 
   useEffect(() => {
+    const loadSavedContent = async () => {
+      try {
+        const { data, error } = await supabase.from('site_settings').select('key, value').eq('key', 'landing_content').maybeSingle()
+        if (error || !data?.value) return
+        const nextContent = mergeContent(data.value)
+        setContent(nextContent)
+        localStorage.setItem('soiraoya-content', JSON.stringify(nextContent))
+      } catch (error) {
+        console.error('Could not load saved landing content', error)
+      }
+    }
+
+    void loadSavedContent()
+
     const syncUser = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       setAdminUser(user)

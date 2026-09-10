@@ -12,7 +12,28 @@ export default function AdminPage({ content, setContent, goTo }) {
   const [requestSearch, setRequestSearch] = useState('')
   const [searchOpen, setSearchOpen] = useState(false)
 
-  const save = () => { setContent(draft); localStorage.setItem('soiraoya-content', JSON.stringify(draft)); setTab('Overview') }
+  const syncLandingContent = async (nextDraft) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.user) return
+
+      await supabase.from('site_settings').upsert({
+        key: 'landing_content',
+        value: nextDraft,
+      }, { onConflict: 'key' })
+    } catch (error) {
+      console.error('Failed to sync landing page content', error)
+    }
+  }
+
+  const persistDraft = (nextDraft) => {
+    setDraft(nextDraft)
+    setContent(nextDraft)
+    localStorage.setItem('soiraoya-content', JSON.stringify(nextDraft))
+    void syncLandingContent(nextDraft)
+  }
+
+  const save = () => { persistDraft(draft); setTab('Overview') }
   const handleTabSelect = (label) => {
     setTab(label)
     setSidebarExpanded(false)
@@ -101,11 +122,33 @@ function LandingEditor({ draft, setDraft, save }) {
     Leaf,
   }
 
+  const uploadToBucket = async (file) => {
+    if (!file) return ''
+
+    const safeName = `${Date.now()}-${file.name.replace(/\s+/g, '-').toLowerCase()}`
+    const { data, error } = await supabase.storage.from('public-images').upload(safeName, file, {
+      cacheControl: '3600',
+      upsert: false,
+    })
+
+    if (error) {
+      throw error
+    }
+
+    const { data: publicData } = supabase.storage.from('public-images').getPublicUrl(data.path)
+    return publicData.publicUrl
+  }
+
   const handleHeroUpload = async (event) => {
     const file = event.target.files?.[0]
     if (!file) return
-    const image = await readFileAsDataUrl(file)
-    setHeroDraft((current) => ({ ...current, image }))
+
+    try {
+      const image = await uploadToBucket(file)
+      setHeroDraft((current) => ({ ...current, image }))
+    } catch (error) {
+      console.error('Hero image upload failed', error)
+    }
   }
 
   const handleHeroSlideSubmit = (event) => {
@@ -114,7 +157,7 @@ function LandingEditor({ draft, setDraft, save }) {
     const tagline = heroDraft.tagline.trim() || 'Perspective changes everything.'
     const image = heroDraft.image || '/image/hero/hero-1.jpg'
     const newSlide = { title, tagline, image, fallback: image, active: heroDraft.active !== false }
-    setDraft({
+    persistDraft({
       ...draft,
       heroTitle: draft.heroTitle || title,
       heroSlides: [newSlide, ...(draft.heroSlides || [])],
@@ -124,34 +167,43 @@ function LandingEditor({ draft, setDraft, save }) {
 
   const toggleHeroSlide = (index, nextState) => {
     const nextSlides = (draft.heroSlides || []).map((slide, slideIndex) => slideIndex === index ? { ...slide, active: nextState } : slide)
-    setDraft({ ...draft, heroSlides: nextSlides })
+    persistDraft({ ...draft, heroSlides: nextSlides })
   }
 
   const deleteHeroSlide = (index) => {
     const nextSlides = (draft.heroSlides || []).filter((_, slideIndex) => slideIndex !== index)
-    setDraft({ ...draft, heroSlides: nextSlides })
+    persistDraft({ ...draft, heroSlides: nextSlides })
   }
 
   const handleGallerySubmit = (event) => {
     event.preventDefault()
     if (!galleryDraft.title.trim()) return
     const prepared = { ...galleryDraft, image: galleryDraft.image || '/image/hero/hero-1.jpg' }
-    setDraft({ ...draft, gallery: [prepared, ...(draft.gallery || [])] })
+    persistDraft({ ...draft, gallery: [prepared, ...(draft.gallery || [])] })
     setGalleryDraft(emptyGalleryItem())
   }
 
   const onGalleryImage = async (event) => {
     const file = event.target.files?.[0]
     if (!file) return
-    const image = await readFileAsDataUrl(file)
-    setGalleryDraft((current) => ({ ...current, image }))
+
+    try {
+      const image = await uploadToBucket(file)
+      setGalleryDraft((current) => ({ ...current, image }))
+    } catch (error) {
+      console.error('Gallery image upload failed', error)
+    }
   }
 
   const handleAboutUpload = async (event) => {
     const file = event.target.files?.[0]
     if (!file) return
-    const image = await readFileAsDataUrl(file)
-    setAboutDraft((current) => ({ ...current, image }))
+    try {
+      const image = await uploadToBucket(file)
+      setAboutDraft((current) => ({ ...current, image }))
+    } catch (error) {
+      console.error('About image upload failed', error)
+    }
   }
 
   const handleAboutSubmit = (event) => {
@@ -167,13 +219,13 @@ function LandingEditor({ draft, setDraft, save }) {
         .map((point) => point.trim())
         .filter(Boolean),
     }
-    setDraft({ ...draft, aboutSlides: [prepared, ...(draft.aboutSlides || [])] })
+    persistDraft({ ...draft, aboutSlides: [prepared, ...(draft.aboutSlides || [])] })
     setAboutDraft({ label: 'About us', title: '', text: '', image: '', points: '' })
   }
 
   const deleteAboutSlide = (index) => {
     const nextSlides = (draft.aboutSlides || []).filter((_, slideIndex) => slideIndex !== index)
-    setDraft({ ...draft, aboutSlides: nextSlides })
+    persistDraft({ ...draft, aboutSlides: nextSlides })
   }
 
   const handleServiceSubmit = (event) => {
@@ -184,20 +236,24 @@ function LandingEditor({ draft, setDraft, save }) {
       text: serviceDraft.text.trim() || 'A clear service offering tailored to your clients.',
       icon: serviceDraft.icon || 'BarChart3',
     }
-    setDraft({ ...draft, services: [prepared, ...(draft.services || [])] })
+    persistDraft({ ...draft, services: [prepared, ...(draft.services || [])] })
     setServiceDraft({ title: '', text: '', icon: 'BarChart3' })
   }
 
   const deleteServiceCard = (index) => {
     const nextServices = (draft.services || []).filter((_, serviceIndex) => serviceIndex !== index)
-    setDraft({ ...draft, services: nextServices })
+    persistDraft({ ...draft, services: nextServices })
   }
 
   const handleInvestUpload = async (event) => {
     const file = event.target.files?.[0]
     if (!file) return
-    const image = await readFileAsDataUrl(file)
-    setInvestDraft((current) => ({ ...current, image }))
+    try {
+      const image = await uploadToBucket(file)
+      setInvestDraft((current) => ({ ...current, image }))
+    } catch (error) {
+      console.error('Investment image upload failed', error)
+    }
   }
 
   const handleInvestSubmit = (event) => {
@@ -212,13 +268,13 @@ function LandingEditor({ draft, setDraft, save }) {
         .map((point) => point.trim())
         .filter(Boolean),
     }
-    setDraft({ ...draft, investOpportunities: [prepared, ...(draft.investOpportunities || [])] })
+    persistDraft({ ...draft, investOpportunities: [prepared, ...(draft.investOpportunities || [])] })
     setInvestDraft({ title: '', text: '', image: '', focus: '' })
   }
 
   const deleteInvestCard = (index) => {
     const nextItems = (draft.investOpportunities || []).filter((_, opportunityIndex) => opportunityIndex !== index)
-    setDraft({ ...draft, investOpportunities: nextItems })
+    persistDraft({ ...draft, investOpportunities: nextItems })
   }
 
   const handleFaqSubmit = (event) => {
@@ -228,19 +284,19 @@ function LandingEditor({ draft, setDraft, save }) {
       question: faqDraft.question.trim(),
       answer: faqDraft.answer.trim() || 'This answer will help visitors understand the next step more clearly.',
     }
-    setDraft({ ...draft, faqs: [prepared, ...(draft.faqs || [])] })
+    persistDraft({ ...draft, faqs: [prepared, ...(draft.faqs || [])] })
     setFaqDraft({ question: '', answer: '' })
   }
 
   const deleteFaqCard = (index) => {
     const nextFaqs = (draft.faqs || []).filter((_, faqIndex) => faqIndex !== index)
-    setDraft({ ...draft, faqs: nextFaqs })
+    persistDraft({ ...draft, faqs: nextFaqs })
   }
 
   const handleContactSubmit = (event) => {
     event.preventDefault()
     if (!contactDraft.title.trim()) return
-    setDraft({
+    persistDraft({
       ...draft,
       contact: {
         title: contactDraft.title.trim(),

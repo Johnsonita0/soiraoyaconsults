@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import Brand from '../components/Brand'
-import AboutSlider from '../components/AboutSlider'
 import HeroSlider from '../components/HeroSlider'
 import PropertyGallery from '../components/PropertyGallery'
 import ServiceModal from '../components/ServiceModal'
@@ -18,6 +17,7 @@ const trustMessages = [
   'Local knowledge with an institutional view',
   'Clarity for every stage of the property lifecycle',
   'Built on integrity, insight, and accountability',
+  
   'Helping investors move with conviction',
   'Turning property complexity into clear next steps',
   'A considered partner for lasting value',
@@ -138,7 +138,53 @@ export default function LandingPage({ content, goTo }) {
     <main>
       <HeroSlider slides={content.heroSlides || []} content={content} onContact={scrollToContact} />
       <section className="trust-strip"><p className="trust-message" key={trustIndex}>{trustMessages[trustIndex]}</p><div className="trust-items"><span>22+ <small>Years of experience</small></span><span>RC 9178187 <small>Corporate affairs commission</small></span><span>LAGOS <small>Rooted in the market</small></span></div></section>
-      <AboutSlider slides={content.aboutSlides || []} />
+      <section id="approach" className="about-section">
+        <div className="section-head about-lead">
+          <div>
+            <p className="eyebrow">About us</p>
+            <h2>About <em>S.O. Iraoya Consulting</em></h2>
+          </div>
+        </div>
+
+        <div className="about-grid">
+          <article className="about-card about-fullwidth">
+            {/* <p className="about-card-label">About us</p> */}
+            <p className="about-card-text about-company-copy">
+              <strong>S.O. Iraoya Consulting</strong> is a professional firm of Estate Surveyors &amp; Valuers. With young but seasoned professionals in our fold, our basic services encompass all the facets of the Estate Surveying and Valuation Profession. Our sister company <strong>Estate Links Limited</strong> is a firm of international real estate consultants with its niche being foreign real estate investment. While we look forward to attracting new business through recommendation, we also continue to expand by creating exciting new opportunities for our clients. We appreciate that our future progress rests with the success of our clients and our ability to serve them professionally, energetically, and with loyalty. Our foundation is professionalism. Our mission lies in ensuring that client’s objectives are met; we partner with clients and focus on what they want to achieve.
+            </p>
+          </article>
+
+          <article className="about-card">
+            {/* <p className="about-card-label">Mission</p> */}
+            <h3>Mission</h3>
+            <p className="about-card-text">To ensure that our client’s objectives are met by partnering with them, focusing on what they want to achieve, and delivering professional, energetic, and loyal service that creates lasting value.</p>
+            <ul className="about-points">
+              <li>Client-focused delivery</li>
+              <li>Professional partnership</li>
+            </ul>
+          </article>
+
+          <article className="about-card">
+            {/* <p className="about-card-label">Vision</p> */}
+            <h3>Vision</h3>
+            <p className="about-card-text">To be a trusted real-estate partner known for professionalism, strategic insight, and dependable advisory support for businesses and individuals making important property decisions.</p>
+            <ul className="about-points">
+              <li>Trusted advisory support</li>
+              <li>Long-term value creation</li>
+            </ul>
+          </article>
+
+          <article className="about-card">
+            {/* <p className="about-card-label">Core values</p> */}
+            <h3>Core values</h3>
+            <p className="about-card-text">Professionalism, integrity, loyalty, and a commitment to exceptional client service form the foundation of everything we do.</p>
+            <ul className="about-points">
+              <li>Professionalism first</li>
+              <li>Integrity and accountability</li>
+            </ul>
+          </article>
+        </div>
+      </section>
       <section id="services" className="services-section"><div className="section-head"><div><p className="eyebrow">What we do</p><h2>Expertise that moves<br /><em>assets forward.</em></h2></div><p className="head-note">We advise across the full property lifecycle, from the first feasibility question to the long-term work of making an asset perform.</p></div><div className="service-grid">{(content.services || []).map((service) => { const Icon = typeof service.icon === 'function' ? service.icon : serviceIcons[service.title] || Building2; return <button className="service-card" key={service.title} onClick={() => setSelectedService(service)} aria-label={`View details about ${service.title}`}><Icon size={25} strokeWidth={1.5} /><h3>{service.title}</h3><p>{service.text}</p><span className="service-card-arrow"><ArrowUpRight size={19} /></span></button> })}</div></section>
       <PropertyGallery onContact={scrollToContact} properties={content.gallery || []} />
       <FaqSection items={content.faqs || []} onContact={scrollToContact} />

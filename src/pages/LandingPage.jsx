@@ -9,7 +9,7 @@ import InvestWithUs from '../components/InvestWithUs'
 import TestimonialsSection from '../components/TestimonialsSection'
 import SearchableSelect from '../components/SearchableSelect'
 import { useToast } from '../components/ToastProvider'
-import { ArrowUp, ArrowUpRight, BarChart3, Building2, Check, Facebook, Home, Instagram, Leaf, Linkedin, Mail, MapPin, Menu, Phone, Whatsapp, X, Youtube } from '../components/icons'
+import { ArrowUp, ArrowUpRight, BarChart3, Building2, Check, ChevronDown, Facebook, Home, Instagram, Leaf, Linkedin, Mail, MapPin, Menu, Phone, Whatsapp, X, Youtube } from '../components/icons'
 
 const trustMessages = [
   'Trusted by people making consequential property decisions',
@@ -46,12 +46,18 @@ export default function LandingPage({ content, goTo }) {
   const [showBackToTop, setShowBackToTop] = useState(false)
   const [showWhatsappTip, setShowWhatsappTip] = useState(true)
   const [showAboutModal, setShowAboutModal] = useState(true)
+  const [aboutMenuOpen, setAboutMenuOpen] = useState(false)
   const [propertySearch, setPropertySearch] = useState(null)
   const [whatsappTipIndex, setWhatsappTipIndex] = useState(0)
   const [form, setForm] = useState({ name: '', email: '', request: '' })
   const [submitError, setSubmitError] = useState('')
+  const aboutItems = [
+    { label: 'Company Overview', id: '#approach' },
+    { label: 'Management Team', id: '#management-team' },
+    { label: 'Professional Affiliates', id: '#professional-affiliates' },
+    { label: 'Awards & Accolades', id: '#awards-accolades' },
+  ]
   const navItems = [
-    { label: 'Overview', id: '#approach' },
     { label: 'Services', id: '#services' },
     { label: 'Properties', id: '#properties' },
     { label: 'Invest', id: '#invest' },
@@ -71,6 +77,10 @@ export default function LandingPage({ content, goTo }) {
     event.preventDefault()
     setMobileOpen(false)
     scrollToSection(id)
+  }
+  const handleAboutItemClick = (event, id) => {
+    handleNavClick(event, id)
+    setAboutMenuOpen(false)
   }
   const submit = async (event) => {
     event.preventDefault()
@@ -137,7 +147,7 @@ export default function LandingPage({ content, goTo }) {
   }, [])
 
   return <div className="site-shell">
-    <header className="site-header"><Brand goTo={goTo} /><nav className={mobileOpen ? 'nav-open' : ''}>{navItems.map((item) => <a key={item.id} href={item.id} onClick={(event) => handleNavClick(event, item.id)}>{item.label}</a>)}</nav><button className="mobile-toggle" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">{mobileOpen ? <X size={30} /> : <Menu size={30} />}</button><button className="header-cta" onClick={scrollToContact}>Start a conversation <ArrowUpRight size={16} /></button></header>
+    <header className="site-header"><Brand goTo={goTo} /><nav className={mobileOpen ? 'nav-open' : ''}><div className={`about-nav-item ${aboutMenuOpen ? 'is-open' : ''}`}><button type="button" className="about-nav-trigger" aria-expanded={aboutMenuOpen} onClick={() => setAboutMenuOpen((open) => !open)}>About Us <ChevronDown size={14} /></button><ul className="about-submenu">{aboutItems.map((item) => <li key={item.id}><a href={item.id} onClick={(event) => handleAboutItemClick(event, item.id)}>{item.label}</a></li>)}</ul></div>{navItems.map((item) => <a key={item.id} href={item.id} onClick={(event) => handleNavClick(event, item.id)}>{item.label}</a>)}</nav><button className="mobile-toggle" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">{mobileOpen ? <X size={30} /> : <Menu size={30} />}</button><button className="header-cta" onClick={scrollToContact}>Start a conversation <ArrowUpRight size={16} /></button></header>
     <main>
       <HeroSlider slides={content.heroSlides || []} content={content} onContact={scrollToContact} onSearch={(filters) => { setPropertySearch(filters); window.setTimeout(() => document.querySelector('#properties')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0) }} />
       <section className="trust-strip"><p className="trust-message" key={trustIndex}>{trustMessages[trustIndex]}</p><div className="trust-items"><span>22+ <small>Years of experience</small></span><span>RC 9178187 <small>Corporate affairs commission</small></span><span>LAGOS <small>Rooted in the market</small></span></div></section>
@@ -178,6 +188,17 @@ export default function LandingPage({ content, goTo }) {
             <article className="about-value-card"><span className="about-value-number">04</span><h4>Care</h4><p>We bring thoughtfulness and attention to the people, assets, and outcomes entrusted to us.</p></article>
           </div>
         </div>
+      </section>
+      <section id="management-team" className="management-section" aria-label="Management team">
+        <div className="management-section-head"><div><p className="eyebrow">Management team</p><h2>People who bring <em>perspective.</em></h2></div><p>Meet the leadership team behind our professional, client-focused approach to real estate advice.</p></div>
+        <div className="management-team-grid"><article className="team-member-card"><img src="/logo/gbenga-olaniyan.jpeg" alt="Gbenga Olaniyan" /><div><h3>Gbenga Olaniyan</h3><p>Chairman, Estate Links Group</p><a className="text-link" href="#contact" onClick={(event) => handleNavClick(event, '#contact')}>Speak with our team <ArrowUpRight size={15} /></a></div></article><article className="team-member-card"><img src="/logo/joe-quinones.jpeg" alt="Joe Quinones" /><div><h3>Joe Quinones</h3><p>Managing Partner, Estate Links, USA</p><a className="text-link" href="#contact" onClick={(event) => handleNavClick(event, '#contact')}>Speak with our team <ArrowUpRight size={15} /></a></div></article><article className="team-member-card"><img src="/logo/olubiyi-ayodeji.jpeg" alt="Olubiyi Ayodeji" /><div><h3>Olubiyi Ayodeji</h3><p>Managing Director, Acuity Assets Limited</p><a className="text-link" href="#contact" onClick={(event) => handleNavClick(event, '#contact')}>Speak with our team <ArrowUpRight size={15} /></a></div></article></div>
+      </section>
+      <section className="about-detail-section" aria-label="About us details">
+        <article id="professional-affiliates" className="about-detail-card affiliates-detail-card"><p className="eyebrow">Professional affiliates</p><h2>Connected to the <em>profession.</em></h2><p>Our professional network connects clients and colleagues to the standards, knowledge, and international perspective shaping estate surveying and valuation.</p><ul className="affiliate-list"><li><div className="affiliate-logo"><img src="/logo/esvarbon.jpg" alt="ESVARBON logo" /></div><div><strong>ESVARBON</strong><span>Regulates and controls the practice of estate surveying and valuation in Nigeria.</span></div></li><li><div className="affiliate-logo"><img src="/logo/niesv.jpg" alt="NIESV logo" /></div><div><strong>NIESV</strong><span>Supports the interests and professional development of estate surveyors and valuers in Nigeria.</span></div></li><li><div className="affiliate-logo"><img src="/logo/fiabci.jpg" alt="FIABCI logo" /></div><div><strong>FIABCI</strong><span>Connects real estate professionals for knowledge sharing and international business.</span></div></li><li><div className="affiliate-logo"><img src="/logo/rics.jpg" alt="RICS logo" /></div><div><strong>RICS</strong><span>Accredits professionals across land, property, and construction sectors worldwide.</span></div></li><li><div className="affiliate-logo"><img src="/logo/afres.jpg" alt="AfRES logo" /></div><div><strong>AfRES</strong><span>Promotes networking, research, and education among property professionals across Africa.</span></div></li></ul><a className="text-link" href="#contact" onClick={(event) => handleNavClick(event, '#contact')}>Start a conversation <ArrowUpRight size={16} /></a></article>
+      </section>
+      <section id="awards-accolades" className="awards-section" aria-label="Awards and accolades">
+        <div className="awards-section-head"><div><p className="eyebrow">Awards &amp; accolades</p><h2>Recognition that reflects <em>excellence.</em></h2></div><p>A record of professional recognition earned through disciplined service, industry contribution, and lasting commitment to the real estate profession.</p></div>
+        <div className="awards-grid"><article className="award-card"><span>2019</span><h3>Outstanding Estate Surveying Firm</h3><p>NIESV, Lagos Branch</p></article><article className="award-card"><span>2019</span><h3>Chairman’s Special Award of Recognition</h3><p>NIESV, Lagos Branch</p></article><article className="award-card"><span>2017</span><h3>Real Estate Agency of the Year</h3><p>Real Estate Excellence Awards</p></article><article className="award-card"><span>2016</span><h3>Recognition of Contribution to the Growth of the Faculty &amp; Institution</h3><p>Nigerian Institution of Estate Surveyors and Valuers</p></article><article className="award-card"><span>2015</span><h3>Best Real Estate Support Service Firm</h3><p>Real Estate Unite</p></article><article className="award-card"><span>2015</span><h3>Award for Outstanding Achievement and Appreciation</h3><p>Re.in.vent</p></article></div>
       </section>
       <section id="services" className="services-section"><div className="section-head"><div><p className="eyebrow">What we do</p><h2>Expertise that moves<br /><em>assets forward.</em></h2></div><p className="head-note">We advise across the full property lifecycle, from the first feasibility question to the long-term work of making an asset perform.</p></div><div className="service-grid">{(content.services || []).map((service) => { const Icon = typeof service.icon === 'function' ? service.icon : serviceIcons[service.title] || Building2; return <button className="service-card" key={service.title} onClick={() => setSelectedService(service)} aria-label={`View details about ${service.title}`}><Icon size={25} strokeWidth={1.5} /><h3>{service.title}</h3><p>{service.text}</p><span className="service-card-arrow"><ArrowUpRight size={19} /></span></button> })}</div></section>
       <PropertyGallery onContact={scrollToContact} properties={content.gallery || []} searchFilters={propertySearch} />

@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { ArrowUpRight, X } from './icons'
 
-export default function AboutModal({ onClose }) {
+export default function AboutModal({ onClose, onExploreServices }) {
   useEffect(() => {
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
@@ -38,7 +38,7 @@ export default function AboutModal({ onClose }) {
           <article><p className="about-modal-label">Our Vision</p><h3>Creating confident property decisions.</h3><p>To provide data-driven real estate solutions that create value, inform decisions, and meet the evolving needs of our clients.</p></article>
         </div>
       </div>
-      <button type="button" className="button button-dark about-modal-action" onClick={onClose}>Explore our services <ArrowUpRight size={17} /></button>
+      <button type="button" className="button button-dark about-modal-action" onClick={onExploreServices}>Explore our services <ArrowUpRight size={17} /></button>
     </section>
   </div>
 }

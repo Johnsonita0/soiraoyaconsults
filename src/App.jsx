@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import LandingPage from './pages/LandingPage'
 import ServicePage from './pages/ServicePage'
+import PropertySearchPage from './pages/PropertySearchPage'
 import AdminPage from './pages/AdminPage'
 import LoginPage from './pages/LoginPage'
 import { seedContent } from './data/content'
@@ -19,6 +20,7 @@ const mergeContent = (incoming = {}) => ({
   servicesVersion: seedContent.servicesVersion,
   services: incoming.servicesVersion === seedContent.servicesVersion ? incoming.services || seedContent.services : seedContent.services,
   gallery: incoming.gallery || seedContent.gallery,
+  rentalProperties: incoming.rentalProperties || seedContent.rentalProperties,
   investOpportunities: incoming.investOpportunities || seedContent.investOpportunities,
   faqs: incoming.faqs || seedContent.faqs,
   testimonials: incoming.testimonials || seedContent.testimonials,
@@ -26,7 +28,7 @@ const mergeContent = (incoming = {}) => ({
 })
 
 export default function App() {
-  const [route, setRoute] = useState(window.location.pathname)
+  const [route, setRoute] = useState(window.location.pathname + window.location.search)
   const [adminUser, setAdminUser] = useState(null)
   const contentDirtyRef = useRef(false)
   const [content, setContent] = useState(() => {
@@ -101,7 +103,7 @@ export default function App() {
       }
     })
 
-    const onPopState = () => setRoute(window.location.pathname)
+    const onPopState = () => setRoute(window.location.pathname + window.location.search)
     window.addEventListener('popstate', onPopState)
 
     return () => {
@@ -147,9 +149,13 @@ export default function App() {
 
   const servicePath = route.startsWith('/services/') ? route.slice('/services/'.length) : ''
   const service = content.services?.find((item) => serviceSlug(item.title) === servicePath)
+  const isPropertySearch = route.startsWith('/properties/search')
+  const searchQuery = isPropertySearch ? new URLSearchParams(route.split('?')[1] || '') : null
+  const searchFilters = searchQuery ? { listingType: searchQuery.get('listingType') || 'For Sale', keyword: searchQuery.get('keyword') || '', title: searchQuery.get('title') || '', address: searchQuery.get('address') || '' } : null
   const page = route === '/login' || route === '/dashboard' || route === '/admin'
     ? canAccessDashboard ? <AdminPage content={content} setContent={updateContent} goTo={goTo} /> : <LoginPage goTo={goTo} />
     : service ? <ServicePage content={content} service={service} goTo={goTo} />
+    : isPropertySearch ? <PropertySearchPage content={content} filters={searchFilters} goTo={goTo} />
     : <LandingPage content={content} goTo={goTo} />
 
   return <ToastProvider>{page}</ToastProvider>

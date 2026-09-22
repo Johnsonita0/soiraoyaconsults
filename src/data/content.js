@@ -27,6 +27,11 @@ export const seedContent = {
     { title: 'Victoria Island Offices', location: 'Victoria Island, Lagos', type: 'Commercial', price: '₦420m', description: 'A flexible office asset positioned for businesses looking for a central Lagos address.', image: '/image/hero/hero-4.jpg' },
     { title: 'Lekki Waterside Villa', location: 'Lekki Phase 1, Lagos', type: 'Residential', price: '₦265m', description: 'Contemporary waterfront living with adaptable spaces for family life and entertaining.', image: '/image/hero/hero-2.jpg' },
   ],
+  rentalProperties: [
+    { title: 'Ikoyi Garden Apartment', location: 'Ikoyi, Lagos', type: 'For Rent', price: '₦8.5m', description: 'A bright, well-appointed apartment with secure parking and convenient access to Ikoyi amenities.', image: '/image/hero/hero-1.jpg', listingType: 'For Rent' },
+    { title: 'Lekki Waterside Home', location: 'Lekki Phase 1, Lagos', type: 'For Rent', price: '₦12m', description: 'A spacious contemporary home near the waterfront, suited to comfortable family living.', image: '/image/hero/hero-2.jpg', listingType: 'For Rent' },
+    { title: 'Victoria Island Executive Suite', location: 'Victoria Island, Lagos', type: 'For Rent', price: '₦10m', description: 'A polished city residence with excellent access to business, dining, and coastal neighbourhoods.', image: '/image/hero/hero-3.jpg', listingType: 'For Rent' },
+  ],
   aboutSlides: [
     {
       label: 'Company overview',

@@ -4,6 +4,7 @@ import AboutModal from '../components/AboutModal'
 import HeroSlider from '../components/HeroSlider'
 import PropertyGallery from '../components/PropertyGallery'
 import ServiceModal from '../components/ServiceModal'
+import { slug as serviceSlug } from './ServicePage'
 import FaqSection from '../components/FaqSection'
 import InvestWithUs from '../components/InvestWithUs'
 import TestimonialsSection from '../components/TestimonialsSection'
@@ -47,24 +48,49 @@ export default function LandingPage({ content, goTo }) {
   const [showWhatsappTip, setShowWhatsappTip] = useState(true)
   const [showAboutModal, setShowAboutModal] = useState(true)
   const [aboutMenuOpen, setAboutMenuOpen] = useState(false)
+  const [servicesMenuOpen, setServicesMenuOpen] = useState(false)
   const [propertySearch, setPropertySearch] = useState(null)
   const [whatsappTipIndex, setWhatsappTipIndex] = useState(0)
   const [form, setForm] = useState({ name: '', email: '', request: '' })
   const [submitError, setSubmitError] = useState('')
-  const showTeamAndAwards = false
+  const leadershipMembers = [
+    {
+      name: 'Dr. Olusegun Iraoya, PhD',
+      role: 'Principal Partner',
+      meta: 'RSV, NIESV | B.Sc (QS) | M.Sc | PhD',
+      description: '22+ years’ experience spanning estate survey, property valuation, facilities management, and strategic advisory across public and private sector assets.',
+      tags: ['Asset Valuation', 'Facilities Mgmt', 'Project Finance', 'Investment Analysis'],
+    },
+    {
+      name: 'Dr. Akinbola Kazeem, PhD',
+      role: 'Advisory Partner',
+      meta: 'Estate Management | QS | Building Tech | Urban Planning',
+      description: 'Former Senior Facilities Management Surveyor at Jide Taiwo & Co. with strong expertise in sustainable urban development, asset valuation, and performance-driven property strategy.',
+      tags: ['Asset Valuation', 'Facilities Mgmt', 'Sustainability', 'Urban Planning'],
+    },
+  ]
+  const supportMembers = [
+    { name: 'Olamide Olawale Oladale', role: 'B.Sc. Quantity Surveying', initials: 'OO' },
+    { name: 'Glory Danito', role: 'B.Sc. Business Development', initials: 'GD' },
+    { name: 'Wisdom Asom Ayongha', role: 'B.Sc. History & International Relations', initials: 'WA' },
+    { name: 'Israel Anselm', role: 'B.Sc. Banking & Finance', initials: 'IA' },
+  ]
+  const showTeamAndAwards = true
+  const showAwards = false
   const aboutItems = [
     { label: 'Company Overview', id: '#approach' },
     { label: 'Professional Affiliates', id: '#professional-affiliates' },
-    ...(showTeamAndAwards ? [{ label: 'Management Team', id: '#management-team' }, { label: 'Awards & Accolades', id: '#awards-accolades' }] : []),
+    ...(showTeamAndAwards ? [{ label: 'Management Team', id: '#management-team' }] : []),
+    ...(showAwards ? [{ label: 'Awards & Accolades', id: '#awards-accolades' }] : []),
   ]
   const navItems = [
-    { label: 'Services', id: '#services' },
     { label: 'Properties', id: '#properties' },
     { label: 'Invest', id: '#invest' },
     { label: 'Testimonials', id: '#testimonials' },
     { label: 'FAQs', id: '#faq' },
     { label: 'Contact', id: '#contact' },
   ]
+  const serviceNavItems = content.services || []
   const scrollToSection = (id) => {
     const section = document.querySelector(id)
     if (!section) return
@@ -72,7 +98,7 @@ export default function LandingPage({ content, goTo }) {
     window.scrollTo({ top, behavior: 'smooth' })
   }
   const scrollToContact = () => scrollToSection('#contact')
-  const serviceIcons = { 'Valuation & Advisory': BarChart3, 'Development Strategy': Building2, 'Property Management': Home, 'Investment Analysis': Leaf, 'Property Listing': Building2 }
+  const serviceIcons = { 'Property & Asset Valuation': BarChart3, 'Property Management': Home, 'Facility Management': Building2, 'Project Management': Building2, 'Real Estate Consultancy': Leaf, 'General Estate Agency': Home, 'Feasibility & Viability Appraisal': BarChart3 }
   const handleNavClick = (event, id) => {
     event.preventDefault()
     setMobileOpen(false)
@@ -81,6 +107,11 @@ export default function LandingPage({ content, goTo }) {
   const handleAboutItemClick = (event, id) => {
     handleNavClick(event, id)
     setAboutMenuOpen(false)
+  }
+  const openServiceFromMenu = (service) => {
+    setServicesMenuOpen(false)
+    setMobileOpen(false)
+    goTo(`/services/${serviceSlug(service.title)}`)
   }
   const submit = async (event) => {
     event.preventDefault()
@@ -147,7 +178,7 @@ export default function LandingPage({ content, goTo }) {
   }, [])
 
   return <div className="site-shell">
-    <header className="site-header"><Brand goTo={goTo} /><nav className={mobileOpen ? 'nav-open' : ''}><div className={`about-nav-item ${aboutMenuOpen ? 'is-open' : ''}`}><button type="button" className="about-nav-trigger" aria-expanded={aboutMenuOpen} onClick={() => setAboutMenuOpen((open) => !open)}>About Us <ChevronDown size={14} /></button><ul className="about-submenu">{aboutItems.map((item) => <li key={item.id}><a href={item.id} onClick={(event) => handleAboutItemClick(event, item.id)}>{item.label}</a></li>)}</ul></div>{navItems.map((item) => <a key={item.id} href={item.id} onClick={(event) => handleNavClick(event, item.id)}>{item.label}</a>)}</nav><button className="mobile-toggle" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">{mobileOpen ? <X size={30} /> : <Menu size={30} />}</button><button className="header-cta" onClick={scrollToContact}>Start a conversation <ArrowUpRight size={16} /></button></header>
+    <header className="site-header"><Brand goTo={goTo} /><nav className={mobileOpen ? 'nav-open' : ''}><div className={`about-nav-item ${aboutMenuOpen ? 'is-open' : ''}`} onMouseLeave={() => setAboutMenuOpen(false)}><button type="button" className="about-nav-trigger" aria-expanded={aboutMenuOpen} onClick={() => setAboutMenuOpen((open) => !open)}>About Us <ChevronDown size={14} /></button><ul className="about-submenu">{aboutItems.map((item) => <li key={item.id}><a href={item.id} onClick={(event) => handleAboutItemClick(event, item.id)}>{item.label}</a></li>)}</ul></div><div className={`services-nav-item ${servicesMenuOpen ? 'is-open' : ''}`} onMouseLeave={() => setServicesMenuOpen(false)}><button type="button" className="services-nav-trigger" aria-expanded={servicesMenuOpen} onClick={() => setServicesMenuOpen((open) => !open)}>Services <ChevronDown size={14} /></button><ul className="services-submenu">{serviceNavItems.map((item) => <li key={item.title}><button type="button" onClick={() => openServiceFromMenu(item)}>{item.title}</button></li>)}</ul></div>{navItems.map((item) => <a key={item.id} href={item.id} onClick={(event) => handleNavClick(event, item.id)}>{item.label}</a>)}</nav><button className="mobile-toggle" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">{mobileOpen ? <X size={30} /> : <Menu size={30} />}</button><button className="header-cta" onClick={scrollToContact}>Start a conversation <ArrowUpRight size={16} /></button></header>
     <main>
       <HeroSlider slides={content.heroSlides || []} content={content} onContact={scrollToContact} onSearch={(filters) => { setPropertySearch(filters); window.setTimeout(() => document.querySelector('#properties')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0) }} />
       <section className="trust-strip"><p className="trust-message" key={trustIndex}>{trustMessages[trustIndex]}</p><div className="trust-items"><span>22+ <small>Years of experience</small></span><span>RC 9178187 <small>Corporate affairs commission</small></span><span>LAGOS <small>Rooted in the market</small></span></div></section>
@@ -186,21 +217,51 @@ export default function LandingPage({ content, goTo }) {
             <p className="about-card-text">The principles that guide how we advise, collaborate, and create value for our clients.</p>
           </div>
           <div className="about-values-grid">
-            <article className="about-value-card"><span className="about-value-number">01</span><h4>Integrity</h4><p>We act with honesty, accountability, and professional responsibility in every engagement.</p></article>
-            <article className="about-value-card"><span className="about-value-number">02</span><h4>Relationships</h4><p>We build lasting partnerships through listening, trust, and dependable support.</p></article>
-            <article className="about-value-card"><span className="about-value-number">03</span><h4>Growth mindset</h4><p>We stay curious, learn continuously, and look for better ways to solve property challenges.</p></article>
-            <article className="about-value-card"><span className="about-value-number">04</span><h4>Care</h4><p>We bring thoughtfulness and attention to the people, assets, and outcomes entrusted to us.</p></article>
+            <article className="about-value-card"><span className="about-value-icon" aria-hidden="true">✓</span><h4>Integrity</h4><p>We act with honesty, accountability, and professional responsibility in every engagement.</p></article>
+            <article className="about-value-card"><span className="about-value-icon" aria-hidden="true">◎</span><h4>Relationships</h4><p>We build lasting partnerships through listening, trust, and dependable support.</p></article>
+            <article className="about-value-card"><span className="about-value-icon" aria-hidden="true">↗</span><h4>Growth mindset</h4><p>We stay curious, learn continuously, and look for better ways to solve property challenges.</p></article>
+            <article className="about-value-card"><span className="about-value-icon" aria-hidden="true">♥</span><h4>Care</h4><p>We bring thoughtfulness and attention to the people, assets, and outcomes entrusted to us.</p></article>
           </div>
         </div>
       </section>
-      {showTeamAndAwards && <section id="management-team" className="management-section" aria-label="Management team">
-        <div className="management-section-head"><div><p className="eyebrow">Management team</p><h2>People who bring <em>perspective.</em></h2></div><p>Meet the leadership team behind our professional, client-focused approach to real estate advice.</p></div>
-        <div className="management-team-grid"><article className="team-member-card"><img src="/logo/gbenga-olaniyan.jpeg" alt="Gbenga Olaniyan" /><div><h3>Gbenga Olaniyan</h3><p>Chairman, Estate Links Group</p><a className="text-link" href="#contact" onClick={(event) => handleNavClick(event, '#contact')}>Speak with our team <ArrowUpRight size={15} /></a></div></article><article className="team-member-card"><img src="/logo/joe-quinones.jpeg" alt="Joe Quinones" /><div><h3>Joe Quinones</h3><p>Managing Partner, Estate Links, USA</p><a className="text-link" href="#contact" onClick={(event) => handleNavClick(event, '#contact')}>Speak with our team <ArrowUpRight size={15} /></a></div></article><article className="team-member-card"><img src="/logo/olubiyi-ayodeji.jpeg" alt="Olubiyi Ayodeji" /><div><h3>Olubiyi Ayodeji</h3><p>Managing Director, Acuity Assets Limited</p><a className="text-link" href="#contact" onClick={(event) => handleNavClick(event, '#contact')}>Speak with our team <ArrowUpRight size={15} /></a></div></article></div>
+      {showTeamAndAwards && <section id="management-team" className="leadership-section" aria-label="Leadership and support team">
+        <div className="leadership-banner">
+          <div className="leadership-badge" aria-hidden="true"><span /></div>
+          <h2>OUR LEADERSHIP</h2>
+        </div>
+
+        <div className="leadership-grid">
+          {leadershipMembers.map((member) => (
+            <article key={member.name} className="leadership-member-card">
+              <div className="leadership-avatar" aria-label={member.name}>{member.name.split(' ').map((word) => word[0]).slice(0, 2).join('')}</div>
+              <div className="leadership-role">{member.role}</div>
+              <h3>{member.name}</h3>
+              <p className="leadership-meta">{member.meta}</p>
+              <p className="leadership-description">{member.description}</p>
+              <div className="leadership-tags">
+                {member.tags.map((tag) => <span key={tag}>{tag}</span>)}
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <div className="support-banner">SUPPORT TEAM</div>
+
+        <div className="support-grid">
+          {supportMembers.map((member) => (
+            <article key={member.name} className="support-member-card">
+              <div className="support-avatar" aria-label={member.name}>{member.initials}</div>
+              <h3>{member.name}</h3>
+              <p>{member.role}</p>
+            </article>
+          ))}
+        </div>
+
       </section>}
       <section className="about-detail-section" aria-label="About us details">
         <article id="professional-affiliates" className="about-detail-card affiliates-detail-card"><p className="eyebrow">Professional affiliates</p><h2>Professional <em>Affiliates</em></h2><p>Our professional network connects clients and colleagues to the standards, knowledge, and international perspective shaping estate surveying and valuation.</p><ul className="affiliate-list"><li><div className="affiliate-logo"><img src="/logo/esvarbon.jpg" alt="ESVARBON logo" /></div><div><strong>ESVARBON</strong><span>Regulates and controls the practice of estate surveying and valuation in Nigeria.</span></div></li><li><div className="affiliate-logo"><img src="/logo/niesv.jpg" alt="NIESV logo" /></div><div><strong>NIESV</strong><span>Supports the interests and professional development of estate surveyors and valuers in Nigeria.</span></div></li><li><div className="affiliate-logo"><img src="/logo/fiabci.jpg" alt="FIABCI logo" /></div><div><strong>FIABCI</strong><span>Connects real estate professionals for knowledge sharing and international business.</span></div></li><li><div className="affiliate-logo"><img src="/logo/rics.jpg" alt="RICS logo" /></div><div><strong>RICS</strong><span>Accredits professionals across land, property, and construction sectors worldwide.</span></div></li><li><div className="affiliate-logo"><img src="/logo/afres.jpg" alt="AfRES logo" /></div><div><strong>AfRES</strong><span>Promotes networking, research, and education among property professionals across Africa.</span></div></li></ul><a className="text-link" href="#contact" onClick={(event) => handleNavClick(event, '#contact')}>Start a conversation <ArrowUpRight size={16} /></a></article>
       </section>
-      {showTeamAndAwards && <section id="awards-accolades" className="awards-section" aria-label="Awards and accolades">
+      {showAwards && <section id="awards-accolades" className="awards-section" aria-label="Awards and accolades">
         <div className="awards-section-head"><div><p className="eyebrow">Awards &amp; accolades</p><h2>Recognition that reflects <em>excellence.</em></h2></div><p>A record of professional recognition earned through disciplined service, industry contribution, and lasting commitment to the real estate profession.</p></div>
         <div className="awards-grid"><article className="award-card"><span>2019</span><h3>Outstanding Estate Surveying Firm</h3><p>NIESV, Lagos Branch</p></article><article className="award-card"><span>2019</span><h3>Chairman’s Special Award of Recognition</h3><p>NIESV, Lagos Branch</p></article><article className="award-card"><span>2017</span><h3>Real Estate Agency of the Year</h3><p>Real Estate Excellence Awards</p></article><article className="award-card"><span>2016</span><h3>Recognition of Contribution to the Growth of the Faculty &amp; Institution</h3><p>Nigerian Institution of Estate Surveyors and Valuers</p></article><article className="award-card"><span>2015</span><h3>Best Real Estate Support Service Firm</h3><p>Real Estate Unite</p></article><article className="award-card"><span>2015</span><h3>Award for Outstanding Achievement and Appreciation</h3><p>Re.in.vent</p></article></div>
       </section>}

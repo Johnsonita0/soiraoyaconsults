@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import LandingPage from './pages/LandingPage'
+import ServicePage from './pages/ServicePage'
 import AdminPage from './pages/AdminPage'
 import LoginPage from './pages/LoginPage'
 import { seedContent } from './data/content'
@@ -8,13 +9,15 @@ import { ToastProvider } from './components/ToastProvider'
 import './css/App.css'
 
 const isAuthenticatedUser = (user) => Boolean(user)
+const serviceSlug = (title) => title.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
 
 const mergeContent = (incoming = {}) => ({
   ...seedContent,
   ...incoming,
   heroSlides: incoming.heroSlides || seedContent.heroSlides,
   aboutSlides: incoming.aboutSlides || seedContent.aboutSlides,
-  services: incoming.services || seedContent.services,
+  servicesVersion: seedContent.servicesVersion,
+  services: incoming.servicesVersion === seedContent.servicesVersion ? incoming.services || seedContent.services : seedContent.services,
   gallery: incoming.gallery || seedContent.gallery,
   investOpportunities: incoming.investOpportunities || seedContent.investOpportunities,
   faqs: incoming.faqs || seedContent.faqs,
@@ -142,8 +145,11 @@ export default function App() {
     setContent(nextContent)
   }
 
+  const servicePath = route.startsWith('/services/') ? route.slice('/services/'.length) : ''
+  const service = content.services?.find((item) => serviceSlug(item.title) === servicePath)
   const page = route === '/login' || route === '/dashboard' || route === '/admin'
     ? canAccessDashboard ? <AdminPage content={content} setContent={updateContent} goTo={goTo} /> : <LoginPage goTo={goTo} />
+    : service ? <ServicePage content={content} service={service} goTo={goTo} />
     : <LandingPage content={content} goTo={goTo} />
 
   return <ToastProvider>{page}</ToastProvider>

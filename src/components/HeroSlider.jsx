@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ShieldCheck } from './icons'
+import { Search, ShieldCheck } from './icons'
 
-export default function HeroSlider({ slides, content, onContact }) {
+export default function HeroSlider({ slides, content, onContact, onSearch }) {
   const safeSlides = useMemo(() => {
     const activeSlides = Array.isArray(slides) ? slides.filter((slide) => slide.active !== false) : []
 
@@ -18,8 +18,9 @@ export default function HeroSlider({ slides, content, onContact }) {
 
   const [activeIndex, setActiveIndex] = useState(0)
   const [imageSources, setImageSources] = useState(() => safeSlides.map((slide) => slide.image))
+  const [listingType, setListingType] = useState('For Sale')
+  const [searchFields, setSearchFields] = useState({ keyword: '', title: '', address: '' })
   const activeSlide = safeSlides[activeIndex] || safeSlides[0]
-  const visibleSlide = activeIndex === 0 ? { ...activeSlide, title: content?.heroTitle || activeSlide.title, tagline: 'Perspective changes everything.' } : activeSlide
 
   useEffect(() => {
     setImageSources(safeSlides.map((slide) => slide.image))
@@ -42,10 +43,26 @@ export default function HeroSlider({ slides, content, onContact }) {
     setImageSources((sources) => sources.map((source, index) => index === activeIndex ? activeSlide.fallback : source))
   }
 
+  const handleSearch = (event) => {
+    event.preventDefault()
+    onSearch?.({ listingType, ...searchFields })
+  }
+
+  const updateSearchField = (field, value) => setSearchFields((current) => ({ ...current, [field]: value }))
+
   return <section className="hero-section" style={{ backgroundImage: 'none', backgroundColor: '#10295f' }}>
-    <img className="hero-background" src={imageSources[activeIndex]} onError={handleImageError} alt="Property advisory" style={{ position: 'absolute', inset: 0, zIndex: 0, display: 'block', width: '100%', height: '100%', objectFit: 'cover', opacity: 1 }} />
+    <img key={activeIndex} className="hero-background hero-background-zoom" src={imageSources[activeIndex]} onError={handleImageError} alt="Property advisory" style={{ position: 'absolute', inset: 0, zIndex: 0, display: 'block', width: '100%', height: '100%', objectFit: 'cover', opacity: 1 }} />
     <div className="hero-overlay"></div>
-    <div className="hero-copy"><p className="eyebrow">Independent real-estate advisory <span>Since 2002</span></p><h1 key={activeIndex}>{visibleSlide.title}</h1><p className="hero-lede" key={`copy-${activeIndex}`}>{activeIndex === 0 ? content?.heroText : visibleSlide.tagline}</p><div className="hero-actions"><button className="button button-light" onClick={onContact}>Tell us what you’re building <span>↗</span></button><a className="text-link" href="#services">Explore our expertise <span>›</span></a></div></div>
-    <div className="hero-caption"><p>{visibleSlide.tagline}</p></div><div className="hero-controls" style={{ position: 'absolute', left: 16, right: 16, top: '50%', width: 'calc(100% - 32px)', height: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', transform: 'translateY(-50%)', zIndex: 10, pointerEvents: 'none' }}><button style={{ pointerEvents: 'auto' }} onClick={() => move(-1)} aria-label="Previous slide">←</button><button style={{ pointerEvents: 'auto' }} onClick={() => move(1)} aria-label="Next slide">→</button></div><div className="hero-dots">{safeSlides.map((slide, index) => <button key={`${slide.title}-${index}`} className={index === activeIndex ? 'active' : ''} onClick={() => setActiveIndex(index)} aria-label={`Go to slide ${index + 1}`} />)}</div><div className="hero-stamp"><ShieldCheck size={18} /><span>Licensed &amp; trusted<br /><b>ESVARBON A7725</b></span></div>
+    <div className="hero-content-row">
+      <div className="hero-copy"><p className="eyebrow">Independent real-estate advisory <span>Since 2002</span></p><h1>Discover Your Dream Home Today!</h1><p className="hero-lede">Explore listings, find your perfect property, and make your dream a reality with our expert guidance.</p><div className="hero-actions"><button className="button button-light" onClick={onContact}>Tell us what you’re building <span>↗</span></button><a className="text-link" href="#services">Explore our expertise <span>›</span></a></div></div>
+      <form className="hero-search-panel" onSubmit={handleSearch}>
+        <div className="hero-search-tabs" role="tablist" aria-label="Property listing type"><button type="button" className={listingType === 'For Sale' ? 'active' : ''} onClick={() => setListingType('For Sale')}>For Sale</button><button type="button" className={listingType === 'For Rent' ? 'active' : ''} onClick={() => setListingType('For Rent')}>For Rent</button></div>
+        <label><span className="sr-only">Search keyword</span><input value={searchFields.keyword} onChange={(event) => updateSearchField('keyword', event.target.value)} placeholder="Enter Keyword..." /></label>
+        <label><span className="sr-only">Property title</span><input value={searchFields.title} onChange={(event) => updateSearchField('title', event.target.value)} placeholder="Title" /></label>
+        <label><span className="sr-only">Property address</span><input value={searchFields.address} onChange={(event) => updateSearchField('address', event.target.value)} placeholder="Address" /></label>
+        <button className="hero-search-submit" type="submit"><Search size={15} /> Search</button>
+      </form>
+    </div>
+    <div className="hero-controls" style={{ position: 'absolute', left: 16, right: 16, top: '50%', width: 'calc(100% - 32px)', height: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', transform: 'translateY(-50%)', zIndex: 10, pointerEvents: 'none' }}><button style={{ pointerEvents: 'auto' }} onClick={() => move(-1)} aria-label="Previous slide">←</button><button style={{ pointerEvents: 'auto' }} onClick={() => move(1)} aria-label="Next slide">→</button></div><div className="hero-dots">{safeSlides.map((slide, index) => <button key={`${slide.title}-${index}`} className={index === activeIndex ? 'active' : ''} onClick={() => setActiveIndex(index)} aria-label={`Go to slide ${index + 1}`} />)}</div><div className="hero-stamp"><ShieldCheck size={18} /><span>Licensed &amp; trusted<br /><b>ESVARBON A7725</b></span></div>
   </section>
 }

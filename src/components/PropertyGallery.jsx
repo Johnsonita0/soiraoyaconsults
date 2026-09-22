@@ -19,15 +19,29 @@ const defaultProperties = [
   ['Ikoyi Investment Block', 'Ikoyi, Lagos', 'Investment', '₦760m', 'A rare investment opportunity with a compelling location and multiple value-creation routes.', 'hero-4.jpg'],
 ].map(([title, location, type, price, description, image]) => ({ title, location, type, price, description, image: `/image/hero/${image}` }))
 
-export default function PropertyGallery({ onContact, properties = defaultProperties }) {
+export default function PropertyGallery({ onContact, properties, searchFilters = null }) {
   const [selectedProperty, setSelectedProperty] = useState(null)
   const [marqueeDirection, setMarqueeDirection] = useState('normal')
-  const galleryItems = properties.length ? properties : defaultProperties
+  const sourceProperties = properties === undefined ? defaultProperties : properties
+  const normalizedFilters = searchFilters ? Object.values(searchFilters).some(Boolean) ? searchFilters : null : null
+  const galleryItems = normalizedFilters
+    ? sourceProperties.filter((property) => {
+        const keyword = normalizedFilters.keyword.trim().toLowerCase()
+        const title = normalizedFilters.title.trim().toLowerCase()
+        const address = normalizedFilters.address.trim().toLowerCase()
+        const matchesKeyword = !keyword || [property.title, property.location, property.type, property.description].some((value) => String(value || '').toLowerCase().includes(keyword))
+        const matchesTitle = !title || String(property.title || '').toLowerCase().includes(title)
+        const matchesAddress = !address || String(property.location || '').toLowerCase().includes(address)
+        const propertyListingType = property.listingType || property.status
+        const matchesListingType = !propertyListingType || String(propertyListingType).toLowerCase() === normalizedFilters.listingType.toLowerCase()
+        return matchesKeyword && matchesTitle && matchesAddress && matchesListingType
+      })
+    : sourceProperties
 
   return <>
     <section id="properties" className="property-section">
       <div className="property-section-head"><div><p className="eyebrow">Selected opportunities</p><h2>Property with<br /><em>potential.</em></h2></div><p>Explore a considered selection of residential, commercial, land, and development opportunities.</p></div>
-      <div className="property-viewport"><div className="property-controls"><button onClick={() => setMarqueeDirection('reverse')} aria-label="Move properties right">←</button><button onClick={() => setMarqueeDirection('normal')} aria-label="Move properties left">→</button></div><div className="property-track" style={{ animationDirection: marqueeDirection }}>{[...galleryItems, ...galleryItems].map((property, index) => <button className="property-card" key={`${property.title}-${index}`} onClick={() => setSelectedProperty(property)}><img src={property.image} alt={property.title} /><div className="property-card-body"><span>{property.type}</span><h3>{property.title}</h3><p>{property.location}</p><b>{property.price}</b><ArrowUpRight size={17} /></div></button>)}</div></div>
+      <div className="property-viewport">{galleryItems.length ? <><div className="property-controls"><button onClick={() => setMarqueeDirection('reverse')} aria-label="Move properties right">←</button><button onClick={() => setMarqueeDirection('normal')} aria-label="Move properties left">→</button></div><div className="property-track" style={{ animationDirection: marqueeDirection }}>{[...galleryItems, ...galleryItems].map((property, index) => <button className="property-card" key={`${property.title}-${index}`} onClick={() => setSelectedProperty(property)}><img src={property.image} alt={property.title} /><div className="property-card-body"><span>{property.type}</span><h3>{property.title}</h3><p>{property.location}</p><b>{property.price}</b><ArrowUpRight size={17} /></div></button>)}</div></> : <p className="property-search-empty">No properties matched your search. Try a different keyword or address.</p>}</div>
     </section>
     {selectedProperty && <div className="property-modal-backdrop" onClick={() => setSelectedProperty(null)}><section className="property-modal" role="dialog" aria-modal="true" onClick={(event) => event.stopPropagation()}><button className="property-modal-close" onClick={() => setSelectedProperty(null)} aria-label="Close property details"><X size={20} /></button><img src={selectedProperty.image} alt={selectedProperty.title} /><div className="property-modal-body"><p className="eyebrow">{selectedProperty.type} · {selectedProperty.location}</p><h2>{selectedProperty.title}</h2><b className="property-modal-price">{selectedProperty.price}</b><p>{selectedProperty.description}</p><button className="button button-dark" onClick={() => { setSelectedProperty(null); onContact() }}>Contact us about this property <ArrowUpRight size={17} /></button></div></section></div>}
   </>

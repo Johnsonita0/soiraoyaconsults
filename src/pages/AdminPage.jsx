@@ -83,7 +83,7 @@ export default function AdminPage({ content, setContent, goTo }) {
   return <div className="admin-shell"><aside className={`admin-sidebar ${sidebarExpanded ? 'expanded' : 'collapsed'}`}><button className="sidebar-toggle" type="button" onClick={() => setSidebarExpanded((current) => !current)} aria-label={sidebarExpanded ? 'Collapse sidebar' : 'Expand sidebar'}>{sidebarExpanded ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}</button><Brand admin goTo={goTo} /><div className="admin-nav">{tabs.map(([label, Icon]) => <button className={tab === label ? 'active' : ''} onClick={() => handleTabSelect(label)} key={label}><span className="nav-item-icon"><Icon size={17} />{label === 'Consult requests' && <b className="nav-count">3</b>}</span><span>{label}</span></button>)}</div><div className="sidebar-bottom"><button type="button" className="sidebar-logout" onClick={handleLogout} aria-label="Logout"><LogOut size={16} /><span>Logout</span></button><div className="profile"><span>OI</span><div><b>Iraoya</b><small>Principal partner</small></div><ChevronDown size={14} /></div></div></aside><main className="admin-main"><header className="admin-topbar"><div className="mobile-admin-brand"><Brand admin mobile goTo={goTo} /></div><div className="admin-breadcrumb">S.O.Iraoya / <b>{tab}</b></div><div className="admin-actions"><div className={`header-search-toggle ${searchOpen ? 'open' : ''}`}><button className="icon-button" aria-label="Toggle search" onClick={handleSearchAction}><Search size={18} /></button>{searchOpen && <input id="header-search-input" value={requestSearch} onChange={(event) => setRequestSearch(event.target.value)} placeholder="Search requests" aria-label="Search requests" />}</div><span className="notification-dot"></span><div className="mobile-profile-menu-wrap"><button type="button" className="avatar mobile-user-trigger" aria-label="User menu" onClick={() => setMobileProfileMenuOpen((current) => !current)}><span>OI</span><ChevronDown size={11} /></button>{mobileProfileMenuOpen && <div className="profile-dropdown mobile-dropdown"><div className="mobile-profile-summary"><span className="profile-badge">OI</span><div><b>Iraoya</b><small>Principal partner</small></div></div><button type="button" onClick={handleLogout}>Logout</button></div>}</div></div></header>{tab === 'Overview' && <Overview setTab={setTab} />}{tab === 'Consult requests' && <Requests requestSearch={requestSearch} setRequestSearch={setRequestSearch} />}{tab === 'Landing page' && <LandingEditor draft={draft} setDraft={setDraft} save={save} persistDraft={persistDraft} openConfirm={openConfirm} />}{tab === 'Testimonials' && <Testimonials draft={draft} persistDraft={persistDraft} openConfirm={openConfirm} />}</main><nav className="mobile-admin-tabs" aria-label="Admin navigation">{tabs.map(([label, Icon]) => <button className={tab === label ? 'active' : ''} onClick={() => handleTabSelect(label)} key={label}><Icon size={16} /><span>{label}</span></button>)}</nav><ConfirmDialog action={confirmAction} onCancel={closeConfirm} onConfirm={completeConfirm} /></div>
 }
 
-const emptyGalleryItem = () => ({ title: '', location: '', type: 'Residential', price: '', description: '', image: '' })
+const emptyGalleryItem = () => ({ title: '', location: '', type: 'Residential', listingType: 'For Sale', price: '', description: '', image: '' })
 
 function readFileAsDataUrl(file) {
   return new Promise((resolve, reject) => {
@@ -507,6 +507,14 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
               </div>
 
               <div className="field-group">
+                <label className="field-label">Listing type</label>
+                <select className="field-input" value={galleryDraft.listingType} onChange={(event) => setGalleryDraft({ ...galleryDraft, listingType: event.target.value })}>
+                  <option>For Sale</option>
+                  <option>For Rent</option>
+                </select>
+              </div>
+
+              <div className="field-group">
                 <label className="field-label">Description</label>
                 <textarea className="field-input" rows="3" value={galleryDraft.description} onChange={(event) => setGalleryDraft({ ...galleryDraft, description: event.target.value })} placeholder="A warm, well-located asset with strong appeal..." />
               </div>
@@ -600,7 +608,7 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
 
               <div className="field-group">
                 <label className="field-label">Title</label>
-                <input className="field-input" value={aboutDraft.title} onChange={(event) => setAboutDraft({ ...aboutDraft, title: event.target.value })} placeholder="Mission" />
+                <input className="field-input" value={aboutDraft.title} onChange={(event) => setAboutDraft({ ...aboutDraft, title: event.target.value })} placeholder="Our Vision" />
               </div>
 
               <div className="field-group">

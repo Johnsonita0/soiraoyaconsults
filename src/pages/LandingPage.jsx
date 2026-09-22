@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import Brand from '../components/Brand'
+import AboutModal from '../components/AboutModal'
 import HeroSlider from '../components/HeroSlider'
 import PropertyGallery from '../components/PropertyGallery'
 import ServiceModal from '../components/ServiceModal'
@@ -44,6 +45,8 @@ export default function LandingPage({ content, goTo }) {
   const [selectedService, setSelectedService] = useState(null)
   const [showBackToTop, setShowBackToTop] = useState(false)
   const [showWhatsappTip, setShowWhatsappTip] = useState(true)
+  const [showAboutModal, setShowAboutModal] = useState(true)
+  const [propertySearch, setPropertySearch] = useState(null)
   const [whatsappTipIndex, setWhatsappTipIndex] = useState(0)
   const [form, setForm] = useState({ name: '', email: '', request: '' })
   const [submitError, setSubmitError] = useState('')
@@ -136,13 +139,13 @@ export default function LandingPage({ content, goTo }) {
   return <div className="site-shell">
     <header className="site-header"><Brand goTo={goTo} /><nav className={mobileOpen ? 'nav-open' : ''}>{navItems.map((item) => <a key={item.id} href={item.id} onClick={(event) => handleNavClick(event, item.id)}>{item.label}</a>)}</nav><button className="mobile-toggle" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">{mobileOpen ? <X size={30} /> : <Menu size={30} />}</button><button className="header-cta" onClick={scrollToContact}>Start a conversation <ArrowUpRight size={16} /></button></header>
     <main>
-      <HeroSlider slides={content.heroSlides || []} content={content} onContact={scrollToContact} />
+      <HeroSlider slides={content.heroSlides || []} content={content} onContact={scrollToContact} onSearch={(filters) => { setPropertySearch(filters); window.setTimeout(() => document.querySelector('#properties')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0) }} />
       <section className="trust-strip"><p className="trust-message" key={trustIndex}>{trustMessages[trustIndex]}</p><div className="trust-items"><span>22+ <small>Years of experience</small></span><span>RC 9178187 <small>Corporate affairs commission</small></span><span>LAGOS <small>Rooted in the market</small></span></div></section>
       <section id="approach" className="about-section">
         <div className="section-head about-lead">
           <div>
-            <p className="eyebrow">About us</p>
-            <h2>About <em>S.O. Iraoya Consulting</em></h2>
+            <p className="eyebrow">Company overview</p>
+            <h2>Company <em>overview</em></h2>
           </div>
         </div>
 
@@ -150,43 +153,34 @@ export default function LandingPage({ content, goTo }) {
           <article className="about-card about-fullwidth">
             {/* <p className="about-card-label">About us</p> */}
             <p className="about-card-text about-company-copy">
-              <strong>S.O. Iraoya Consulting</strong> is a professional firm of Estate Surveyors &amp; Valuers. With young but seasoned professionals in our fold, our basic services encompass all the facets of the Estate Surveying and Valuation Profession. Our sister company <strong>Estate Links Limited</strong> is a firm of international real estate consultants with its niche being foreign real estate investment. While we look forward to attracting new business through recommendation, we also continue to expand by creating exciting new opportunities for our clients. We appreciate that our future progress rests with the success of our clients and our ability to serve them professionally, energetically, and with loyalty. Our foundation is professionalism. Our mission lies in ensuring that client’s objectives are met; we partner with clients and focus on what they want to achieve.
+              <strong>S.O. Iraoya Consulting</strong> is a professional firm of Estate Surveyors &amp; Valuers. With young but seasoned professionals in our fold, our basic services encompass all the facets of the Estate Surveying and Valuation Profession. Our sister company <strong>Estate Links Limited</strong> is a firm of international real estate consultants with its niche being foreign real estate investment. While we look forward to attracting new business through recommendation, we also continue to expand by creating exciting new opportunities for our clients. We appreciate that our future progress rests with the success of our clients and our ability to serve them professionally, energetically, and with loyalty. We focus on helping clients achieve their property objectives.
             </p>
           </article>
 
           <article className="about-card">
-            {/* <p className="about-card-label">Mission</p> */}
-            <h3>Mission</h3>
-            <p className="about-card-text">To ensure that our client’s objectives are met by partnering with them, focusing on what they want to achieve, and delivering professional, energetic, and loyal service that creates lasting value.</p>
-            <ul className="about-points">
-              <li>Client-focused delivery</li>
-              <li>Professional partnership</li>
-            </ul>
-          </article>
-
-          <article className="about-card">
-            {/* <p className="about-card-label">Vision</p> */}
-            <h3>Vision</h3>
-            <p className="about-card-text">To be a trusted real-estate partner known for professionalism, strategic insight, and dependable advisory support for businesses and individuals making important property decisions.</p>
+            <h3>Our Vision</h3>
+            <p className="about-card-text">To provide data-driven real estate solutions that create value, inform decisions, and meet the evolving needs of our clients.</p>
             <ul className="about-points">
               <li>Trusted advisory support</li>
               <li>Long-term value creation</li>
             </ul>
           </article>
 
-          <article className="about-card">
-            {/* <p className="about-card-label">Core values</p> */}
+          <div className="about-values-heading">
+            <p className="about-card-label">Our foundation</p>
             <h3>Core values</h3>
-            <p className="about-card-text">Professionalism, integrity, loyalty, and a commitment to exceptional client service form the foundation of everything we do.</p>
-            <ul className="about-points">
-              <li>Professionalism first</li>
-              <li>Integrity and accountability</li>
-            </ul>
-          </article>
+            <p className="about-card-text">The principles that guide how we advise, collaborate, and create value for our clients.</p>
+          </div>
+          <div className="about-values-grid">
+            <article className="about-value-card"><span className="about-value-number">01</span><h4>Integrity</h4><p>We act with honesty, accountability, and professional responsibility in every engagement.</p></article>
+            <article className="about-value-card"><span className="about-value-number">02</span><h4>Relationships</h4><p>We build lasting partnerships through listening, trust, and dependable support.</p></article>
+            <article className="about-value-card"><span className="about-value-number">03</span><h4>Growth mindset</h4><p>We stay curious, learn continuously, and look for better ways to solve property challenges.</p></article>
+            <article className="about-value-card"><span className="about-value-number">04</span><h4>Care</h4><p>We bring thoughtfulness and attention to the people, assets, and outcomes entrusted to us.</p></article>
+          </div>
         </div>
       </section>
       <section id="services" className="services-section"><div className="section-head"><div><p className="eyebrow">What we do</p><h2>Expertise that moves<br /><em>assets forward.</em></h2></div><p className="head-note">We advise across the full property lifecycle, from the first feasibility question to the long-term work of making an asset perform.</p></div><div className="service-grid">{(content.services || []).map((service) => { const Icon = typeof service.icon === 'function' ? service.icon : serviceIcons[service.title] || Building2; return <button className="service-card" key={service.title} onClick={() => setSelectedService(service)} aria-label={`View details about ${service.title}`}><Icon size={25} strokeWidth={1.5} /><h3>{service.title}</h3><p>{service.text}</p><span className="service-card-arrow"><ArrowUpRight size={19} /></span></button> })}</div></section>
-      <PropertyGallery onContact={scrollToContact} properties={content.gallery || []} />
+      <PropertyGallery onContact={scrollToContact} properties={content.gallery || []} searchFilters={propertySearch} />
       <FaqSection items={content.faqs || []} onContact={scrollToContact} />
       <InvestWithUs items={content.investOpportunities || []} onContact={scrollToContact} />
       <TestimonialsSection testimonials={content.testimonials || []} contactEmail={content.contact?.email} />
@@ -194,6 +188,7 @@ export default function LandingPage({ content, goTo }) {
     </main>
     <footer className="site-footer"><div className="footer-main"><div className="footer-brand"><Brand light goTo={goTo} /><p>Strategic real-estate advisory for decisions that create lasting value.</p></div><div className="footer-column"><p className="footer-label">Explore</p><a href="#approach">About us</a><a href="#services">Our services</a><a href="#properties">Properties</a><a href="#faq">FAQs</a></div><div className="footer-column"><p className="footer-label">Contact</p><a href="mailto:info@soiraoyaconsulting.com.ng">info@soiraoyaconsulting.com.ng</a><a href="tel:+2349074091408">0907 409 1408</a><span>Suite 30, Dolphin Plaza<br />Ikoyi, Lagos</span></div><div className="footer-column footer-socials"><p className="footer-label">Follow our work</p><div className="social-links"><a className="social-facebook" href="https://www.facebook.com" target="_blank" rel="noreferrer" aria-label="Facebook"><Facebook size={17} /></a><a className="social-instagram" href="https://www.instagram.com" target="_blank" rel="noreferrer" aria-label="Instagram"><Instagram size={17} /></a><a className="social-linkedin" href="https://www.linkedin.com" target="_blank" rel="noreferrer" aria-label="LinkedIn"><Linkedin size={17} /></a><a className="social-youtube" href="https://www.youtube.com" target="_blank" rel="noreferrer" aria-label="YouTube"><Youtube size={17} /></a></div></div></div><div className="footer-bottom"><span>© 2026 S.O.Iraoya Consulting. All rights reserved.</span><span>Registered with CAC · Licensed by ESVARBON</span></div></footer>
     <ServiceModal service={selectedService} onClose={() => setSelectedService(null)} onContact={() => { setSelectedService(null); scrollToContact() }} />
+    {showAboutModal && <AboutModal onClose={() => setShowAboutModal(false)} />}
     <div className="floating-whatsapp-wrap"><span className={`floating-whatsapp-tip ${showWhatsappTip ? 'visible' : ''}`} aria-hidden="true">{whatsappTips[whatsappTipIndex]}</span><a className="floating-whatsapp" href={whatsappChatUrl} target="_blank" rel="noreferrer" aria-label="Open WhatsApp chat" title="Open WhatsApp chat"><Whatsapp size={25} /></a></div>
     {showBackToTop && <button className="floating-back-to-top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Back to top" title="Back to top"><ArrowUp size={22} /></button>}
   </div>

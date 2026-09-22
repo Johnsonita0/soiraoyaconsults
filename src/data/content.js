@@ -26,22 +26,16 @@ export const seedContent = {
   ],
   aboutSlides: [
     {
-      label: 'About us',
-      title: 'Mission',
-      text: 'To ensure that our clients objectives are met by partnering with them, focusing on what they want to achieve, and delivering professional, energetic, and loyal service that creates lasting value.',
-      points: ['Client-focused delivery', 'Professional partnership'],
-    },
-    {
-      label: 'About us',
-      title: 'Vision',
-      text: 'To be a trusted real-estate partner known for professionalism, strategic insight, and dependable advisory support for businesses and individuals making important property decisions.',
-      points: ['Trusted advisory support', 'Long-term value creation'],
+      label: 'Company overview',
+      title: 'Our Vision',
+      text: 'To provide data-driven real estate solutions that create value, inform decisions, and meet the evolving needs of our clients.',
+      points: ['Data-driven solutions', 'Lasting client value'],
     },
     {
       label: 'About us',
       title: 'Core values',
-      text: 'Professionalism, integrity, loyalty, and a commitment to exceptional client service form the foundation of everything we do.',
-      points: ['Professionalism first', 'Integrity and accountability'],
+      text: 'Integrity, relationships, a growth mindset, and care guide how we advise, collaborate, and create value for our clients.',
+      points: ['Integrity', 'Relationships', 'Growth mindset', 'Care'],
     },
   ],
   investOpportunities: [

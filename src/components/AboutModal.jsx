@@ -3,17 +3,23 @@ import { ArrowUpRight, X } from './icons'
 
 export default function AboutModal({ onClose }) {
   useEffect(() => {
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+
     const handleKeyDown = (event) => {
       if (event.key === 'Escape') onClose()
     }
 
     window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
+    return () => {
+      document.body.style.overflow = previousOverflow
+      window.removeEventListener('keydown', handleKeyDown)
+    }
   }, [onClose])
 
   return <div className="about-modal-backdrop" role="presentation" onClick={onClose}>
     <section className="about-modal" role="dialog" aria-modal="true" aria-labelledby="about-modal-title" onClick={(event) => event.stopPropagation()}>
-      <button className="about-modal-close" onClick={onClose} aria-label="Close about S.O. Iraoya Consulting"><X size={20} /></button>
+      <button type="button" className="about-modal-close" onClick={onClose} aria-label="Close about S.O. Iraoya Consulting"><X size={20} /></button>
       <div className="about-modal-heading">
         <p className="eyebrow">Welcome to S.O. Iraoya Consulting</p>
         <h2 id="about-modal-title">Company&apos;s Overview</h2>
@@ -32,7 +38,7 @@ export default function AboutModal({ onClose }) {
           <article><p className="about-modal-label">Our Vision</p><h3>Creating confident property decisions.</h3><p>To provide data-driven real estate solutions that create value, inform decisions, and meet the evolving needs of our clients.</p></article>
         </div>
       </div>
-      <button className="button button-dark about-modal-action" onClick={onClose}>Explore our services <ArrowUpRight size={17} /></button>
+      <button type="button" className="button button-dark about-modal-action" onClick={onClose}>Explore our services <ArrowUpRight size={17} /></button>
     </section>
   </div>
 }

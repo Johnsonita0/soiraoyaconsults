@@ -800,6 +800,8 @@ footer .admin-link { color:var(--green); }
 .about-card h3 { margin:0 0 18px; font-size:clamp(28px, 2vw, 36px); line-height:1.05; color:var(--ink); }
 .about-card-text { margin:0; color:var(--muted); font-size:14px; line-height:1.7; }
 .about-company-copy { font-size:15px; line-height:1.8; }
+.about-company-copy p { margin:0 0 16px; }
+.about-company-copy p:last-child { margin-bottom:0; }
 .about-fullwidth { grid-column:1 / -1; }
 .about-values-heading { grid-column:1 / -1; padding:20px 0 0; }
 .about-values-heading h3 { margin:0 0 10px; color:var(--ink); font-size:clamp(28px, 2vw, 36px); line-height:1.05; }

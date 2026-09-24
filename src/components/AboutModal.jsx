@@ -36,6 +36,7 @@ export default function AboutModal({ onClose, onExploreServices }) {
         </div>
         <div className="about-modal-principles">
           <article><p className="about-modal-label">Our Vision</p><h3>Creating confident property decisions.</h3><p>To provide data-driven real estate solutions that create value, inform decisions, and meet the evolving needs of our clients.</p></article>
+          <article><p className="about-modal-label">Our Mission</p><h3>Remembered for quality and excellence.</h3><p>To be the trusted name clients remember whenever they think of quality and excellence in real estate consulting.</p></article>
         </div>
       </div>
       <button type="button" className="button button-dark about-modal-action" onClick={onExploreServices}>Explore our services <ArrowUpRight size={17} /></button>

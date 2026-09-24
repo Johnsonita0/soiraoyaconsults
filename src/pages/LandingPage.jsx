@@ -211,6 +211,11 @@ export default function LandingPage({ content, goTo }) {
             </ul>
           </article>
 
+          <article className="about-card">
+            <h3>Our Mission</h3>
+            <p className="about-card-text">To be the trusted name clients remember whenever they think of quality and excellence in real estate consulting.</p>
+          </article>
+
           <div className="about-values-heading">
             <p className="about-card-label">Our foundation</p>
             <h3>Core values</h3>

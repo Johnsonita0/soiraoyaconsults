@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import LandingPage from './pages/LandingPage'
 import ServicePage from './pages/ServicePage'
 import PropertySearchPage from './pages/PropertySearchPage'
+import PortfolioManagementPage from './pages/PortfolioManagementPage'
 import AdminPage from './pages/AdminPage'
 import LoginPage from './pages/LoginPage'
 import { seedContent } from './data/content'
@@ -152,8 +153,10 @@ export default function App() {
   const isPropertySearch = route.startsWith('/properties/search')
   const searchQuery = isPropertySearch ? new URLSearchParams(route.split('?')[1] || '') : null
   const searchFilters = searchQuery ? { listingType: searchQuery.get('listingType') || 'For Sale', keyword: searchQuery.get('keyword') || '', title: searchQuery.get('title') || '', address: searchQuery.get('address') || '' } : null
+  const routePath = route.split('?')[0]
   const page = route === '/login' || route === '/dashboard' || route === '/admin'
     ? canAccessDashboard ? <AdminPage content={content} setContent={updateContent} goTo={goTo} /> : <LoginPage goTo={goTo} />
+    : routePath === '/portfolio-management' ? <PortfolioManagementPage content={content} goTo={goTo} />
     : service ? <ServicePage content={content} service={service} goTo={goTo} />
     : isPropertySearch ? <PropertySearchPage content={content} filters={searchFilters} goTo={goTo} />
     : <LandingPage content={content} goTo={goTo} />

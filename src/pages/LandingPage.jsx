@@ -38,6 +38,23 @@ const whatsappTips = [
 
 const whatsappChatUrl = `https://wa.me/2349074091408?text=${encodeURIComponent('Hello, I would like to discuss a property opportunity.')}`
 
+function TeamMemberAvatar({ member, className }) {
+  const [imageFailed, setImageFailed] = useState(false)
+  const initials = member.name
+    .replace(/\bDr\.|\bPhD\b|,/g, '')
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join('')
+
+  if (!member.image || imageFailed) {
+    return <div className={className} role="img" aria-label={member.name}>{initials}</div>
+  }
+
+  return <img className={className} src={member.image} alt={member.name} onError={() => setImageFailed(true)} />
+}
+
 export default function LandingPage({ content, goTo }) {
   const { showToast } = useToast()
   const [sent, setSent] = useState(false)
@@ -86,8 +103,6 @@ export default function LandingPage({ content, goTo }) {
   const navItems = [
     { label: 'Properties', id: '#properties' },
     { label: 'Invest', id: '#invest' },
-    { label: 'Testimonials', id: '#testimonials' },
-    { label: 'FAQs', id: '#faq' },
     { label: 'Contact', id: '#contact' },
   ]
   const serviceNavItems = content.services || []
@@ -178,10 +193,23 @@ export default function LandingPage({ content, goTo }) {
   }, [])
 
   return <div className="site-shell">
-    <header className="site-header"><Brand goTo={goTo} /><nav className={mobileOpen ? 'nav-open' : ''}><div className={`about-nav-item ${aboutMenuOpen ? 'is-open' : ''}`} onMouseLeave={() => setAboutMenuOpen(false)}><button type="button" className="about-nav-trigger" aria-expanded={aboutMenuOpen} onClick={() => setAboutMenuOpen((open) => !open)}>About Us <ChevronDown size={14} /></button><ul className="about-submenu">{aboutItems.map((item) => <li key={item.id}><a href={item.id} onClick={(event) => handleAboutItemClick(event, item.id)}>{item.label}</a></li>)}</ul></div><div className={`services-nav-item ${servicesMenuOpen ? 'is-open' : ''}`} onMouseLeave={() => setServicesMenuOpen(false)}><button type="button" className="services-nav-trigger" aria-expanded={servicesMenuOpen} onClick={() => setServicesMenuOpen((open) => !open)}>Services <ChevronDown size={14} /></button><ul className="services-submenu">{serviceNavItems.map((item) => <li key={item.title}><button type="button" onClick={() => openServiceFromMenu(item)}>{item.title}</button></li>)}</ul></div>{navItems.map((item) => <a key={item.id} href={item.id} onClick={(event) => handleNavClick(event, item.id)}>{item.label}</a>)}</nav><button className="mobile-toggle" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">{mobileOpen ? <X size={30} /> : <Menu size={30} />}</button><button className="header-cta" onClick={scrollToContact}>Start a conversation <ArrowUpRight size={16} /></button></header>
+    <header className="site-header"><Brand goTo={goTo} /><nav className={mobileOpen ? 'nav-open' : ''}><div className={`about-nav-item ${aboutMenuOpen ? 'is-open' : ''}`} onMouseLeave={() => setAboutMenuOpen(false)}><button type="button" className="about-nav-trigger" aria-expanded={aboutMenuOpen} onClick={() => setAboutMenuOpen((open) => !open)}>About Us <ChevronDown size={14} /></button><ul className="about-submenu">{aboutItems.map((item) => <li key={item.id}><a href={item.id} onClick={(event) => handleAboutItemClick(event, item.id)}>{item.label}</a></li>)}</ul></div><div className={`services-nav-item ${servicesMenuOpen ? 'is-open' : ''}`} onMouseLeave={() => setServicesMenuOpen(false)}><button type="button" className="services-nav-trigger" aria-expanded={servicesMenuOpen} onClick={() => setServicesMenuOpen((open) => !open)}>Services <ChevronDown size={14} /></button><ul className="services-submenu">{serviceNavItems.map((item) => <li key={item.title}><button type="button" onClick={() => openServiceFromMenu(item)}>{item.title}</button></li>)}</ul></div><a href="/portfolio-management" onClick={(event) => { event.preventDefault(); setMobileOpen(false); goTo('/portfolio-management') }}>Portfolio Management</a>{navItems.map((item) => <a key={item.id} href={item.id} onClick={(event) => handleNavClick(event, item.id)}>{item.label}</a>)}</nav><button className="mobile-toggle" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">{mobileOpen ? <X size={30} /> : <Menu size={30} />}</button><button className="header-cta" onClick={scrollToContact}>Start a conversation <ArrowUpRight size={16} /></button></header>
     <main>
       <HeroSlider slides={content.heroSlides || []} content={content} onContact={scrollToContact} onSearch={(filters) => { setPropertySearch(filters); goTo(`/properties/search?${new URLSearchParams(filters).toString()}`) }} />
       <section className="trust-strip"><p className="trust-message" key={trustIndex}>{trustMessages[trustIndex]}</p><div className="trust-items"><span>22+ <small>Years of experience</small></span><span>RC 9178187 <small>Corporate affairs commission</small></span><span>LAGOS <small>Rooted in the market</small></span></div></section>
+      <section className="portfolio-home-section">
+        <div className="portfolio-home-copy">
+          <p className="eyebrow">Our primary focus</p>
+          <h2>Real estate portfolio management.</h2>
+          <p>Get a clearer view of property value, income, costs and risks across your assets—and practical advice on what to do next.</p>
+          <button className="button button-dark" onClick={() => goTo('/portfolio-management')}>Explore portfolio management <ArrowUpRight size={17} /></button>
+        </div>
+        <div className="portfolio-home-points">
+          <article><span>01</span><div><h3>See the whole picture</h3><p>Bring asset and performance information together.</p></div></article>
+          <article><span>02</span><div><h3>Understand what is working</h3><p>Review income, occupancy, costs and risk.</p></div></article>
+          <article><span>03</span><div><h3>Decide what comes next</h3><p>Assess opportunities to hold, improve or reposition.</p></div></article>
+        </div>
+      </section>
       <section id="approach" className="about-section">
         <div className="section-head about-lead">
           <div>
@@ -194,11 +222,10 @@ export default function LandingPage({ content, goTo }) {
           <article className="about-card about-fullwidth">
             {/* <p className="about-card-label">About us</p> */}
             <div className="about-card-text about-company-copy">
-              <p><strong>S.O. Iraoya Consulting</strong> is a professional firm of Estate Surveyors &amp; Valuers delivering strategic real estate solutions to individuals, businesses, investors, and institutions.</p>
-              <p>Our team combines professional expertise, market insight, and practical experience to provide comprehensive services across the Estate Surveying and Valuation profession. We are committed to helping our clients make informed property decisions, protect and maximise the value of their assets, and achieve their real estate objectives.</p>
-              <p>At the heart of our practice is a simple philosophy: our success is measured by the value we create for our clients. We take the time to understand each client’s unique needs and work closely with them to deliver solutions that are commercially sound, practical, and results-driven.</p>
-              <p>Built on professionalism, integrity, and client-focused service, S.O. Iraoya Consulting is committed to building lasting relationships and delivering excellence in every engagement.</p>
-              <p>We don’t simply provide real estate services; we create value, unlock opportunities, and help our clients make better property decisions.</p>
+              <p><strong>S.O. Iraoya Consulting</strong> is a professional firm of Estate Surveyors &amp; Valuers advising individuals, businesses, investors, and institutions across the property lifecycle.</p>
+              <p>From valuation and feasibility to property, facilities, and project management, we bring professional expertise and local market insight to the decisions that shape property performance.</p>
+              <p>We start by understanding each client’s objectives, then provide clear, commercially grounded advice to help assess risk, protect asset value, and identify practical next steps.</p>
+              <p>Our work is guided by integrity, accountability, and lasting client relationships. The aim is straightforward: help people make better-informed property decisions with confidence.</p>
             </div>
           </article>
 
@@ -238,7 +265,7 @@ export default function LandingPage({ content, goTo }) {
         <div className="leadership-grid">
           {leadershipMembers.map((member) => (
             <article key={member.name} className="leadership-member-card">
-              <div className="leadership-avatar" aria-label={member.name}>{member.name.split(' ').map((word) => word[0]).slice(0, 2).join('')}</div>
+              <TeamMemberAvatar member={member} className="leadership-avatar" />
               <div className="leadership-role">{member.role}</div>
               <h3>{member.name}</h3>
               <p className="leadership-meta">{member.meta}</p>
@@ -255,7 +282,7 @@ export default function LandingPage({ content, goTo }) {
         <div className="support-grid">
           {supportMembers.map((member) => (
             <article key={member.name} className="support-member-card">
-              <div className="support-avatar" aria-label={member.name}>{member.initials}</div>
+              <TeamMemberAvatar member={member} className="support-avatar" />
               <h3>{member.name}</h3>
               <p>{member.role}</p>
             </article>
@@ -275,9 +302,9 @@ export default function LandingPage({ content, goTo }) {
       <FaqSection items={content.faqs || []} onContact={scrollToContact} />
       <InvestWithUs items={content.investOpportunities || []} properties={content.gallery || []} rentalProperties={content.rentalProperties || []} onContact={scrollToContact} />
       <TestimonialsSection testimonials={content.testimonials || []} contactEmail={content.contact?.email} />
-      <section id="contact" className="contact-section"><div><p className="eyebrow">Let’s talk property</p><h2>{content.contact?.title || 'A better next step'}<br /><em>starts here.</em></h2><div className="contact-details"><span><MapPin size={17} /> {content.contact?.location || 'Suite 30, Dolphin Plaza, Ikoyi, Lagos'}</span><span><Phone size={17} /> {content.contact?.phone || '0907 409 1408'}</span><span><Mail size={17} /> {content.contact?.email || 'info@soiraoyaconsulting.com.ng'}</span></div></div><form onSubmit={submit}>{sent ? <div className="form-success"><span className="success-icon"><Check /></span><h3>Thank you, {form.name || 'we have your note'}.</h3><p>Our advisory team will be in touch shortly.</p><button type="button" className="text-link" onClick={() => { setSent(false); setSubmitError('') }}>Send another message <ArrowUpRight size={16} /></button></div> : <><label>Your name<input required value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder="e.g. Amaka Okafor" /></label><label>Work email<input required type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} placeholder="you@company.com" /></label><label>How can we help?<SearchableSelect value={form.request} onChange={(value) => setForm({ ...form, request: value })} ariaLabel="Consultation area" placeholder="Select an area of interest" options={[{ value: 'Property valuation', label: 'Property valuation' }, { value: 'Investment advisory', label: 'Investment advisory' }, { value: 'Development strategy', label: 'Development strategy' }, { value: 'Property management', label: 'Property management' }, { value: 'Property listing', label: 'Property listing' }]} /></label>{submitError && <div className="login-error">{submitError}</div>}<button className="button button-light" type="submit">Request a consultation <ArrowUpRight size={18} /></button></>}</form></section>
+      <section id="contact" className="contact-section"><div><p className="eyebrow">Let’s talk property</p><h2>{content.contact?.title || 'A better next step'}<br /><em>starts here.</em></h2><div className="contact-details"><span><MapPin size={17} /> {content.contact?.location || 'Suite 30, Dolphin Plaza, Ikoyi, Lagos'}</span><span><Phone size={17} /> {content.contact?.phone || '0907 409 1408'}</span><span><Mail size={17} /> {content.contact?.email || 'info@soiraoyaconsulting.com.ng'}</span></div></div><form onSubmit={submit}>{sent ? <div className="form-success"><span className="success-icon"><Check /></span><h3>Thank you, {form.name || 'we have your note'}.</h3><p>Our advisory team will be in touch shortly.</p><button type="button" className="text-link" onClick={() => { setSent(false); setSubmitError('') }}>Send another message <ArrowUpRight size={16} /></button></div> : <><label>Your name<input required value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder="e.g. Amaka Okafor" /></label><label>Work email<input required type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} placeholder="you@company.com" /></label><label>How can we help?<SearchableSelect value={form.request} onChange={(value) => setForm({ ...form, request: value })} ariaLabel="Consultation area" placeholder="Select an area of interest" options={[{ value: 'Real estate portfolio management', label: 'Real estate portfolio management' }, { value: 'Property valuation', label: 'Property valuation' }, { value: 'Investment advisory', label: 'Investment advisory' }, { value: 'Development strategy', label: 'Development strategy' }, { value: 'Property management', label: 'Property management' }, { value: 'Property listing', label: 'Property listing' }]} /></label>{submitError && <div className="login-error">{submitError}</div>}<button className="button button-light" type="submit">Request a consultation <ArrowUpRight size={18} /></button></>}</form></section>
     </main>
-    <footer className="site-footer"><div className="footer-main"><div className="footer-brand"><Brand light goTo={goTo} /><p>Strategic real-estate advisory for decisions that create lasting value.</p></div><div className="footer-column"><p className="footer-label">Explore</p><a href="#approach">About us</a><a href="#services">Our services</a><a href="#properties">Properties</a><a href="#faq">FAQs</a></div><div className="footer-column"><p className="footer-label">Contact</p><a href="mailto:info@soiraoyaconsulting.com.ng">info@soiraoyaconsulting.com.ng</a><a href="tel:+2349074091408">0907 409 1408</a><span>Suite 30, Dolphin Plaza<br />Ikoyi, Lagos</span></div><div className="footer-column footer-socials"><p className="footer-label">Follow our work</p><div className="social-links"><a className="social-facebook" href="https://www.facebook.com" target="_blank" rel="noreferrer" aria-label="Facebook"><Facebook size={17} /></a><a className="social-instagram" href="https://www.instagram.com" target="_blank" rel="noreferrer" aria-label="Instagram"><Instagram size={17} /></a><a className="social-linkedin" href="https://www.linkedin.com" target="_blank" rel="noreferrer" aria-label="LinkedIn"><Linkedin size={17} /></a><a className="social-youtube" href="https://www.youtube.com" target="_blank" rel="noreferrer" aria-label="YouTube"><Youtube size={17} /></a></div></div></div><div className="footer-bottom"><span>© 2026 S.O.Iraoya Consulting. All rights reserved.</span><span>Registered with CAC · Licensed by ESVARBON</span></div></footer>
+    <footer className="site-footer"><div className="footer-main"><div className="footer-brand"><Brand light goTo={goTo} /><p>Strategic real-estate advisory for decisions that create lasting value.</p></div><div className="footer-column"><p className="footer-label">Explore</p><a href="#approach">About us</a><a href="#services">Our services</a><a href="/portfolio-management" onClick={(event) => { event.preventDefault(); goTo('/portfolio-management') }}>Portfolio management</a><a href="#properties">Properties</a><a href="#faq">FAQs</a></div><div className="footer-column"><p className="footer-label">Contact</p><a href="mailto:info@soiraoyaconsulting.com.ng">info@soiraoyaconsulting.com.ng</a><a href="tel:+2349074091408">0907 409 1408</a><span>Suite 30, Dolphin Plaza<br />Ikoyi, Lagos</span></div><div className="footer-column footer-socials"><p className="footer-label">Follow our work</p><div className="social-links"><a className="social-facebook" href="https://www.facebook.com" target="_blank" rel="noreferrer" aria-label="Facebook"><Facebook size={17} /></a><a className="social-instagram" href="https://www.instagram.com" target="_blank" rel="noreferrer" aria-label="Instagram"><Instagram size={17} /></a><a className="social-linkedin" href="https://www.linkedin.com" target="_blank" rel="noreferrer" aria-label="LinkedIn"><Linkedin size={17} /></a><a className="social-youtube" href="https://www.youtube.com" target="_blank" rel="noreferrer" aria-label="YouTube"><Youtube size={17} /></a></div></div></div><div className="footer-bottom"><span>© 2026 S.O.Iraoya Consulting. All rights reserved.</span><span>Registered with CAC · Licensed by ESVARBON</span></div></footer>
     <ServiceModal service={selectedService} onClose={() => setSelectedService(null)} onContact={() => { setSelectedService(null); scrollToContact() }} />
     {showAboutModal && <AboutModal onClose={() => setShowAboutModal(false)} onExploreServices={() => { setShowAboutModal(false); window.setTimeout(() => scrollToSection('#services'), 0) }} />}
     <div className="floating-whatsapp-wrap"><span className={`floating-whatsapp-tip ${showWhatsappTip ? 'visible' : ''}`} aria-hidden="true">{whatsappTips[whatsappTipIndex]}</span><a className="floating-whatsapp" href={whatsappChatUrl} target="_blank" rel="noreferrer" aria-label="Open WhatsApp chat" title="Open WhatsApp chat"><Whatsapp size={25} /></a></div>

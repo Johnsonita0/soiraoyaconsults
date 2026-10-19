@@ -1,45 +1,117 @@
 import { useEffect, useState } from 'react'
-import Brand from '../components/Brand'
 import AboutModal from '../components/AboutModal'
+import Brand from '../components/Brand'
+import FaqSection from '../components/FaqSection'
 import HeroSlider from '../components/HeroSlider'
 import PropertyGallery from '../components/PropertyGallery'
-import ServiceModal from '../components/ServiceModal'
-import { slug as serviceSlug } from './ServicePage'
-import FaqSection from '../components/FaqSection'
-import InvestWithUs from '../components/InvestWithUs'
 import TestimonialsSection from '../components/TestimonialsSection'
-import SearchableSelect from '../components/SearchableSelect'
 import { useToast } from '../components/ToastProvider'
+import { slug as serviceSlug } from './ServicePage'
 import { ArrowUp, ArrowUpRight, BarChart3, Building2, Check, ChevronDown, Facebook, Home, Instagram, Leaf, Linkedin, Mail, MapPin, Menu, Phone, Whatsapp, X, Youtube } from '../components/icons'
+import './ConsultancyHome.css'
 
-const trustMessages = [
-  'Trusted by people making consequential property decisions',
-  'Independent advice for the moments that matter',
-  'Protecting capital. Growing confidence.',
-  'Local knowledge with an institutional view',
-  'Clarity for every stage of the property lifecycle',
-  'Built on integrity, insight, and accountability',
-  
-  'Helping investors move with conviction',
-  'Turning property complexity into clear next steps',
-  'A considered partner for lasting value',
-  'Strategic real-estate advisory, rooted in Lagos',
+const whatsappChatUrl = `https://wa.me/2349074091408?text=${encodeURIComponent('Hello, I would like to discuss a property or investment.')}`
+const revealEffects = ['fade-up', 'fade-right', 'zoom-in', 'fade-left', 'flip-up']
+const revealEffect = (index) => revealEffects[(index * 3 + 1) % revealEffects.length]
+const overviewWasDismissed = () => {
+  try {
+    return sessionStorage.getItem('soiraoya-overview-dismissed') === 'true'
+  } catch (error) {
+    console.error('Could not read overview modal state', error)
+    return false
+  }
+}
+
+const challenges = [
+  {
+    title: 'Limited visibility into performance',
+    question: 'Can you see rental income, expenses, arrears, maintenance costs and property performance clearly?',
+    response: 'We provide property management and reporting services to support financial visibility and informed decisions.',
+  },
+  {
+    title: 'Inefficient property operations',
+    question: 'Are maintenance issues, tenant administration or operating costs affecting your asset?',
+    response: 'We help coordinate day-to-day operations, maintenance and service providers within an agreed management scope.',
+  },
+  {
+    title: 'A portfolio that is hard to monitor',
+    question: 'Do you need to compare performance across several properties or locations?',
+    response: 'Our portfolio work brings asset information together to review performance, operating risks and improvement priorities.',
+  },
+  {
+    title: 'Uncertainty about an investment',
+    question: 'Do you have the evidence you need before committing capital to a property opportunity?',
+    response: 'Valuation, investment analysis and due diligence can help you understand an asset and the risks that may affect a decision.',
+  },
+  {
+    title: 'Property oversight from abroad',
+    question: 'Is it difficult to verify the condition of your property and supervise local activity?',
+    response: 'We can agree inspection, documentation, maintenance coordination and reporting arrangements with non-resident owners.',
+  },
+  {
+    title: 'Development decisions with many unknowns',
+    question: 'Do you need to test market demand, costs, revenue assumptions or development risks?',
+    response: 'Feasibility studies and investment analysis help inform development planning and commercial decisions.',
+  },
 ]
 
-const whatsappTips = [
-  'Chat with us on WhatsApp',
-  'Ask us about your property',
-  'Let’s discuss your next move',
-  'Get property advice today',
-  'Message our advisory team',
-  'Start your property conversation',
-  'Find clarity for your property',
+const audiences = [
+  { title: 'Individual property owners', text: 'Professional oversight for owners who need support with tenant administration, maintenance, property condition and reporting.', icon: Home },
+  { title: 'Diaspora investors', text: 'A structured way to monitor Nigerian property, coordinate local activities and stay informed while living abroad.', icon: MapPin },
+  { title: 'Real estate investors', text: 'Investment analysis and portfolio oversight to help assess asset performance, risk and potential next steps.', icon: BarChart3 },
+  { title: 'Developers', text: 'Feasibility and development advisory to test market assumptions, costs, revenue and implementation options.', icon: Building2 },
+  { title: 'Institutions and financial organisations', text: 'Property and portfolio information to support investment, lending, asset management and governance decisions.', icon: BarChart3 },
+  { title: 'Corporate and public-sector property owners', text: 'Valuation, facilities and property management support tailored to organisational assets and requirements.', icon: Leaf },
 ]
 
-const whatsappChatUrl = `https://wa.me/2349074091408?text=${encodeURIComponent('Hello, I would like to discuss a property opportunity.')}`
+const engagementSteps = [
+  { title: 'Initial consultation', text: 'We discuss your property, portfolio, investment or development objectives and the support you need.' },
+  { title: 'Information and assessment', text: 'We review available property information, documentation and financial records and arrange further assessment where appropriate.' },
+  { title: 'Scope and proposal', text: 'We set out the proposed services, deliverables, responsibilities, reporting arrangements, fees and timetable.' },
+  { title: 'Appointment and mobilisation', text: 'Once the scope and terms are agreed, we establish the information and reporting arrangements and coordinate the work.' },
+  { title: 'Reporting and recommendations', text: 'We communicate agreed deliverables, material findings and practical recommendations within the scope of the engagement.' },
+]
 
-function TeamMemberAvatar({ member, className }) {
-  const [imageFailed, setImageFailed] = useState(false)
+const reportingItems = [
+  'Rental income, collections and arrears',
+  'Operating and maintenance expenditure',
+  'Occupancy, tenancy and lease events',
+  'Property inspections and condition observations',
+  'Portfolio performance indicators and risks',
+  'Recommended actions and management priorities',
+]
+
+const leadershipMembers = [
+  {
+    name: 'Dr. Olusegun Iraoya, PhD',
+    role: 'Principal Partner',
+    meta: 'RSV, NIESV | B.Sc (QS) | M.Sc | PhD',
+    description: 'Experience spanning estate survey, property valuation, facilities management, and strategic advisory across public and private sector assets.',
+    tags: ['Asset Valuation', 'Facilities Management', 'Project Finance', 'Investment Analysis'],
+  },
+  {
+    name: 'Dr. Akinbola Kazeem, PhD',
+    role: 'Advisory Partner',
+    meta: 'Estate Management | QS | Building Tech | Urban Planning',
+    description: 'Former Senior Facilities Management Surveyor at Jide Taiwo & Co. with expertise in sustainable urban development, asset valuation, and property strategy.',
+    tags: ['Asset Valuation', 'Facilities Management', 'Sustainability', 'Urban Planning'],
+  },
+]
+
+const serviceIcons = {
+  'Property Management': Home,
+  'Real Estate Portfolio Management': BarChart3,
+  'Facilities Management': Building2,
+  'Real Estate Investment Analysis': BarChart3,
+  'Feasibility Studies & Development Advisory': Building2,
+  'Valuation & Due Diligence': Leaf,
+}
+
+const serviceRoute = (service) => service.title === 'Real Estate Portfolio Management'
+  ? '/portfolio-management'
+  : `/services/${serviceSlug(service.title)}`
+
+function TeamMemberAvatar({ member }) {
   const initials = member.name
     .replace(/\bDr\.|\bPhD\b|,/g, '')
     .trim()
@@ -48,86 +120,66 @@ function TeamMemberAvatar({ member, className }) {
     .map((part) => part[0])
     .join('')
 
-  if (!member.image || imageFailed) {
-    return <div className={className} role="img" aria-label={member.name}>{initials}</div>
-  }
-
-  return <img className={className} src={member.image} alt={member.name} onError={() => setImageFailed(true)} />
+  return <div className="consultancy-team-avatar" role="img" aria-label={member.name}>{initials}</div>
 }
 
 export default function LandingPage({ content, goTo }) {
   const { showToast } = useToast()
-  const [sent, setSent] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [trustIndex, setTrustIndex] = useState(0)
-  const [selectedService, setSelectedService] = useState(null)
-  const [showBackToTop, setShowBackToTop] = useState(false)
-  const [showWhatsappTip, setShowWhatsappTip] = useState(true)
-  const [showAboutModal, setShowAboutModal] = useState(true)
-  const [aboutMenuOpen, setAboutMenuOpen] = useState(false)
   const [servicesMenuOpen, setServicesMenuOpen] = useState(false)
-  const [propertySearch, setPropertySearch] = useState(null)
-  const [whatsappTipIndex, setWhatsappTipIndex] = useState(0)
-  const [form, setForm] = useState({ name: '', email: '', request: '' })
+  const [showBackToTop, setShowBackToTop] = useState(false)
+  const [showEnquiryForm, setShowEnquiryForm] = useState(false)
+  const [showAboutModal, setShowAboutModal] = useState(() => !overviewWasDismissed())
+  const [sent, setSent] = useState(false)
   const [submitError, setSubmitError] = useState('')
-  const leadershipMembers = [
-    {
-      name: 'Dr. Olusegun Iraoya, PhD',
-      role: 'Principal Partner',
-      meta: 'RSV, NIESV | B.Sc (QS) | M.Sc | PhD',
-      description: '22+ years’ experience spanning estate survey, property valuation, facilities management, and strategic advisory across public and private sector assets.',
-      tags: ['Asset Valuation', 'Facilities Mgmt', 'Project Finance', 'Investment Analysis'],
-    },
-    {
-      name: 'Dr. Akinbola Kazeem, PhD',
-      role: 'Advisory Partner',
-      meta: 'Estate Management | QS | Building Tech | Urban Planning',
-      description: 'Former Senior Facilities Management Surveyor at Jide Taiwo & Co. with strong expertise in sustainable urban development, asset valuation, and performance-driven property strategy.',
-      tags: ['Asset Valuation', 'Facilities Mgmt', 'Sustainability', 'Urban Planning'],
-    },
-  ]
-  const supportMembers = [
-    { name: 'Olamide Olawale Oladale', role: 'B.Sc. Quantity Surveying', initials: 'OO' },
-    { name: 'Glory Danito', role: 'B.Sc. Business Development', initials: 'GD' },
-    { name: 'Wisdom Asom Ayongha', role: 'B.Sc. History & International Relations', initials: 'WA' },
-    { name: 'Israel Anselm', role: 'B.Sc. Banking & Finance', initials: 'IA' },
-  ]
-  const showTeamAndAwards = true
-  const showAwards = false
-  const aboutItems = [
-    { label: 'Company Overview', id: '#approach' },
-    { label: 'Professional Affiliates', id: '#professional-affiliates' },
-    ...(showTeamAndAwards ? [{ label: 'Management Team', id: '#management-team' }] : []),
-    ...(showAwards ? [{ label: 'Awards & Accolades', id: '#awards-accolades' }] : []),
-  ]
-  const navItems = [
-    { label: 'Properties', id: '#properties' },
-    { label: 'Invest', id: '#invest' },
-    { label: 'Contact', id: '#contact' },
-  ]
-  const serviceNavItems = content.services || []
+  const [form, setForm] = useState({
+    name: '',
+    organisation: '',
+    email: '',
+    phone: '',
+    location: '',
+    category: '',
+    request: '',
+    propertyLocation: '',
+    propertyType: '',
+    propertyCount: '',
+    message: '',
+  })
+  const serviceItems = content.services || []
+
+  useEffect(() => {
+    const onScroll = () => setShowBackToTop(window.scrollY > 500)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
   const scrollToSection = (id) => {
-    const section = document.querySelector(id)
-    if (!section) return
-    const top = section.getBoundingClientRect().top + window.scrollY - 84
-    window.scrollTo({ top, behavior: 'smooth' })
+    document.querySelector(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
-  const scrollToContact = () => scrollToSection('#contact')
-  const serviceIcons = { 'Property & Asset Valuation': BarChart3, 'Property Management': Home, 'Facility Management': Building2, 'Project Management': Building2, 'Real Estate Consultancy': Leaf, 'General Estate Agency': Home, 'Feasibility & Viability Appraisal': BarChart3 }
+
   const handleNavClick = (event, id) => {
     event.preventDefault()
     setMobileOpen(false)
+    setServicesMenuOpen(false)
     scrollToSection(id)
   }
-  const handleAboutItemClick = (event, id) => {
-    handleNavClick(event, id)
-    setAboutMenuOpen(false)
-  }
-  const openServiceFromMenu = (service) => {
-    setServicesMenuOpen(false)
+
+  const openService = (service) => {
     setMobileOpen(false)
-    goTo(`/services/${serviceSlug(service.title)}`)
+    setServicesMenuOpen(false)
+    goTo(serviceRoute(service))
   }
+
+  const updateForm = (field, value) => setForm((current) => ({ ...current, [field]: value }))
+  const dismissAboutModal = () => {
+    try {
+      sessionStorage.setItem('soiraoya-overview-dismissed', 'true')
+    } catch (error) {
+      console.error('Could not save overview modal state', error)
+    }
+    setShowAboutModal(false)
+  }
+
   const submit = async (event) => {
     event.preventDefault()
     setSubmitError('')
@@ -146,9 +198,16 @@ export default function LandingPage({ content, goTo }) {
           subject: `New consultation request from ${form.name || 'website visitor'}`,
           text: [
             `Name: ${form.name || 'Not provided'}`,
+            `Organisation: ${form.organisation || 'Not provided'}`,
             `Email: ${form.email || 'Not provided'}`,
-            `Request: ${form.request || 'Not provided'}`,
-            `Message: A new consultation request was submitted from the website.`,
+            `Telephone/WhatsApp: ${form.phone || 'Not provided'}`,
+            `Client category: ${form.category || 'Not provided'}`,
+            `Location: ${form.location || 'Not provided'}`,
+            `Service required: ${form.request || 'Not provided'}`,
+            `Property location: ${form.propertyLocation || 'Not provided'}`,
+            `Property type: ${form.propertyType || 'Not provided'}`,
+            `Number of properties: ${form.propertyCount || 'Not provided'}`,
+            `Message: ${form.message || 'Not provided'}`,
           ].join('\n'),
         }),
       })
@@ -165,149 +224,248 @@ export default function LandingPage({ content, goTo }) {
       showToast(error.message || 'We could not send your request right now. Please try again.', 'error')
     }
   }
-  useEffect(() => { const timer = window.setInterval(() => setTrustIndex((index) => (index + 1) % trustMessages.length), 4000); return () => window.clearInterval(timer) }, [])
-  useEffect(() => { const onScroll = () => setShowBackToTop(window.scrollY > 500); window.addEventListener('scroll', onScroll, { passive: true }); return () => window.removeEventListener('scroll', onScroll) }, [])
-  useEffect(() => {
-    let cancelled = false
-    let hideTip
-    let nextTip
-    const showNextTip = () => {
-      const displayDuration = 3500 + Math.floor(Math.random() * 1501)
-      hideTip = window.setTimeout(() => {
-        if (cancelled) return
-        setShowWhatsappTip(false)
-        nextTip = window.setTimeout(() => {
-          if (cancelled) return
-          setWhatsappTipIndex((index) => (index + 1 + Math.floor(Math.random() * (whatsappTips.length - 1))) % whatsappTips.length)
-          setShowWhatsappTip(true)
-          showNextTip()
-        }, 7000)
-      }, displayDuration)
-    }
-    showNextTip()
-    return () => {
-      cancelled = true
-      window.clearTimeout(hideTip)
-      window.clearTimeout(nextTip)
-    }
-  }, [])
 
-  return <div className="site-shell">
-    <header className="site-header"><Brand goTo={goTo} /><nav className={mobileOpen ? 'nav-open' : ''}><div className={`about-nav-item ${aboutMenuOpen ? 'is-open' : ''}`} onMouseLeave={() => setAboutMenuOpen(false)}><button type="button" className="about-nav-trigger" aria-expanded={aboutMenuOpen} onClick={() => setAboutMenuOpen((open) => !open)}>About Us <ChevronDown size={14} /></button><ul className="about-submenu">{aboutItems.map((item) => <li key={item.id}><a href={item.id} onClick={(event) => handleAboutItemClick(event, item.id)}>{item.label}</a></li>)}</ul></div><div className={`services-nav-item ${servicesMenuOpen ? 'is-open' : ''}`} onMouseLeave={() => setServicesMenuOpen(false)}><button type="button" className="services-nav-trigger" aria-expanded={servicesMenuOpen} onClick={() => setServicesMenuOpen((open) => !open)}>Services <ChevronDown size={14} /></button><ul className="services-submenu">{serviceNavItems.map((item) => <li key={item.title}><button type="button" onClick={() => openServiceFromMenu(item)}>{item.title}</button></li>)}</ul></div><a href="/portfolio-management" onClick={(event) => { event.preventDefault(); setMobileOpen(false); goTo('/portfolio-management') }}>Portfolio Management</a>{navItems.map((item) => <a key={item.id} href={item.id} onClick={(event) => handleNavClick(event, item.id)}>{item.label}</a>)}</nav><button className="mobile-toggle" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">{mobileOpen ? <X size={30} /> : <Menu size={30} />}</button><button className="header-cta" onClick={scrollToContact}>Start a conversation <ArrowUpRight size={16} /></button></header>
+  return <div className="site-shell consultancy-home">
+    <header className="site-header">
+      <Brand goTo={goTo} />
+      <nav className={mobileOpen ? 'nav-open' : ''} aria-label="Main navigation">
+        <a href="#approach" onClick={(event) => handleNavClick(event, '#approach')}>About us</a>
+        <div className={`services-nav-item ${servicesMenuOpen ? 'is-open' : ''}`} onMouseLeave={() => setServicesMenuOpen(false)}>
+          <button type="button" className="services-nav-trigger" aria-expanded={servicesMenuOpen} onClick={() => setServicesMenuOpen((open) => !open)}>Services <ChevronDown size={14} /></button>
+          <ul className="services-submenu">
+            {serviceItems.map((service) => <li key={service.title}><button type="button" onClick={() => openService(service)}>{service.title}</button></li>)}
+          </ul>
+        </div>
+        <a href="#who-we-serve" onClick={(event) => handleNavClick(event, '#who-we-serve')}>Who we serve</a>
+        <a href="/portfolio-management" onClick={(event) => { event.preventDefault(); setMobileOpen(false); goTo('/portfolio-management') }}>Portfolio management</a>
+        <a href="/properties" onClick={(event) => { event.preventDefault(); setMobileOpen(false); goTo('/properties') }}>Properties</a>
+        <a href="#contact" onClick={(event) => handleNavClick(event, '#contact')}>Contact</a>
+      </nav>
+      <button type="button" className="mobile-toggle" onClick={() => setMobileOpen((open) => !open)} aria-label={mobileOpen ? 'Close menu' : 'Open menu'} aria-expanded={mobileOpen}>{mobileOpen ? <X size={27} /> : <Menu size={27} />}</button>
+      <button type="button" className="header-cta" onClick={() => scrollToSection('#contact')}>Request a consultation <ArrowUpRight size={16} /></button>
+    </header>
+
     <main>
-      <HeroSlider slides={content.heroSlides || []} content={content} onContact={scrollToContact} onSearch={(filters) => { setPropertySearch(filters); goTo(`/properties/search?${new URLSearchParams(filters).toString()}`) }} />
-      <section className="trust-strip"><p className="trust-message" key={trustIndex}>{trustMessages[trustIndex]}</p><div className="trust-items"><span>22+ <small>Years of experience</small></span><span>RC 9178187 <small>Corporate affairs commission</small></span><span>LAGOS <small>Rooted in the market</small></span></div></section>
-      <section className="portfolio-home-section">
-        <div className="portfolio-home-copy">
-          <p className="eyebrow">Our primary focus</p>
-          <h2>Real estate portfolio management.</h2>
-          <p>Get a clearer view of property value, income, costs and risks across your assets—and practical advice on what to do next.</p>
-          <button className="button button-dark" onClick={() => goTo('/portfolio-management')}>Explore portfolio management <ArrowUpRight size={17} /></button>
+      <HeroSlider slides={content.heroSlides || []} content={content} onContact={() => scrollToSection('#contact')} />
+
+      <section className="consultancy-proof-strip" aria-label="Firm credentials">
+        <p>Professional real estate management. Informed investment decisions. Measurable asset performance.</p>
+        <div><span>Professional expertise</span><span>Local market knowledge</span><span>Support across the property lifecycle</span></div>
+      </section>
+
+      <section className="consultancy-challenges" aria-labelledby="challenges-title" data-aos="fade-up">
+        <div className="consultancy-section-heading" data-aos="fade-right">
+          <p className="eyebrow">The challenges we address</p>
+          <h2 id="challenges-title">Is your property delivering the value you expected?</h2>
+          <p>Without reliable information and professional oversight, property operations, investment performance and long-term asset value can be difficult to manage.</p>
         </div>
-        <div className="portfolio-home-points">
-          <article><span>01</span><div><h3>See the whole picture</h3><p>Bring asset and performance information together.</p></div></article>
-          <article><span>02</span><div><h3>Understand what is working</h3><p>Review income, occupancy, costs and risk.</p></div></article>
-          <article><span>03</span><div><h3>Decide what comes next</h3><p>Assess opportunities to hold, improve or reposition.</p></div></article>
+        <div className="consultancy-challenge-grid">
+          {challenges.map((challenge, index) => <article className="consultancy-challenge-card" key={challenge.title} data-aos={revealEffect(index)}>
+            <h3>{challenge.title}</h3>
+            <p className="consultancy-question">{challenge.question}</p>
+            <p>{challenge.response}</p>
+          </article>)}
+        </div>
+        <div className="consultancy-inline-cta">
+          <p>Not sure where your property or investment stands?</p>
+          <button className="button button-dark" onClick={() => scrollToSection('#contact')}>Discuss your property or investment <ArrowUpRight size={17} /></button>
         </div>
       </section>
-      <section id="approach" className="about-section">
-        <div className="section-head about-lead">
-          <div>
-            <p className="eyebrow">Company overview</p>
-            <h2>Company <em>overview</em></h2>
+
+      <section className="consultancy-services" id="services" aria-labelledby="services-title" data-aos="fade-up">
+        <div className="consultancy-section-heading consultancy-section-heading-row" data-aos="zoom-in">
+          <div><p className="eyebrow">Our services</p><h2 id="services-title">Professional support across the property lifecycle.</h2></div>
+          <p>From day-to-day property operations to investment and development decisions, we tailor our work to your assets and objectives.</p>
+        </div>
+        <div className="consultancy-service-grid">
+          {serviceItems.map((service, index) => {
+            const Icon = serviceIcons[service.title] || Building2
+            return <button className="consultancy-service-card" type="button" key={service.title} onClick={() => openService(service)} data-aos={revealEffect(index)}>
+              <Icon size={25} strokeWidth={1.5} />
+              <span className="consultancy-card-arrow"><ArrowUpRight size={18} /></span>
+              <h3>{service.title}</h3>
+              <p>{service.text}</p>
+              <span className="consultancy-card-link">Explore service</span>
+            </button>
+          })}
+        </div>
+      </section>
+
+      <PropertyGallery onContact={() => scrollToSection('#contact')} onViewAll={() => goTo('/properties')} properties={content.gallery || []} />
+
+      <section className="consultancy-portfolio-band" data-aos="fade-up">
+        <div data-aos="fade-right">
+          <p className="eyebrow">A portfolio-wide perspective</p>
+          <h2>Property-by-property detail. One decision-ready view.</h2>
+          <p>Understand what you own, how it is performing and what may need attention across your portfolio.</p>
+          <button className="button button-light" onClick={() => goTo('/portfolio-management')}>Explore portfolio management <ArrowUpRight size={17} /></button>
+        </div>
+        <div className="consultancy-portfolio-points">
+          <article data-aos="fade-left"><div><h3>See the whole picture</h3><p>Bring asset, financial and operational information together.</p></div></article>
+          <article data-aos="zoom-in"><div><h3>Understand what is working</h3><p>Review income, occupancy, costs, condition and risk.</p></div></article>
+          <article data-aos="fade-right"><div><h3>Decide what comes next</h3><p>Consider whether to hold, improve, reposition or invest.</p></div></article>
+        </div>
+      </section>
+
+      <section className="consultancy-audiences" id="who-we-serve" aria-labelledby="audiences-title" data-aos="fade-up">
+        <div className="consultancy-section-heading" data-aos="fade-left">
+          <p className="eyebrow">Who we serve</p>
+          <h2 id="audiences-title">Advice shaped around the people responsible for property.</h2>
+        </div>
+        <div className="consultancy-audience-grid">
+          {audiences.map(({ title, text, icon: Icon }, index) => <article className="consultancy-audience-card" key={title} data-aos={revealEffect(index)}>
+            <Icon size={24} strokeWidth={1.5} />
+            <h3>{title}</h3>
+            <p>{text}</p>
+            {title === 'Diaspora investors' && <button type="button" className="consultancy-audience-link" onClick={() => goTo('/diaspora-property-management')}>Explore diaspora property support <ArrowUpRight size={15} /></button>}
+          </article>)}
+        </div>
+      </section>
+
+      <section className="consultancy-process" id="process" aria-labelledby="process-title" data-aos="fade-up">
+        <div className="consultancy-section-heading consultancy-section-heading-row" data-aos="fade-right">
+          <div><p className="eyebrow">How our engagement works</p><h2 id="process-title">From first conversation to professional oversight.</h2></div>
+          <p>Clear scope, agreed responsibilities and useful reporting are part of how we approach each assignment.</p>
+        </div>
+        <ol className="consultancy-process-list">
+          {engagementSteps.map((step, index) => <li key={step.title} data-aos={revealEffect(index)}>
+            <div><h3>{step.title}</h3><p>{step.text}</p></div>
+          </li>)}
+        </ol>
+      </section>
+
+      <section className="consultancy-reporting" data-aos="fade-up">
+        <div className="consultancy-reporting-copy" data-aos="fade-right">
+          <p className="eyebrow">Reporting and accountability</p>
+          <h2>You should not have to guess how your property is performing.</h2>
+          <p>Depending on the agreed services, structured reporting can help make property performance, operating expenditure, maintenance requirements and management issues easier to understand.</p>
+          <p className="consultancy-reporting-note">Reporting formats and frequency are agreed as part of each engagement.</p>
+        </div>
+        <div className="consultancy-reporting-list" data-aos="fade-left">
+          {reportingItems.map((item, index) => <div key={item} data-aos={revealEffect(index)}><Check size={18} /><span>{item}</span></div>)}
+        </div>
+      </section>
+
+      <section className="consultancy-about" id="approach" aria-labelledby="about-title" data-aos="fade-up">
+        <div className="consultancy-about-copy" data-aos="fade-right">
+          <p className="eyebrow">Company overview</p>
+          <h2 id="about-title">Professional real estate advisory and management.</h2>
+          <p><strong>S.O. Iraoya Consulting</strong> is a professional firm of Estate Surveyors &amp; Valuers advising individuals, businesses, investors and institutions across the property lifecycle.</p>
+          <p>Our services bring property management together with portfolio performance monitoring, facilities management, valuation, investment analysis, feasibility studies and due diligence.</p>
+          <p>We aim to help clients understand their assets, manage them effectively and evaluate opportunities with greater clarity.</p>
+        </div>
+        <div className="consultancy-about-principles" data-aos="fade-left">
+          <article data-aos="fade-left"><span>Our mission</span><p>To provide professional real estate management and advisory services that help clients protect assets, improve property performance and make informed investment decisions.</p></article>
+          <article data-aos="zoom-in"><span>Our vision</span><p>To be a trusted real estate consultancy recognised for professional excellence, accountability and the quality of its contribution to property investment and asset management.</p></article>
+          <div className="consultancy-values">
+            <span>Professionalism</span><span>Integrity</span><span>Accountability</span><span>Client focus</span><span>Evidence-based advice</span>
           </div>
         </div>
+      </section>
 
-        <div className="about-grid">
-          <article className="about-card about-fullwidth">
-            {/* <p className="about-card-label">About us</p> */}
-            <div className="about-card-text about-company-copy">
-              <p><strong>S.O. Iraoya Consulting</strong> is a professional firm of Estate Surveyors &amp; Valuers advising individuals, businesses, investors, and institutions across the property lifecycle.</p>
-              <p>From valuation and feasibility to property, facilities, and project management, we bring professional expertise and local market insight to the decisions that shape property performance.</p>
-              <p>We start by understanding each client’s objectives, then provide clear, commercially grounded advice to help assess risk, protect asset value, and identify practical next steps.</p>
-              <p>Our work is guided by integrity, accountability, and lasting client relationships. The aim is straightforward: help people make better-informed property decisions with confidence.</p>
+      <section className="consultancy-team" id="team" aria-labelledby="team-title" data-aos="fade-up">
+        <div className="consultancy-section-heading" data-aos="zoom-in">
+          <p className="eyebrow">Leadership</p>
+          <h2 id="team-title">Experience brought to each assignment.</h2>
+        </div>
+        <div className="consultancy-team-grid">
+          {leadershipMembers.map((member, index) => <article className="consultancy-team-card" key={member.name} data-aos={revealEffect(index)}>
+            <TeamMemberAvatar member={member} />
+            <span className="consultancy-team-role">{member.role}</span>
+            <h3>{member.name}</h3>
+            <p className="consultancy-team-meta">{member.meta}</p>
+            <p>{member.description}</p>
+            <div className="consultancy-team-tags">{member.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>
+          </article>)}
+        </div>
+      </section>
+
+      <section className="consultancy-affiliates" aria-label="Professional affiliates" data-aos="fade-up">
+        <div className="consultancy-affiliates-heading"><p className="eyebrow">Professional affiliates</p><h2>Connected to the standards shaping our profession.</h2></div>
+        <div className="consultancy-affiliate-marquee" role="region" aria-label="Professional affiliate logos">
+          <div className="consultancy-affiliate-track">
+            <div className="consultancy-affiliate-group">
+              {[
+                ['ESVARBON', '/logo/esvarbon.jpg'],
+                ['NIESV', '/logo/niesv.jpg'],
+                ['FIABCI', '/logo/fiabci.jpg'],
+                ['RICS', '/logo/rics.jpg'],
+                ['AfRES', '/logo/afres.jpg'],
+              ].map(([name, image]) => <div className="consultancy-affiliate-item" key={name}><img src={image} alt={name} /></div>)}
             </div>
-          </article>
-
-          <article className="about-card">
-            <h3>Our Vision</h3>
-            <p className="about-card-text">To provide data-driven real estate solutions that create value, inform decisions, and meet the evolving needs of our clients.</p>
-            <ul className="about-points">
-              <li>Trusted advisory support</li>
-              <li>Long-term value creation</li>
-            </ul>
-          </article>
-
-          <article className="about-card">
-            <h3>Our Mission</h3>
-            <p className="about-card-text">To be the trusted name clients remember whenever they think of quality and excellence in real estate consulting.</p>
-          </article>
-
-          <div className="about-values-heading">
-            <p className="about-card-label">Our foundation</p>
-            <h3>Core values</h3>
-            <p className="about-card-text">The principles that guide how we advise, collaborate, and create value for our clients.</p>
-          </div>
-          <div className="about-values-grid">
-            <article className="about-value-card"><span className="about-value-icon" aria-hidden="true">✓</span><h4>Integrity</h4><p>We act with honesty, accountability, and professional responsibility in every engagement.</p></article>
-            <article className="about-value-card"><span className="about-value-icon" aria-hidden="true">◎</span><h4>Relationships</h4><p>We build lasting partnerships through listening, trust, and dependable support.</p></article>
-            <article className="about-value-card"><span className="about-value-icon" aria-hidden="true">↗</span><h4>Growth mindset</h4><p>We stay curious, learn continuously, and look for better ways to solve property challenges.</p></article>
-            <article className="about-value-card"><span className="about-value-icon" aria-hidden="true">♥</span><h4>Care</h4><p>We bring thoughtfulness and attention to the people, assets, and outcomes entrusted to us.</p></article>
+            <div className="consultancy-affiliate-group" aria-hidden="true">
+              {[
+                ['ESVARBON', '/logo/esvarbon.jpg'],
+                ['NIESV', '/logo/niesv.jpg'],
+                ['FIABCI', '/logo/fiabci.jpg'],
+                ['RICS', '/logo/rics.jpg'],
+                ['AfRES', '/logo/afres.jpg'],
+              ].map(([name, image]) => <div className="consultancy-affiliate-item" key={name}><img src={image} alt="" /></div>)}
+            </div>
           </div>
         </div>
       </section>
-      {showTeamAndAwards && <section id="management-team" className="leadership-section" aria-label="Leadership and support team">
-        <div className="leadership-banner">
-          <div className="leadership-badge" aria-hidden="true"><span /></div>
-          <h2>OUR LEADERSHIP</h2>
+
+      <div data-aos="fade-up"><FaqSection items={content.faqs || []} onContact={() => scrollToSection('#contact')} /></div>
+      <div data-aos="fade-up"><TestimonialsSection testimonials={content.testimonials || []} contactEmail={content.contact?.email} /></div>
+
+      <section className="consultancy-contact" id="contact" aria-labelledby="contact-title">
+        <div className="consultancy-contact-intro">
+          <p className="eyebrow">Start a conversation</p>
+          <h2 id="contact-title">Let’s discuss your property or investment objectives.</h2>
+          <p>Tell us about your requirements and we will consider how our services may assist you.</p>
+          <div className="consultancy-contact-details">
+            <span><MapPin size={17} /> {content.contact?.location || 'Suite 30, Dolphin Plaza, Ikoyi, Lagos'}</span>
+            <a href={`tel:${content.contact?.phone || '+2349074091408'}`}><Phone size={17} /> {content.contact?.phone || '0907 409 1408'}</a>
+            <a href={`mailto:${content.contact?.email || 'info@soiraoyaconsulting.com.ng'}`}><Mail size={17} /> {content.contact?.email || 'info@soiraoyaconsulting.com.ng'}</a>
+          </div>
         </div>
-
-        <div className="leadership-grid">
-          {leadershipMembers.map((member) => (
-            <article key={member.name} className="leadership-member-card">
-              <TeamMemberAvatar member={member} className="leadership-avatar" />
-              <div className="leadership-role">{member.role}</div>
-              <h3>{member.name}</h3>
-              <p className="leadership-meta">{member.meta}</p>
-              <p className="leadership-description">{member.description}</p>
-              <div className="leadership-tags">
-                {member.tags.map((tag) => <span key={tag}>{tag}</span>)}
-              </div>
-            </article>
-          ))}
+        <div className={`consultancy-enquiry-panel ${showEnquiryForm ? 'is-open' : ''}`}>
+          <button type="button" className="consultancy-enquiry-toggle" onClick={() => setShowEnquiryForm((open) => !open)} aria-expanded={showEnquiryForm}>
+            <span>{showEnquiryForm ? 'Hide enquiry form' : 'Request a consultation'}</span>
+            <ChevronDown size={18} />
+          </button>
+          {showEnquiryForm && <form className="consultancy-enquiry-form" onSubmit={submit}>
+          {sent ? <div className="consultancy-form-success">
+            <span><Check size={22} /></span>
+            <h3>Thank you, {form.name || 'we have your note'}.</h3>
+            <p>Our advisory team will be in touch shortly.</p>
+            <button type="button" className="text-link" onClick={() => { setSent(false); setSubmitError('') }}>Send another request <ArrowUpRight size={16} /></button>
+          </div> : <>
+            <div className="consultancy-form-grid">
+              <label>Full name<input required value={form.name} onChange={(event) => updateForm('name', event.target.value)} autoComplete="name" /></label>
+              <label>Organisation <span>(optional)</span><input value={form.organisation} onChange={(event) => updateForm('organisation', event.target.value)} autoComplete="organization" /></label>
+              <label>Email address<input required type="email" value={form.email} onChange={(event) => updateForm('email', event.target.value)} autoComplete="email" /></label>
+              <label>Telephone / WhatsApp<input type="tel" value={form.phone} onChange={(event) => updateForm('phone', event.target.value)} autoComplete="tel" /></label>
+              <label>Your location<input value={form.location} onChange={(event) => updateForm('location', event.target.value)} placeholder="Country and city" /></label>
+              <label>Client category<select value={form.category} onChange={(event) => updateForm('category', event.target.value)}><option value="">Select a category</option>{['Individual owner', 'Diaspora investor', 'Real estate investor', 'Institutional investor', 'Developer', 'Bank or financial institution', 'Pension fund', 'Government agency', 'Corporate property owner', 'Other'].map((option) => <option key={option}>{option}</option>)}</select></label>
+              <label>Service required<select required value={form.request} onChange={(event) => updateForm('request', event.target.value)}><option value="">Select a service</option>{serviceItems.map((service) => <option key={service.title}>{service.title}</option>)}<option>Property listing or sale/letting</option><option>Other</option></select></label>
+              <label>Property location<input value={form.propertyLocation} onChange={(event) => updateForm('propertyLocation', event.target.value)} placeholder="City or location" /></label>
+              <label>Property type<select value={form.propertyType} onChange={(event) => updateForm('propertyType', event.target.value)}><option value="">Select a property type</option>{['Residential', 'Commercial', 'Retail', 'Mixed-use', 'Development land', 'Other'].map((option) => <option key={option}>{option}</option>)}</select></label>
+              <label>Number of properties<select value={form.propertyCount} onChange={(event) => updateForm('propertyCount', event.target.value)}><option value="">Select a range</option>{['One', 'Two to five', 'Six to ten', 'More than ten', 'Not yet determined'].map((option) => <option key={option}>{option}</option>)}</select></label>
+              <label className="consultancy-form-message">Brief description<textarea rows="4" value={form.message} onChange={(event) => updateForm('message', event.target.value)} placeholder="Tell us a little about your property, portfolio or proposed investment." /></label>
+            </div>
+            {submitError && <p className="consultancy-form-error" role="alert">{submitError}</p>}
+            <p className="consultancy-privacy-note">Please do not include confidential or sensitive documents in this form. Your information will be used to respond to your enquiry.</p>
+            <button className="button button-light" type="submit">Request a consultation <ArrowUpRight size={18} /></button>
+          </>}
+          </form>}
         </div>
-
-        <div className="support-banner">SUPPORT TEAM</div>
-
-        <div className="support-grid">
-          {supportMembers.map((member) => (
-            <article key={member.name} className="support-member-card">
-              <TeamMemberAvatar member={member} className="support-avatar" />
-              <h3>{member.name}</h3>
-              <p>{member.role}</p>
-            </article>
-          ))}
-        </div>
-
-      </section>}
-      <section className="about-detail-section" aria-label="About us details">
-        <article id="professional-affiliates" className="about-detail-card affiliates-detail-card"><p className="eyebrow">Professional affiliates</p><h2>Professional <em>Affiliates</em></h2><p>Our professional network connects clients and colleagues to the standards, knowledge, and international perspective shaping estate surveying and valuation.</p><ul className="affiliate-list"><li><div className="affiliate-logo"><img src="/logo/esvarbon.jpg" alt="ESVARBON logo" /></div><div><strong>ESVARBON</strong><span>Regulates and controls the practice of estate surveying and valuation in Nigeria.</span></div></li><li><div className="affiliate-logo"><img src="/logo/niesv.jpg" alt="NIESV logo" /></div><div><strong>NIESV</strong><span>Supports the interests and professional development of estate surveyors and valuers in Nigeria.</span></div></li><li><div className="affiliate-logo"><img src="/logo/fiabci.jpg" alt="FIABCI logo" /></div><div><strong>FIABCI</strong><span>Connects real estate professionals for knowledge sharing and international business.</span></div></li><li><div className="affiliate-logo"><img src="/logo/rics.jpg" alt="RICS logo" /></div><div><strong>RICS</strong><span>Accredits professionals across land, property, and construction sectors worldwide.</span></div></li><li><div className="affiliate-logo"><img src="/logo/afres.jpg" alt="AfRES logo" /></div><div><strong>AfRES</strong><span>Promotes networking, research, and education among property professionals across Africa.</span></div></li></ul><a className="text-link" href="#contact" onClick={(event) => handleNavClick(event, '#contact')}>Start a conversation <ArrowUpRight size={16} /></a></article>
       </section>
-      {showAwards && <section id="awards-accolades" className="awards-section" aria-label="Awards and accolades">
-        <div className="awards-section-head"><div><p className="eyebrow">Awards &amp; accolades</p><h2>Recognition that reflects <em>excellence.</em></h2></div><p>A record of professional recognition earned through disciplined service, industry contribution, and lasting commitment to the real estate profession.</p></div>
-        <div className="awards-grid"><article className="award-card"><span>2019</span><h3>Outstanding Estate Surveying Firm</h3><p>NIESV, Lagos Branch</p></article><article className="award-card"><span>2019</span><h3>Chairman’s Special Award of Recognition</h3><p>NIESV, Lagos Branch</p></article><article className="award-card"><span>2017</span><h3>Real Estate Agency of the Year</h3><p>Real Estate Excellence Awards</p></article><article className="award-card"><span>2016</span><h3>Recognition of Contribution to the Growth of the Faculty &amp; Institution</h3><p>Nigerian Institution of Estate Surveyors and Valuers</p></article><article className="award-card"><span>2015</span><h3>Best Real Estate Support Service Firm</h3><p>Real Estate Unite</p></article><article className="award-card"><span>2015</span><h3>Award for Outstanding Achievement and Appreciation</h3><p>Re.in.vent</p></article></div>
-      </section>}
-      <section id="services" className="services-section"><div className="section-head"><div><p className="eyebrow">What we do</p><h2>Expertise that moves<br /><em>assets forward.</em></h2></div><p className="head-note">We advise across the full property lifecycle, from the first feasibility question to the long-term work of making an asset perform.</p></div><div className="service-grid">{(content.services || []).map((service) => { const Icon = typeof service.icon === 'function' ? service.icon : serviceIcons[service.title] || Building2; return <button className="service-card" key={service.title} onClick={() => setSelectedService(service)} aria-label={`View details about ${service.title}`}><Icon size={25} strokeWidth={1.5} /><h3>{service.title}</h3><p>{service.text}</p><span className="service-card-arrow"><ArrowUpRight size={19} /></span></button> })}</div></section>
-      <PropertyGallery onContact={scrollToContact} properties={content.gallery || []} searchFilters={propertySearch} />
-      <FaqSection items={content.faqs || []} onContact={scrollToContact} />
-      <InvestWithUs items={content.investOpportunities || []} properties={content.gallery || []} rentalProperties={content.rentalProperties || []} onContact={scrollToContact} />
-      <TestimonialsSection testimonials={content.testimonials || []} contactEmail={content.contact?.email} />
-      <section id="contact" className="contact-section"><div><p className="eyebrow">Let’s talk property</p><h2>{content.contact?.title || 'A better next step'}<br /><em>starts here.</em></h2><div className="contact-details"><span><MapPin size={17} /> {content.contact?.location || 'Suite 30, Dolphin Plaza, Ikoyi, Lagos'}</span><span><Phone size={17} /> {content.contact?.phone || '0907 409 1408'}</span><span><Mail size={17} /> {content.contact?.email || 'info@soiraoyaconsulting.com.ng'}</span></div></div><form onSubmit={submit}>{sent ? <div className="form-success"><span className="success-icon"><Check /></span><h3>Thank you, {form.name || 'we have your note'}.</h3><p>Our advisory team will be in touch shortly.</p><button type="button" className="text-link" onClick={() => { setSent(false); setSubmitError('') }}>Send another message <ArrowUpRight size={16} /></button></div> : <><label>Your name<input required value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder="e.g. Amaka Okafor" /></label><label>Work email<input required type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} placeholder="you@company.com" /></label><label>How can we help?<SearchableSelect value={form.request} onChange={(value) => setForm({ ...form, request: value })} ariaLabel="Consultation area" placeholder="Select an area of interest" options={[{ value: 'Real estate portfolio management', label: 'Real estate portfolio management' }, { value: 'Property valuation', label: 'Property valuation' }, { value: 'Investment advisory', label: 'Investment advisory' }, { value: 'Development strategy', label: 'Development strategy' }, { value: 'Property management', label: 'Property management' }, { value: 'Property listing', label: 'Property listing' }]} /></label>{submitError && <div className="login-error">{submitError}</div>}<button className="button button-light" type="submit">Request a consultation <ArrowUpRight size={18} /></button></>}</form></section>
     </main>
-    <footer className="site-footer"><div className="footer-main"><div className="footer-brand"><Brand light goTo={goTo} /><p>Strategic real-estate advisory for decisions that create lasting value.</p></div><div className="footer-column"><p className="footer-label">Explore</p><a href="#approach">About us</a><a href="#services">Our services</a><a href="/portfolio-management" onClick={(event) => { event.preventDefault(); goTo('/portfolio-management') }}>Portfolio management</a><a href="#properties">Properties</a><a href="#faq">FAQs</a></div><div className="footer-column"><p className="footer-label">Contact</p><a href="mailto:info@soiraoyaconsulting.com.ng">info@soiraoyaconsulting.com.ng</a><a href="tel:+2349074091408">0907 409 1408</a><span>Suite 30, Dolphin Plaza<br />Ikoyi, Lagos</span></div><div className="footer-column footer-socials"><p className="footer-label">Follow our work</p><div className="social-links"><a className="social-facebook" href="https://www.facebook.com" target="_blank" rel="noreferrer" aria-label="Facebook"><Facebook size={17} /></a><a className="social-instagram" href="https://www.instagram.com" target="_blank" rel="noreferrer" aria-label="Instagram"><Instagram size={17} /></a><a className="social-linkedin" href="https://www.linkedin.com" target="_blank" rel="noreferrer" aria-label="LinkedIn"><Linkedin size={17} /></a><a className="social-youtube" href="https://www.youtube.com" target="_blank" rel="noreferrer" aria-label="YouTube"><Youtube size={17} /></a></div></div></div><div className="footer-bottom"><span>© 2026 S.O.Iraoya Consulting. All rights reserved.</span><span>Registered with CAC · Licensed by ESVARBON</span></div></footer>
-    <ServiceModal service={selectedService} onClose={() => setSelectedService(null)} onContact={() => { setSelectedService(null); scrollToContact() }} />
-    {showAboutModal && <AboutModal onClose={() => setShowAboutModal(false)} onExploreServices={() => { setShowAboutModal(false); window.setTimeout(() => scrollToSection('#services'), 0) }} />}
-    <div className="floating-whatsapp-wrap"><span className={`floating-whatsapp-tip ${showWhatsappTip ? 'visible' : ''}`} aria-hidden="true">{whatsappTips[whatsappTipIndex]}</span><a className="floating-whatsapp" href={whatsappChatUrl} target="_blank" rel="noreferrer" aria-label="Open WhatsApp chat" title="Open WhatsApp chat"><Whatsapp size={25} /></a></div>
-    {showBackToTop && <button className="floating-back-to-top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Back to top" title="Back to top"><ArrowUp size={22} /></button>}
+
+    <footer className="site-footer consultancy-footer">
+      <div className="footer-main">
+        <div className="footer-brand"><Brand light goTo={goTo} /><p>Professional real estate management and informed investment advice for lasting asset performance.</p></div>
+        <div className="footer-column"><p className="footer-label">Explore</p><a href="#approach">About us</a><a href="#services">Our services</a><a href="#who-we-serve">Who we serve</a><a href="/portfolio-management" onClick={(event) => { event.preventDefault(); goTo('/portfolio-management') }}>Portfolio management</a><a href="/properties" onClick={(event) => { event.preventDefault(); goTo('/properties') }}>Properties</a><a href="#faq">Frequently asked questions</a></div>
+        <div className="footer-column"><p className="footer-label">Contact</p><a href={`mailto:${content.contact?.email || 'info@soiraoyaconsulting.com.ng'}`}>{content.contact?.email || 'info@soiraoyaconsulting.com.ng'}</a><a href={`tel:${content.contact?.phone || '+2349074091408'}`}>{content.contact?.phone || '0907 409 1408'}</a><span>{content.contact?.location || 'Suite 30, Dolphin Plaza, Ikoyi, Lagos'}</span></div>
+        <div className="footer-column footer-socials"><p className="footer-label">Follow our work</p><div className="social-links"><a href="https://www.facebook.com" target="_blank" rel="noreferrer" aria-label="Facebook"><Facebook size={17} /></a><a href="https://www.instagram.com" target="_blank" rel="noreferrer" aria-label="Instagram"><Instagram size={17} /></a><a href="https://www.linkedin.com" target="_blank" rel="noreferrer" aria-label="LinkedIn"><Linkedin size={17} /></a><a href="https://www.youtube.com" target="_blank" rel="noreferrer" aria-label="YouTube"><Youtube size={17} /></a></div></div>
+      </div>
+      <div className="footer-bottom"><span>© S.O. Iraoya Consulting. All rights reserved.</span><span>Registered with CAC · Licensed by ESVARBON</span></div>
+    </footer>
+
+    <a className="floating-whatsapp consultancy-whatsapp" href={whatsappChatUrl} target="_blank" rel="noreferrer" aria-label="Chat with us on WhatsApp"><Whatsapp size={24} /><span>Chat with us</span></a>
+    {showAboutModal && <AboutModal onClose={dismissAboutModal} onExploreServices={() => { dismissAboutModal(); window.setTimeout(() => scrollToSection('#services'), 0) }} />}
+    {showBackToTop && <button type="button" className="back-to-top consultancy-back-to-top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Back to top"><ArrowUp size={18} /></button>}
   </div>
 }

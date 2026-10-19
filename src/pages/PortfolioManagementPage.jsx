@@ -35,6 +35,8 @@ const investorChallenges = [
     text: 'Owners need a sound basis to decide whether to hold, improve, reposition, refinance or dispose of an asset.',
   },
 ]
+const revealEffects = ['fade-up', 'fade-right', 'zoom-in', 'fade-left']
+const revealEffect = (index) => revealEffects[(index * 3 + 1) % revealEffects.length]
 
 export default function PortfolioManagementPage({ content, goTo }) {
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -50,9 +52,10 @@ export default function PortfolioManagementPage({ content, goTo }) {
     <header className="site-header">
       <Brand goTo={goTo} />
       <nav className={mobileOpen ? 'nav-open' : ''} aria-label="Main navigation">
-        <a href="/" onClick={(event) => goToHomeSection(event, '#approach')}>Home</a>
-        <a href="#portfolio-offer" onClick={(event) => { event.preventDefault(); document.querySelector('#portfolio-offer')?.scrollIntoView({ behavior: 'smooth' }); setMobileOpen(false) }}>Our approach</a>
-        <a href="#portfolio-services" onClick={(event) => { event.preventDefault(); document.querySelector('#portfolio-services')?.scrollIntoView({ behavior: 'smooth' }); setMobileOpen(false) }}>What we do</a>
+        <a href="/" onClick={(event) => goToHomeSection(event, '#approach')}>About us</a>
+        <a href="/#services" onClick={(event) => goToHomeSection(event, '#services')}>Services</a>
+        <a href="#portfolio-audience" onClick={(event) => { event.preventDefault(); document.querySelector('#portfolio-audience')?.scrollIntoView({ behavior: 'smooth' }); setMobileOpen(false) }}>Who we serve</a>
+        <a href="/properties" onClick={(event) => { event.preventDefault(); setMobileOpen(false); goTo('/properties') }}>Properties</a>
         <a href="/#contact" onClick={(event) => goToHomeSection(event, '#contact')}>Contact</a>
       </nav>
       <button className="mobile-toggle" onClick={() => setMobileOpen((open) => !open)} aria-label="Toggle menu">{mobileOpen ? <X size={30} /> : <Menu size={30} />}</button>
@@ -60,7 +63,7 @@ export default function PortfolioManagementPage({ content, goTo }) {
     </header>
 
     <main>
-      <section className="portfolio-hero">
+      <section className="portfolio-hero" data-aos="fade-up">
         <div className="portfolio-hero-copy">
           <p className="eyebrow">Real estate portfolio management</p>
           <h1>See the whole portfolio. Make the next move with clarity.</h1>
@@ -75,25 +78,25 @@ export default function PortfolioManagementPage({ content, goTo }) {
         </div>
       </section>
 
-      <section className="portfolio-intro" id="portfolio-offer">
-        <div>
+      <section className="portfolio-intro" id="portfolio-offer" data-aos="fade-up">
+        <div data-aos="fade-right">
           <p className="eyebrow">The portfolio management challenge</p>
           <h2>Property-by-property details. One decision-ready view.</h2>
         </div>
-        <div className="portfolio-intro-copy">
+        <div className="portfolio-intro-copy" data-aos="fade-left">
           <p>Investors can have valuers, property managers, facilities teams and legal advisers—and still lack a consistent picture of portfolio-wide performance, exposure and priorities.</p>
           <p>S.O. Iraoya Consulting brings the relevant property information together, reviews it against your objectives and helps you identify informed, practical actions. The engagement is scoped to your assets, records and reporting needs.</p>
         </div>
       </section>
 
-      <section className="portfolio-challenges">
-        <div className="portfolio-section-heading">
+      <section className="portfolio-challenges" data-aos="fade-up">
+        <div className="portfolio-section-heading" data-aos="fade-right">
           <p className="eyebrow">Where we can help</p>
           <h2>Make the issues visible before they become harder to manage.</h2>
         </div>
         <div className="portfolio-challenge-grid">
-          {investorChallenges.map((challenge) => (
-            <article className="portfolio-challenge-card" key={challenge.title}>
+          {investorChallenges.map((challenge, index) => (
+            <article className="portfolio-challenge-card" key={challenge.title} data-aos={revealEffect(index)}>
               <h3>{challenge.title}</h3>
               <p>{challenge.text}</p>
             </article>
@@ -101,27 +104,27 @@ export default function PortfolioManagementPage({ content, goTo }) {
         </div>
       </section>
 
-      <section className="portfolio-services" id="portfolio-services">
-        <div className="portfolio-section-heading">
+      <section className="portfolio-services" id="portfolio-services" data-aos="fade-up">
+        <div className="portfolio-section-heading" data-aos="zoom-in">
           <p className="eyebrow">Portfolio management, in practice</p>
           <h2>From asset information to the next informed action.</h2>
           <p>We bring our valuation and property expertise together to support the decisions that shape portfolio performance.</p>
         </div>
         <div className="portfolio-service-grid">
-          {portfolioServices.map((service) => (
-            <article className="portfolio-service-card" key={service.title}>
+          {portfolioServices.map((service, index) => (
+            <article className="portfolio-service-card" key={service.title} data-aos={revealEffect(index)}>
               <h3>{service.title}</h3>
               <p>{service.text}</p>
             </article>
           ))}
         </div>
-        <div className="portfolio-scope-note">
+        <div className="portfolio-scope-note" data-aos="fade-left">
           <Check size={19} />
           <p>Where an engagement involves legal title opinions or specialist technical assessments, we coordinate with appropriately qualified professionals as required by the agreed scope.</p>
         </div>
       </section>
 
-      <section className="portfolio-audience">
+      <section className="portfolio-audience" id="portfolio-audience" data-aos="fade-up">
         <p className="eyebrow">Who we support</p>
         <h2>Built for people responsible for property capital.</h2>
         <div className="portfolio-audience-list">
@@ -133,7 +136,7 @@ export default function PortfolioManagementPage({ content, goTo }) {
         </div>
       </section>
 
-      <section className="portfolio-cta">
+      <section className="portfolio-cta" data-aos="fade-up">
         <div>
           <p className="eyebrow">A clearer portfolio starts with a conversation</p>
           <h2>Understand your assets. Decide what comes next.</h2>
@@ -147,7 +150,7 @@ export default function PortfolioManagementPage({ content, goTo }) {
         <div className="footer-column"><p className="footer-label">Explore</p><a href="/" onClick={(event) => goToHomeSection(event, '#approach')}>Home</a><a href="#portfolio-services" onClick={(event) => { event.preventDefault(); document.querySelector('#portfolio-services')?.scrollIntoView({ behavior: 'smooth' }) }}>Portfolio services</a></div>
         <div className="footer-column"><p className="footer-label">Contact</p><a href={`mailto:${content.contact?.email || 'info@soiraoyaconsulting.com.ng'}`}>{content.contact?.email || 'info@soiraoyaconsulting.com.ng'}</a><a href={`tel:${content.contact?.phone || '+2349074091408'}`}>{content.contact?.phone || '0907 409 1408'}</a><span>{content.contact?.location || 'Suite 30, Dolphin Plaza, Ikoyi, Lagos'}</span></div>
       </div>
-      <div className="footer-bottom"><span>© 2026 S.O.Iraoya Consulting. All rights reserved.</span><span>Registered with CAC · Licensed by ESVARBON</span></div>
+      <div className="footer-bottom"><span>© S.O. Iraoya Consulting. All rights reserved.</span><span>Registered with CAC · Licensed by ESVARBON</span></div>
     </footer>
   </div>
 }

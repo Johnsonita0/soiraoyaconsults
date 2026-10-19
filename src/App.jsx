@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
+import AOS from 'aos'
 import LandingPage from './pages/LandingPage'
+import DiasporaPage from './pages/DiasporaPage'
 import ServicePage from './pages/ServicePage'
 import PropertySearchPage from './pages/PropertySearchPage'
 import PortfolioManagementPage from './pages/PortfolioManagementPage'
@@ -9,6 +11,7 @@ import { seedContent } from './data/content'
 import { supabase } from './lib/supabase'
 import { ToastProvider } from './components/ToastProvider'
 import './css/App.css'
+import 'aos/dist/aos.css'
 
 const isAuthenticatedUser = (user) => Boolean(user)
 const serviceSlug = (title) => title.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
@@ -136,6 +139,25 @@ export default function App() {
     }
   }, [])
 
+  useEffect(() => {
+    AOS.init({
+      duration: 350,
+      easing: 'ease-out-cubic',
+      once: true,
+      offset: 10,
+      disable: () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    })
+  }, [])
+
+  useEffect(() => {
+    const effects = ['fade-up', 'fade-right', 'zoom-in', 'fade-left', 'flip-up']
+    document.querySelectorAll('main section:not(.consultancy-contact):not([data-aos]), main article:not([data-aos]), main [class*="-card"]:not([data-aos])')
+      .forEach((element) => {
+        element.setAttribute('data-aos', effects[Math.floor(Math.random() * effects.length)])
+      })
+    AOS.refreshHard()
+  }, [route])
+
   const goTo = (path) => {
     window.history.pushState({}, '', path)
     setRoute(path)
@@ -150,15 +172,19 @@ export default function App() {
 
   const servicePath = route.startsWith('/services/') ? route.slice('/services/'.length) : ''
   const service = content.services?.find((item) => serviceSlug(item.title) === servicePath)
-  const isPropertySearch = route.startsWith('/properties/search')
-  const searchQuery = isPropertySearch ? new URLSearchParams(route.split('?')[1] || '') : null
-  const searchFilters = searchQuery ? { listingType: searchQuery.get('listingType') || 'For Sale', keyword: searchQuery.get('keyword') || '', title: searchQuery.get('title') || '', address: searchQuery.get('address') || '' } : null
   const routePath = route.split('?')[0]
+  const isPropertySearch = routePath === '/properties/search'
+  const isPropertyListings = routePath === '/properties'
+  const searchQuery = isPropertySearch ? new URLSearchParams(route.split('?')[1] || '') : null
+  const searchFilters = searchQuery
+    ? { listingType: searchQuery.get('listingType') || 'For Sale', keyword: searchQuery.get('keyword') || '', title: searchQuery.get('title') || '', address: searchQuery.get('address') || '' }
+    : isPropertyListings ? { listingType: 'For Sale', keyword: '', title: '', address: '' } : null
   const page = route === '/login' || route === '/dashboard' || route === '/admin'
     ? canAccessDashboard ? <AdminPage content={content} setContent={updateContent} goTo={goTo} /> : <LoginPage goTo={goTo} />
     : routePath === '/portfolio-management' ? <PortfolioManagementPage content={content} goTo={goTo} />
+    : routePath === '/diaspora-property-management' ? <DiasporaPage content={content} goTo={goTo} />
     : service ? <ServicePage content={content} service={service} goTo={goTo} />
-    : isPropertySearch ? <PropertySearchPage content={content} filters={searchFilters} goTo={goTo} />
+    : isPropertySearch || isPropertyListings ? <PropertySearchPage key={route} content={content} filters={searchFilters} goTo={goTo} />
     : <LandingPage content={content} goTo={goTo} />
 
   return <ToastProvider>{page}</ToastProvider>

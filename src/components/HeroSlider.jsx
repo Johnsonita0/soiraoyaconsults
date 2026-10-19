@@ -9,7 +9,7 @@ export default function HeroSlider({ slides, onContact }) {
     <div className="hero-overlay" />
     <div className="hero-content-row">
       <div className="hero-copy">
-        <p className="eyebrow">Real estate management <span>Lagos · Abuja · Port Harcourt</span></p>
+        <p className="eyebrow">Real estate management <span>Lagos · Residential and Commercial</span></p>
         <h1>Own with confidence.<br /><em>We manage professionally.</em></h1>
         <p className="hero-lede">Rent collected promptly. Remittances made without delay. Tenants managed professionally. Repairs carried out. Monthly reports sent to landlords and investors.</p>
         <div className="hero-actions">
@@ -18,6 +18,10 @@ export default function HeroSlider({ slides, onContact }) {
         </div>
       </div>
       <aside className="hero-side-cards" aria-label="Our approach">
+        <div className="hero-investment-card">
+          <span>Protect and grow</span>
+          <p>Your Property Is an Investment. We Help You Protect and Grow Its Value.</p>
+        </div>
         <div className="hero-welcome-card">
           <span>Now welcoming</span>
           <p>Property owners, investors and organisations seeking <em>professional management</em> and trusted advice.</p>

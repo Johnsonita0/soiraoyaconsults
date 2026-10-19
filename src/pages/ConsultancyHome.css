@@ -2798,3 +2798,60 @@
 .faq-answer strong {
   color: var(--ink);
 }
+
+.consultancy-home .hero-investment-card {
+  padding: 16px 20px;
+  color: #fff;
+  background: linear-gradient(120deg, rgba(10, 31, 71, .9), rgba(22, 52, 101, .78));
+  border: 1px solid rgba(234, 177, 45, .7);
+  border-radius: 16px;
+  box-shadow: 0 14px 36px rgba(2, 12, 34, .16);
+  backdrop-filter: blur(12px);
+}
+
+.consultancy-home .hero-investment-card > span {
+  color: var(--lime);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+
+.consultancy-home .hero-investment-card p {
+  margin: 7px 0 0;
+  color: rgba(255, 255, 255, .96);
+  font: 500 17px/1.35 var(--serif);
+}
+
+@media (max-width: 1100px) {
+  .consultancy-home .hero-investment-card {
+    padding: 14px 17px;
+  }
+
+  .consultancy-home .hero-investment-card p {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 600px) {
+  .consultancy-home .hero-investment-card {
+    padding: 12px 15px;
+    border-radius: 14px;
+  }
+
+  .consultancy-home .hero-investment-card p {
+    margin-top: 5px;
+    font-size: 14px;
+    line-height: 1.35;
+  }
+}
+
+@media (max-width: 800px) and (max-height: 700px) {
+  .consultancy-home .hero-investment-card {
+    padding: 10px 13px;
+  }
+
+  .consultancy-home .hero-investment-card p {
+    font-size: 12px;
+  }
+}

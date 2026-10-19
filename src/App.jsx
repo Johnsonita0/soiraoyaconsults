@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import AOS from 'aos'
 import LandingPage from './pages/LandingPage'
 import DiasporaPage from './pages/DiasporaPage'
@@ -33,6 +33,8 @@ const mergeContent = (incoming = {}) => ({
 
 export default function App() {
   const [route, setRoute] = useState(window.location.pathname + window.location.search)
+  const [showHomeSplash, setShowHomeSplash] = useState(window.location.pathname === '/')
+  const markHomeSplashShown = useCallback(() => setShowHomeSplash(false), [])
   const [adminUser, setAdminUser] = useState(null)
   const contentDirtyRef = useRef(false)
   const [content, setContent] = useState(() => {
@@ -186,7 +188,7 @@ export default function App() {
     : routePath === '/diaspora-property-management' ? <DiasporaPage content={content} goTo={goTo} />
     : service ? <ServicePage content={content} service={service} goTo={goTo} />
     : isPropertySearch || isPropertyListings ? <PropertySearchPage key={route} content={content} filters={searchFilters} goTo={goTo} />
-    : <LandingPage content={content} goTo={goTo} />
+    : <LandingPage content={content} goTo={goTo} showSplashOnEntry={showHomeSplash} onSplashShown={markHomeSplashShown} />
 
   return <ToastProvider>{page}</ToastProvider>
 }

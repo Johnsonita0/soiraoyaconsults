@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import Brand from '../components/Brand'
+import SiteHeader from '../components/SiteHeader'
 import { serviceDetails } from '../components/ServiceModal'
 import SearchableSelect from '../components/SearchableSelect'
 import { useToast } from '../components/ToastProvider'
-import { ArrowUp, ArrowUpRight, Check, ChevronDown, ChevronLeft, ChevronRight, Mail, MapPin, Menu, Phone, Whatsapp, X } from '../components/icons'
+import { ArrowUp, ArrowUpRight, Check, ChevronLeft, ChevronRight, Mail, MapPin, Phone, Whatsapp } from '../components/icons'
 
 export const slug = (title) => title.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
 
@@ -30,9 +31,6 @@ const serviceHeadings = {
 export default function ServicePage({ content, service, goTo }) {
   const { showToast } = useToast()
   const [heroIndex, setHeroIndex] = useState(0)
-  const [mobileOpen, setMobileOpen] = useState(false)
-  const [aboutMenuOpen, setAboutMenuOpen] = useState(false)
-  const [servicesMenuOpen, setServicesMenuOpen] = useState(false)
   const [showBackToTop, setShowBackToTop] = useState(false)
   const [sent, setSent] = useState(false)
   const [submitError, setSubmitError] = useState('')
@@ -49,20 +47,6 @@ export default function ServicePage({ content, service, goTo }) {
 
   const scrollToContact = () => {
     document.querySelector('#contact-form')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-  }
-  const goToSection = (id) => {
-    setMobileOpen(false)
-    goTo('/')
-    window.setTimeout(() => document.querySelector(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0)
-  }
-  const openServiceRoute = (item) => {
-    setServicesMenuOpen(false)
-    setMobileOpen(false)
-    if (item.title === 'Real Estate Portfolio Management') {
-      goTo('/portfolio-management')
-      return
-    }
-    goTo(`/services/${slug(item.title)}`)
   }
   const submit = async (event) => {
     event.preventDefault()
@@ -91,7 +75,7 @@ export default function ServicePage({ content, service, goTo }) {
   }
 
   return <div className="service-page">
-    <header className="site-header service-page-header"><Brand goTo={goTo} /><nav className={mobileOpen ? 'nav-open' : ''} aria-label="Main navigation"><a href="/" onClick={(event) => { event.preventDefault(); goTo('/') }}>Home</a><div className={`about-nav-item ${aboutMenuOpen ? 'is-open' : ''}`} onMouseLeave={() => setAboutMenuOpen(false)}><button type="button" className="about-nav-trigger" aria-expanded={aboutMenuOpen} onClick={() => setAboutMenuOpen((open) => !open)}>About Us <ChevronDown size={14} /></button><ul className="about-submenu"><li><a href="/#approach" onClick={(event) => { event.preventDefault(); goToSection('#approach') }}>Company Overview</a></li><li><a href="/#team" onClick={(event) => { event.preventDefault(); goToSection('#team') }}>Leadership</a></li></ul></div><div className={`services-nav-item ${servicesMenuOpen ? 'is-open' : ''}`} onMouseLeave={() => setServicesMenuOpen(false)}><button type="button" className="services-nav-trigger" aria-expanded={servicesMenuOpen} onClick={() => setServicesMenuOpen((open) => !open)}>Services <ChevronDown size={14} /></button><ul className="services-submenu">{(content.services || []).map((item) => <li key={item.title}><button type="button" onClick={() => openServiceRoute(item)}>{item.title}</button></li>)}</ul></div><a href="/#who-we-serve" onClick={(event) => { event.preventDefault(); goToSection('#who-we-serve') }}>Who we serve</a><a href="/portfolio-management" onClick={(event) => { event.preventDefault(); setMobileOpen(false); goTo('/portfolio-management') }}>Portfolio management</a><a href="/properties" onClick={(event) => { event.preventDefault(); setMobileOpen(false); goTo('/properties') }}>Properties</a><a href="/#contact" onClick={(event) => { event.preventDefault(); goToSection('#contact') }}>Contact</a></nav><button className="mobile-toggle" onClick={() => setMobileOpen((open) => !open)} aria-label={mobileOpen ? 'Close menu' : 'Open menu'}>{mobileOpen ? <X size={30} /> : <Menu size={30} />}</button><button className="header-cta" onClick={scrollToContact}>Request a consultation <ArrowUpRight size={16} /></button></header>
+    <SiteHeader content={content} goTo={goTo} onContact={scrollToContact} />
     <main>
       <section className="service-page-hero" data-aos="fade-up" style={{ '--service-image': `url(${heroImages[heroIndex]})` }}><div className="service-page-hero-copy"><p className="eyebrow">Our services</p><h1>{service.title}</h1><p>{serviceTagline}</p></div><div className="service-page-hero-controls"><button type="button" onClick={() => setHeroIndex((heroIndex - 1 + heroImages.length) % heroImages.length)} aria-label="Previous service image"><ChevronLeft size={18} /></button><button type="button" onClick={() => setHeroIndex((heroIndex + 1) % heroImages.length)} aria-label="Next service image"><ChevronRight size={18} /></button></div><div className="service-page-hero-dots" aria-label="Service image slides">{heroImages.map((image, index) => <button key={image} type="button" className={index === heroIndex ? 'active' : ''} onClick={() => setHeroIndex(index)} aria-label={`Show service image ${index + 1}`} />)}</div></section>
       <section className="service-page-content" data-aos="fade-up"><div data-aos="fade-right"><p className="eyebrow">Professional support</p><h2>{serviceHeadings[service.title] || 'Clear advice for better property decisions.'}</h2><p className="service-page-summary">{service.text}</p></div><div className="service-page-details" data-aos="zoom-in"><p className="service-modal-label">Our services may include</p><ul>{(serviceDetails[service.title] || []).map((detail) => <li key={detail}>{detail}</li>)}</ul><button className="button button-dark" onClick={scrollToContact}>Discuss this service <ArrowUpRight size={17} /></button></div></section>

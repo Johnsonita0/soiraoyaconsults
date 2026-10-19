@@ -1,6 +1,6 @@
-import { useState } from 'react'
 import Brand from '../components/Brand'
-import { ArrowUpRight, Check, Menu, Whatsapp, X } from '../components/icons'
+import SiteHeader from '../components/SiteHeader'
+import { ArrowUpRight, Check, Whatsapp } from '../components/icons'
 
 const supportServices = [
   'Periodic property inspections and condition reports.',
@@ -14,30 +14,20 @@ const revealEffects = ['fade-right', 'zoom-in', 'fade-up', 'flip-up', 'fade-left
 const revealEffect = (index) => revealEffects[(index * 3 + 1) % revealEffects.length]
 
 export default function DiasporaPage({ content, goTo }) {
-  const [mobileOpen, setMobileOpen] = useState(false)
   const whatsappChatUrl = `https://wa.me/2349074091408?text=${encodeURIComponent('Hello, I live abroad and would like to discuss oversight of my property in Nigeria.')}`
 
   const goToHomeSection = (event, sectionId) => {
     event.preventDefault()
-    setMobileOpen(false)
     goTo('/')
     window.setTimeout(() => document.querySelector(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0)
   }
+  const scrollToContact = () => {
+    goTo('/')
+    window.setTimeout(() => document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0)
+  }
 
   return <div className="site-shell diaspora-page">
-    <header className="site-header">
-      <Brand goTo={goTo} />
-      <nav className={mobileOpen ? 'nav-open' : ''} aria-label="Main navigation">
-        <a href="/" onClick={(event) => { event.preventDefault(); setMobileOpen(false); goTo('/') }}>Home</a>
-        <a href="/#services" onClick={(event) => goToHomeSection(event, '#services')}>Services</a>
-        <a href="/#who-we-serve" onClick={(event) => goToHomeSection(event, '#who-we-serve')}>Who we serve</a>
-        <a href="/portfolio-management" onClick={(event) => { event.preventDefault(); setMobileOpen(false); goTo('/portfolio-management') }}>Portfolio management</a>
-        <a href="/properties" onClick={(event) => { event.preventDefault(); setMobileOpen(false); goTo('/properties') }}>Properties</a>
-        <a href="/#contact" onClick={(event) => goToHomeSection(event, '#contact')}>Contact</a>
-      </nav>
-      <button type="button" className="mobile-toggle" onClick={() => setMobileOpen((open) => !open)} aria-label={mobileOpen ? 'Close menu' : 'Open menu'} aria-expanded={mobileOpen}>{mobileOpen ? <X size={27} /> : <Menu size={27} />}</button>
-      <button type="button" className="header-cta" onClick={(event) => goToHomeSection(event, '#contact')}>Request a consultation <ArrowUpRight size={16} /></button>
-    </header>
+    <SiteHeader content={content} goTo={goTo} onContact={scrollToContact} />
 
     <main>
       <section className="diaspora-hero" data-aos="fade-up">

@@ -255,7 +255,6 @@
   text-transform: uppercase;
 }
 
-.consultancy-challenges,
 .consultancy-services,
 .consultancy-audiences,
 .consultancy-process,
@@ -263,33 +262,6 @@
   padding: 100px 28px;
 }
 
-.consultancy-challenges {
-  background: var(--paper);
-}
-
-.consultancy-challenge-grid {
-  max-width: 1184px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-}
-
-.consultancy-challenge-card {
-  min-height: 270px;
-  padding: 26px;
-  background: white;
-  border: 1px solid var(--line);
-}
-
-.consultancy-index {
-  color: var(--red);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: .12em;
-}
-
-.consultancy-challenge-card h3,
 .consultancy-audience-card h3,
 .consultancy-service-card h3 {
   margin: 18px 0 11px;
@@ -300,7 +272,6 @@
   line-height: 1.25;
 }
 
-.consultancy-challenge-card p,
 .consultancy-audience-card p,
 .consultancy-service-card p,
 .consultancy-process-list p {
@@ -308,29 +279,6 @@
   color: var(--muted);
   font-size: 13px;
   line-height: 1.75;
-}
-
-.consultancy-challenge-card .consultancy-question {
-  margin-bottom: 12px;
-  color: var(--ink);
-  font-weight: 600;
-}
-
-.consultancy-inline-cta {
-  max-width: 1184px;
-  margin: 30px auto 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  padding: 24px 28px;
-  background: var(--cream);
-}
-
-.consultancy-inline-cta p {
-  margin: 0;
-  font-family: var(--serif);
-  font-size: 20px;
 }
 
 .consultancy-services {
@@ -1293,7 +1241,6 @@
     flex-direction: column;
   }
 
-  .consultancy-challenge-grid,
   .consultancy-service-grid,
   .consultancy-audience-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1395,7 +1342,6 @@
     gap: 16px;
   }
 
-  .consultancy-challenges,
   .consultancy-services,
   .consultancy-audiences,
   .consultancy-process,
@@ -1403,22 +1349,11 @@
     padding: 70px 22px;
   }
 
-  .consultancy-challenge-grid,
   .consultancy-service-grid,
   .consultancy-audience-grid,
   .consultancy-team-grid,
   .consultancy-form-grid {
     grid-template-columns: 1fr;
-  }
-
-  .consultancy-challenge-card {
-    min-height: auto;
-  }
-
-  .consultancy-inline-cta {
-    align-items: start;
-    flex-direction: column;
-    padding: 22px;
   }
 
   .consultancy-service-card {
@@ -1616,33 +1551,222 @@
     justify-content: center;
     padding: 28px;
     background: #071735;
-    animation: consultancy-splash-exit .6s ease 5.4s both;
+    animation: consultancy-splash-exit .6s ease 4.1s both;
   }
 
-  .consultancy-splash img {
-    display: block;
-    width: min(300px, 72vw);
-    height: auto;
-    filter: brightness(0) invert(1);
+  .consultancy-splash-brand {
+    display: grid;
+    width: min(250px, 70vw);
+    place-items: center;
+    padding: 0;
     animation: consultancy-splash-brand .65s ease both;
   }
 
-  .consultancy-splash-rule {
-    width: min(220px, 58vw);
-    height: 1px;
-    margin-top: 22px;
+  .consultancy-splash-brand img {
+    display: block;
+    width: 100%;
+    max-height: 160px;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+  }
+
+  .consultancy-splash-progress {
+    width: min(320px, 78vw);
+    height: 4px;
+    margin-top: 20px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, .2);
+    border-radius: 99px;
+  }
+
+  .consultancy-splash-progress-fill {
+    display: block;
+    width: 100%;
+    height: 100%;
     background: var(--lime);
+    border-radius: inherit;
+    transform: scaleX(0);
     transform-origin: left;
-    animation: consultancy-splash-rule .7s ease .15s both;
+    animation: consultancy-splash-progress 4.7s linear forwards;
+  }
+
+  .consultancy-home .hero-section {
+    height: calc(100svh - 64px - 58px);
+    min-height: min(560px, calc(100svh - 122px));
+    margin: 0;
+  }
+
+  .consultancy-home .hero-content-row {
+    gap: clamp(34px, 4.5vw, 62px);
+  }
+
+  .consultancy-home .hero-welcome-card {
+    padding: 20px 22px;
+  }
+
+  .consultancy-home .hero-welcome-card p {
+    margin-top: 11px;
+    line-height: 1.48;
+  }
+
+  .consultancy-home .hero-promise-card {
+    padding: 20px 22px;
+  }
+
+  .consultancy-home .hero-promise-card > span {
+    margin-bottom: 11px;
+  }
+
+  .consultancy-home .hero-promise-card p {
+    line-height: 1.55;
+  }
+
+  .consultancy-home .consultancy-proof-strip {
+    margin: 0;
+  }
+
+  @media (max-width: 800px) {
+    .consultancy-home .hero-section {
+      height: auto;
+      min-height: calc(100svh - 60px - 50px);
+      padding: 24px 22px 28px;
+      align-items: center;
+    }
+
+    .consultancy-home .hero-content-row {
+      gap: 22px;
+      transform: none;
+    }
+
+    .consultancy-home .hero-side-cards {
+      gap: 14px;
+    }
+
+    .consultancy-home .hero-welcome-card {
+      padding: 16px 18px;
+    }
+
+    .consultancy-home .hero-welcome-card p {
+      margin-top: 9px;
+      line-height: 1.48;
+    }
+
+    .consultancy-home .hero-promise-card {
+      padding: 16px 18px;
+    }
+
+    .consultancy-home .hero-promise-card > span {
+      margin-bottom: 8px;
+    }
+
+    .consultancy-home .hero-promise-card p {
+      font-size: 14px;
+      line-height: 1.5;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .consultancy-home .hero-section {
+      min-height: calc(100svh - 60px - 50px);
+      padding: 22px 20px 26px;
+    }
+
+    .consultancy-home .hero-content-row {
+      gap: 20px;
+    }
+
+    .consultancy-home .hero-section .hero-copy h1 {
+      margin: 15px 0 13px;
+      font-size: clamp(32px, 8.4vw, 37px);
+      line-height: 1.1;
+    }
+
+    .consultancy-home .hero-lede {
+      font-size: 11px;
+      line-height: 1.55;
+    }
+
+    .consultancy-home .hero-actions {
+      margin-top: 16px;
+      gap: 12px 16px;
+    }
+
+    .consultancy-home .hero-side-cards {
+      gap: 12px;
+    }
+
+    .consultancy-home .hero-welcome-card {
+      padding: 14px 15px;
+    }
+
+    .consultancy-home .hero-welcome-card p {
+      margin-top: 8px;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .consultancy-home .hero-promise-card {
+      padding: 14px 15px;
+    }
+
+    .consultancy-home .hero-promise-card p {
+      font-size: 12px;
+      line-height: 1.5;
+    }
+  }
+
+  @media (max-width: 800px) and (max-height: 700px) {
+    .consultancy-home .hero-section {
+      min-height: calc(100svh - 60px - 50px);
+      padding: 18px 18px 22px;
+    }
+
+    .consultancy-home .hero-content-row {
+      gap: 16px;
+    }
+
+    .consultancy-home .hero-section .hero-copy h1 {
+      margin: 10px 0;
+      font-size: clamp(30px, 7.8vw, 34px);
+      line-height: 1.06;
+    }
+
+    .consultancy-home .hero-lede {
+      font-size: 10px;
+      line-height: 1.45;
+    }
+
+    .consultancy-home .hero-actions {
+      margin-top: 12px;
+    }
+
+    .consultancy-home .hero-side-cards {
+      gap: 10px;
+    }
+
+    .consultancy-home .hero-welcome-card,
+    .consultancy-home .hero-promise-card {
+      padding: 11px 13px;
+    }
+
+    .consultancy-home .hero-welcome-card p {
+      margin-top: 6px;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .consultancy-home .hero-promise-card p {
+      font-size: 11px;
+      line-height: 1.4;
+    }
   }
 
   .consultancy-splash p {
-    margin: 15px 0 0;
+    margin: 17px 0 0;
     color: rgba(255, 255, 255, .78);
     font-family: var(--serif);
     font-size: 13px;
     letter-spacing: .09em;
-    animation: consultancy-splash-brand .65s ease .1s both;
   }
 
   @keyframes consultancy-splash-brand {
@@ -1650,7 +1774,7 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
-  @keyframes consultancy-splash-rule {
+  @keyframes consultancy-splash-progress {
     from { transform: scaleX(0); }
     to { transform: scaleX(1); }
   }
@@ -1933,8 +2057,7 @@
 
   @media (prefers-reduced-motion: reduce) {
     .consultancy-splash,
-    .consultancy-splash img,
-    .consultancy-splash-rule,
+    .consultancy-splash-brand,
     .consultancy-splash p {
       animation: none;
     }
@@ -2483,3 +2606,195 @@
       line-height: 1.4;
     }
   }
+
+@media (min-width: 1101px) {
+  .consultancy-home .hero-section {
+    height: calc(100svh - 76px - 58px);
+    min-height: 0;
+    max-height: none;
+    padding-top: 22px;
+    padding-bottom: 30px;
+  }
+
+  .consultancy-home .hero-content-row {
+    transform: none;
+  }
+}
+
+@media (max-width: 1100px) {
+  .consultancy-home .hero-section {
+    height: auto;
+    min-height: calc(100svh - 68px - 50px);
+    max-height: none;
+    padding: 28px 22px;
+    align-items: stretch;
+    box-sizing: border-box;
+  }
+
+  .consultancy-home .hero-content-row {
+    flex: 1 1 auto;
+    min-height: 0;
+    justify-content: center;
+    gap: 22px;
+    transform: none;
+  }
+
+  .consultancy-home .hero-copy {
+    flex: 0 1 auto;
+  }
+
+  .consultancy-home .hero-side-cards {
+    flex: 0 1 auto;
+    gap: 16px;
+  }
+
+  .consultancy-home .hero-welcome-card,
+  .consultancy-home .hero-promise-card {
+    padding: 16px 18px;
+  }
+
+  .consultancy-home .hero-welcome-card p {
+    margin-top: 10px;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .consultancy-home .hero-promise-card > span {
+    margin-bottom: 9px;
+  }
+
+  .consultancy-home .hero-promise-card p {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+}
+
+@media (max-width: 600px) {
+  .consultancy-home .hero-section {
+    min-height: calc(100svh - 60px - 50px);
+    padding: 24px 20px;
+  }
+
+  .consultancy-home .hero-content-row {
+    gap: 24px;
+  }
+
+  .consultancy-home .hero-copy .eyebrow {
+    gap: 8px;
+    font-size: 8px;
+    line-height: 1.5;
+  }
+
+  .consultancy-home .hero-section .hero-copy h1 {
+    margin: 15px 0 14px;
+    font-size: clamp(32px, 8.4vw, 38px);
+    line-height: 1.12;
+  }
+
+  .consultancy-home .hero-lede {
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  .consultancy-home .hero-actions {
+    margin-top: 18px;
+    gap: 12px 17px;
+  }
+
+  .consultancy-home .hero-actions .button {
+    min-height: 44px;
+    padding: 11px 16px;
+    font-size: 11px;
+  }
+
+  .consultancy-home .hero-actions .text-link {
+    font-size: 11px;
+  }
+
+  .consultancy-home .hero-side-cards {
+    gap: 13px;
+  }
+
+  .consultancy-home .hero-welcome-card,
+  .consultancy-home .hero-promise-card {
+    padding: 14px 15px;
+    border-radius: 14px;
+  }
+
+  .consultancy-home .hero-welcome-card p {
+    margin-top: 8px;
+    font-size: 13px;
+    line-height: 1.48;
+  }
+
+  .consultancy-home .hero-promise-card > span {
+    margin-bottom: 7px;
+  }
+
+  .consultancy-home .hero-promise-card p {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+}
+
+@media (max-width: 800px) and (max-height: 700px) {
+  .consultancy-home .hero-section {
+    min-height: calc(100svh - 60px - 50px);
+    padding-block: 20px;
+  }
+
+  .consultancy-home .hero-content-row {
+    gap: 16px;
+  }
+
+  .consultancy-home .hero-section .hero-copy h1 {
+    margin: 10px 0;
+    font-size: clamp(30px, 7.6vw, 35px);
+    line-height: 1.08;
+  }
+
+  .consultancy-home .hero-lede {
+    font-size: 11px;
+    line-height: 1.45;
+  }
+
+  .consultancy-home .hero-actions {
+    margin-top: 13px;
+  }
+
+  .consultancy-home .hero-side-cards {
+    gap: 10px;
+  }
+
+  .consultancy-home .hero-welcome-card,
+  .consultancy-home .hero-promise-card {
+    padding: 11px 13px;
+  }
+
+  .consultancy-home .hero-welcome-card p {
+    margin-top: 6px;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .consultancy-home .hero-promise-card p {
+    font-size: 11px;
+    line-height: 1.4;
+  }
+}
+
+.faq-category {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--red);
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+
+.faq-answer strong {
+  color: var(--ink);
+}

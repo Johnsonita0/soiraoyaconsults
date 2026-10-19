@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import Brand from '../components/Brand'
 import SearchableSelect from '../components/SearchableSelect'
+import SiteHeader from '../components/SiteHeader'
 import { useToast } from '../components/ToastProvider'
-import { ArrowUp, ArrowUpRight, Check, ChevronDown, Mail, MapPin, Menu, Phone, Whatsapp, X } from '../components/icons'
+import { ArrowUp, ArrowUpRight, Check, Mail, MapPin, Phone, Whatsapp } from '../components/icons'
 import './PropertySearch.css'
 
 const whatsappNumber = (phone) => {
@@ -25,7 +26,6 @@ const filterProperties = (properties, filters) => properties.filter((property) =
 
 export default function PropertySearchPage({ content, filters, goTo }) {
   const { showToast } = useToast()
-  const [mobileOpen, setMobileOpen] = useState(false)
   const [showBackToTop, setShowBackToTop] = useState(false)
   const [searchForm, setSearchForm] = useState(filters)
   const [form, setForm] = useState({ name: '', email: '', request: '', property: '' })
@@ -74,7 +74,7 @@ export default function PropertySearchPage({ content, filters, goTo }) {
   }
 
   return <div className="property-search-page">
-    <header className="site-header property-search-header"><Brand goTo={goTo} /><nav className={mobileOpen ? 'nav-open' : ''}><a href="/" onClick={(event) => { event.preventDefault(); goTo('/') }}>Home</a><button type="button" className="property-search-nav-trigger" onClick={() => goHomeSection('#approach')}>About Us <ChevronDown size={14} /></button><button type="button" className="property-search-nav-trigger" onClick={() => goHomeSection('#services')}>Services <ChevronDown size={14} /></button><a href="/properties" onClick={(event) => { event.preventDefault(); goTo('/properties') }}>Properties</a><a href="/portfolio-management" onClick={(event) => { event.preventDefault(); goTo('/portfolio-management') }}>Portfolio management</a><a href="#contact" onClick={(event) => { event.preventDefault(); scrollToContact() }}>Contact</a></nav><button className="mobile-toggle" onClick={() => setMobileOpen((open) => !open)} aria-label="Toggle menu">{mobileOpen ? <X size={30} /> : <Menu size={30} />}</button><button className="header-cta" onClick={scrollToContact}>List your property <ArrowUpRight size={16} /></button></header>
+    <SiteHeader content={content} goTo={goTo} onContact={scrollToContact} />
     <main>
       <section className="property-search-hero" data-aos="fade-up"><p className="eyebrow">Property listings</p><h1>Find a property that fits <em>your plans.</em></h1><p>Explore selected sale and rental opportunities. Contact our team to discuss a listing or ask us to help identify a property that meets your requirements.</p><button type="button" className="button button-light" onClick={scrollToContact}>List your property <ArrowUpRight size={17} /></button></section>
       <section className="property-results-section" data-aos="fade-up">

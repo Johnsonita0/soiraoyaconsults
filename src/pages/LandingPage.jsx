@@ -3,45 +3,46 @@ import Brand from '../components/Brand'
 import FaqSection from '../components/FaqSection'
 import HeroSlider from '../components/HeroSlider'
 import PropertyGallery from '../components/PropertyGallery'
+import SiteHeader from '../components/SiteHeader'
 import TestimonialsSection from '../components/TestimonialsSection'
 import { useToast } from '../components/ToastProvider'
 import { slug as serviceSlug } from './ServicePage'
-import { ArrowUp, ArrowUpRight, BarChart3, Building2, Check, ChevronDown, Facebook, Home, Instagram, Leaf, Linkedin, Mail, MapPin, Menu, Phone, Whatsapp, X, Youtube } from '../components/icons'
+import { ArrowUp, ArrowUpRight, BarChart3, Building2, Check, ChevronDown, Facebook, Home, Instagram, Leaf, Linkedin, Mail, MapPin, Phone, Whatsapp, Youtube } from '../components/icons'
 import './ConsultancyHome.css'
 
 const whatsappChatUrl = `https://wa.me/2349074091408?text=${encodeURIComponent('Hello, I would like to discuss a property or investment.')}`
 const revealEffects = ['fade-up', 'fade-right', 'zoom-in', 'fade-left', 'flip-up']
 const revealEffect = (index) => revealEffects[(index * 3 + 1) % revealEffects.length]
-const challenges = [
+const propertyFaqs = [
   {
-    title: 'Limited visibility into performance',
-    question: 'Can you see rental income, expenses, arrears, maintenance costs and property performance clearly?',
-    response: 'We provide property management and reporting services to support financial visibility and informed decisions.',
+    category: 'Problem 1: Poor visibility into property performance',
+    question: 'Are you receiving clear information about rental income, operating expenses, outstanding payments, maintenance costs and the overall performance of your property?',
+    answer: 'Our response: We provide property management and reporting services designed to improve financial visibility, accountability and informed decision-making.',
   },
   {
-    title: 'Inefficient property operations',
-    question: 'Are maintenance issues, tenant administration or operating costs affecting your asset?',
-    response: 'We help coordinate day-to-day operations, maintenance and service providers within an agreed management scope.',
+    category: 'Problem 2: Inefficient property operations',
+    question: "Unresolved maintenance issues, poor tenant administration, uncontrolled expenditure and inadequate service delivery can reduce a property's performance.",
+    answer: 'Our response: We help coordinate property operations, maintenance, tenant-related processes and service providers within an agreed management framework.',
   },
   {
-    title: 'A portfolio that is hard to monitor',
-    question: 'Do you need to compare performance across several properties or locations?',
-    response: 'Our portfolio work brings asset information together to review performance, operating risks and improvement priorities.',
+    category: 'Problem 3: Difficulty monitoring multiple properties',
+    question: 'Managing several properties across different locations can make it difficult to compare performance, identify underperforming assets and allocate resources effectively.',
+    answer: 'Our response: Our proposed portfolio management service focuses on consolidated reporting, performance monitoring, operating risks and recommendations for improvement.',
   },
   {
-    title: 'Uncertainty about an investment',
-    question: 'Do you have the evidence you need before committing capital to a property opportunity?',
-    response: 'Valuation, investment analysis and due diligence can help you understand an asset and the risks that may affect a decision.',
+    category: 'Problem 4: Uncertainty about real estate investments',
+    question: "A property's location or appearance does not, by itself, establish that it represents a sound investment.",
+    answer: 'Our response: We provide valuation, feasibility studies, investment analysis and due diligence services to help clients assess opportunities and understand potential risks before making investment decisions.',
   },
   {
-    title: 'Property oversight from abroad',
-    question: 'Is it difficult to verify the condition of your property and supervise local activity?',
-    response: 'We can agree inspection, documentation, maintenance coordination and reporting arrangements with non-resident owners.',
+    category: 'Problem 5: Limited supervision of properties from abroad',
+    question: 'Diaspora investors and other non-resident owners may find it difficult to verify the condition of their properties, monitor expenditure and supervise local service providers.',
+    answer: 'Our response: We can provide agreed inspection, documentation, management reporting and property oversight services to keep clients informed about their assets.',
   },
   {
-    title: 'Development decisions with many unknowns',
-    question: 'Do you need to test market demand, costs, revenue assumptions or development risks?',
-    response: 'Feasibility studies and investment analysis help inform development planning and commercial decisions.',
+    category: 'Problem 6: Uncertainty during development and project planning',
+    question: 'Real estate developments require careful consideration of market demand, costs, financing, phasing, revenue assumptions and development risks.',
+    answer: 'Our response: We undertake feasibility studies and investment analysis to support development planning and commercial decision-making.',
   },
 ]
 
@@ -113,13 +114,11 @@ function TeamMemberAvatar({ member }) {
   return <div className="consultancy-team-avatar" role="img" aria-label={member.name}>{initials}</div>
 }
 
-export default function LandingPage({ content, goTo }) {
+export default function LandingPage({ content, goTo, showSplashOnEntry, onSplashShown }) {
   const { showToast } = useToast()
-  const [mobileOpen, setMobileOpen] = useState(false)
-  const [servicesMenuOpen, setServicesMenuOpen] = useState(false)
   const [showBackToTop, setShowBackToTop] = useState(false)
   const [showEnquiryForm, setShowEnquiryForm] = useState(false)
-  const [showSplash, setShowSplash] = useState(true)
+  const [showSplash, setShowSplash] = useState(showSplashOnEntry)
   const [sent, setSent] = useState(false)
   const [submitError, setSubmitError] = useState('')
   const [form, setForm] = useState({
@@ -145,24 +144,16 @@ export default function LandingPage({ content, goTo }) {
 
   useEffect(() => {
     if (!showSplash) return undefined
-    const timer = window.setTimeout(() => setShowSplash(false), 6000)
+    onSplashShown()
+    const timer = window.setTimeout(() => setShowSplash(false), 4700)
     return () => window.clearTimeout(timer)
-  }, [showSplash])
+  }, [showSplash, onSplashShown])
 
   const scrollToSection = (id) => {
     document.querySelector(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
-  const handleNavClick = (event, id) => {
-    event.preventDefault()
-    setMobileOpen(false)
-    setServicesMenuOpen(false)
-    scrollToSection(id)
-  }
-
   const openService = (service) => {
-    setMobileOpen(false)
-    setServicesMenuOpen(false)
     goTo(serviceRoute(service))
   }
 
@@ -214,31 +205,15 @@ export default function LandingPage({ content, goTo }) {
 
   return <div className="site-shell consultancy-home">
     {showSplash && <div className="consultancy-splash" role="status" aria-label="Loading S.O. Iraoya Consulting">
-      <img src="/image/logo11.png" alt="S.O. Iraoya Consulting" />
-      <span className="consultancy-splash-rule" />
+      <div className="consultancy-splash-brand">
+        <img src="/image/logo11.png" alt="S.O. Iraoya Consulting" />
+      </div>
       <p>Real estate managed with purpose.</p>
+      <div className="consultancy-splash-progress" role="progressbar" aria-label="Loading" aria-valuemin="0" aria-valuemax="100">
+        <span className="consultancy-splash-progress-fill" />
+      </div>
     </div>}
-    <header className="site-header">
-      <Brand goTo={goTo} />
-      <nav className={mobileOpen ? 'nav-open' : ''} aria-label="Main navigation">
-        <a href="#approach" onClick={(event) => handleNavClick(event, '#approach')}>About</a>
-        <div className={`services-nav-item ${servicesMenuOpen ? 'is-open' : ''}`} onMouseLeave={() => setServicesMenuOpen(false)}>
-          <button type="button" className="services-nav-trigger" aria-expanded={servicesMenuOpen} onClick={() => setServicesMenuOpen((open) => !open)}>Management <ChevronDown size={14} /></button>
-          <ul className="services-submenu">
-            {serviceItems.map((service) => <li key={service.title}><button type="button" onClick={() => openService(service)}>{service.title}</button></li>)}
-          </ul>
-        </div>
-        <a href="/properties/search?listingType=For+Rent" onClick={(event) => { event.preventDefault(); setMobileOpen(false); goTo('/properties/search?listingType=For+Rent') }}>Shortlets</a>
-        <a href="/properties" onClick={(event) => { event.preventDefault(); setMobileOpen(false); goTo('/properties') }}>Buy &amp; rent</a>
-        <a href="/properties/search?keyword=land" onClick={(event) => { event.preventDefault(); setMobileOpen(false); goTo('/properties/search?keyword=land') }}>Acres</a>
-        <a href="/portfolio-management" onClick={(event) => { event.preventDefault(); setMobileOpen(false); goTo('/portfolio-management') }}>Portfolio</a>
-        <a href="/services/property-management" onClick={(event) => { event.preventDefault(); setMobileOpen(false); goTo('/services/property-management') }}>RentAssist</a>
-        <a href="#faq" onClick={(event) => handleNavClick(event, '#faq')}>Blog</a>
-        <a href="#contact" onClick={(event) => handleNavClick(event, '#contact')}>Contact</a>
-      </nav>
-      <button type="button" className="mobile-toggle" onClick={() => setMobileOpen((open) => !open)} aria-label={mobileOpen ? 'Close menu' : 'Open menu'} aria-expanded={mobileOpen}>{mobileOpen ? <X size={27} /> : <Menu size={27} />}</button>
-      <button type="button" className="header-cta" onClick={() => scrollToSection('#contact')}>Reach us <ArrowUpRight size={16} /></button>
-    </header>
+    <SiteHeader content={content} goTo={goTo} onContact={() => scrollToSection('#contact')} />
 
     <main>
       <HeroSlider slides={content.heroSlides || []} onContact={() => scrollToSection('#contact')} />
@@ -263,24 +238,7 @@ export default function LandingPage({ content, goTo }) {
         </div>
       </section>
 
-      <section className="consultancy-challenges" aria-labelledby="challenges-title" data-aos="fade-up">
-        <div className="consultancy-section-heading" data-aos="fade-right">
-          <p className="eyebrow">The challenges we address</p>
-          <h2 id="challenges-title">Is your property delivering the value you expected?</h2>
-          <p>Without reliable information and professional oversight, property operations, investment performance and long-term asset value can be difficult to manage.</p>
-        </div>
-        <div className="consultancy-challenge-grid">
-          {challenges.map((challenge, index) => <article className="consultancy-challenge-card" key={challenge.title} data-aos={revealEffect(index)}>
-            <h3>{challenge.title}</h3>
-            <p className="consultancy-question">{challenge.question}</p>
-            <p>{challenge.response}</p>
-          </article>)}
-        </div>
-        <div className="consultancy-inline-cta">
-          <p>Not sure where your property or investment stands?</p>
-          <button className="button button-dark" onClick={() => scrollToSection('#contact')}>Discuss your property or investment <ArrowUpRight size={17} /></button>
-        </div>
-      </section>
+      <div data-aos="fade-up"><FaqSection items={propertyFaqs} onContact={() => scrollToSection('#contact')} /></div>
 
       <section className="consultancy-services" id="services" aria-labelledby="services-title" data-aos="fade-up">
         <div className="consultancy-section-heading consultancy-section-heading-row" data-aos="zoom-in">
@@ -416,7 +374,6 @@ export default function LandingPage({ content, goTo }) {
         </div>
       </section>
 
-      <div data-aos="fade-up"><FaqSection items={content.faqs || []} onContact={() => scrollToSection('#contact')} /></div>
       <div data-aos="fade-up"><TestimonialsSection testimonials={content.testimonials || []} contactEmail={content.contact?.email} /></div>
 
       <section className="consultancy-contact" id="contact" aria-labelledby="contact-title">

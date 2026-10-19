@@ -1,6 +1,6 @@
-import { useState } from 'react'
 import Brand from '../components/Brand'
-import { ArrowUpRight, Check, Menu, X } from '../components/icons'
+import SiteHeader from '../components/SiteHeader'
+import { ArrowUpRight, Check } from '../components/icons'
 
 const portfolioServices = [
   {
@@ -39,28 +39,14 @@ const revealEffects = ['fade-up', 'fade-right', 'zoom-in', 'fade-left']
 const revealEffect = (index) => revealEffects[(index * 3 + 1) % revealEffects.length]
 
 export default function PortfolioManagementPage({ content, goTo }) {
-  const [mobileOpen, setMobileOpen] = useState(false)
-
   const goToHomeSection = (event, sectionId) => {
     event.preventDefault()
-    setMobileOpen(false)
     goTo('/')
     window.setTimeout(() => document.querySelector(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0)
   }
 
   return <div className="portfolio-page">
-    <header className="site-header">
-      <Brand goTo={goTo} />
-      <nav className={mobileOpen ? 'nav-open' : ''} aria-label="Main navigation">
-        <a href="/" onClick={(event) => goToHomeSection(event, '#approach')}>About us</a>
-        <a href="/#services" onClick={(event) => goToHomeSection(event, '#services')}>Services</a>
-        <a href="#portfolio-audience" onClick={(event) => { event.preventDefault(); document.querySelector('#portfolio-audience')?.scrollIntoView({ behavior: 'smooth' }); setMobileOpen(false) }}>Who we serve</a>
-        <a href="/properties" onClick={(event) => { event.preventDefault(); setMobileOpen(false); goTo('/properties') }}>Properties</a>
-        <a href="/#contact" onClick={(event) => goToHomeSection(event, '#contact')}>Contact</a>
-      </nav>
-      <button className="mobile-toggle" onClick={() => setMobileOpen((open) => !open)} aria-label="Toggle menu">{mobileOpen ? <X size={30} /> : <Menu size={30} />}</button>
-      <button className="header-cta" onClick={(event) => goToHomeSection(event, '#contact')}>Discuss your portfolio <ArrowUpRight size={16} /></button>
-    </header>
+    <SiteHeader content={content} goTo={goTo} onContact={() => { goTo('/'); window.setTimeout(() => document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0) }} />
 
     <main>
       <section className="portfolio-hero" data-aos="fade-up">

@@ -74,7 +74,7 @@ const leadershipMembers = [
     name: 'Dr. Olusegun Iraoya, PhD',
     role: 'Principal Partner',
     meta: 'RSV, NIESV | B.Sc (QS) | M.Sc | PhD',
-    description: 'Experience spanning estate surveying, property valuation, facilities management, and strategic advisory across public and private sector assets.',
+    description: 'Experience spanning estate surveying, property management, valuation, facilities management, and strategic advisory across public and private sector assets.',
     tags: ['Asset Valuation', 'Facilities Management', 'Project Finance', 'Investment Analysis'],
   },
   {

@@ -805,6 +805,7 @@ footer .admin-link { color:var(--green); }
 .office-location-label--branch { color:#8a5610; }
 .consultancy-contact-details .office-location-label--head { color:#c7e998; }
 .consultancy-contact-details .office-location-label--branch { color:#f2c76a; }
+.admin-edit-actions { display:flex; flex-wrap:wrap; align-items:center; gap:10px; }
 .site-header-brand-group { display:flex; flex:0 0 auto; align-items:center; gap:8px; }
 .site-header-regulator-logo { display:block; width:64px; height:64px; object-fit:contain; }
 .glyph { display:inline-flex; align-items:center; justify-content:center; line-height:1; font-family:Georgia,serif; }

@@ -149,12 +149,74 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
   const [investDraft, setInvestDraft] = useState({ title: '', text: '', image: '', focus: '' })
   const [faqDraft, setFaqDraft] = useState({ question: '', answer: '' })
   const [landingTab, setLandingTab] = useState('editor')
+  const [editingItem, setEditingItem] = useState(null)
 
   const serviceIconMap = {
     BarChart3,
     Building2,
     Home,
     Leaf,
+  }
+
+  useEffect(() => {
+    if (landingTab !== 'editor' || !editingItem) return
+    document.getElementById(`${editingItem.type}-editor`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }, [editingItem, landingTab])
+
+  const startEditing = (type, index) => {
+    const item = draft[type]?.[index]
+    if (!item) return
+
+    setEditingItem({ type, index })
+    setLandingTab('editor')
+
+    if (type === 'heroSlides') {
+      setHeroDraft({ title: item.title || '', tagline: item.tagline || '', image: item.image || '', active: item.active !== false })
+    } else if (type === 'gallery') {
+      setGalleryDraft({ ...emptyGalleryItem(), ...item, image: item.image || '' })
+    } else if (type === 'services') {
+      const icon = typeof item.icon === 'string'
+        ? item.icon
+        : Object.entries(serviceIconMap).find(([, Icon]) => Icon === item.icon)?.[0] || 'BarChart3'
+      setServiceDraft({ title: item.title || '', text: item.text || '', icon })
+    } else if (type === 'faqs') {
+      setFaqDraft({ question: item.question || '', answer: item.answer || '' })
+    } else if (type === 'aboutSlides') {
+      setAboutDraft({
+        label: item.label || 'About us',
+        title: item.title || '',
+        text: item.text || '',
+        image: item.image || '',
+        points: Array.isArray(item.points) ? item.points.join(', ') : item.points || '',
+      })
+    } else if (type === 'investOpportunities') {
+      setInvestDraft({
+        title: item.title || '',
+        text: item.text || '',
+        image: item.image || '',
+        focus: Array.isArray(item.focus) ? item.focus.join(', ') : item.focus || '',
+      })
+    }
+  }
+
+  const cancelEditing = () => {
+    setEditingItem(null)
+    setHeroDraft({ title: '', tagline: '', image: '', active: true })
+    setGalleryDraft(emptyGalleryItem())
+    setServiceDraft({ title: '', text: '', icon: 'BarChart3' })
+    setFaqDraft({ question: '', answer: '' })
+    setAboutDraft({ label: 'About us', title: '', text: '', image: '', points: '' })
+    setInvestDraft({ title: '', text: '', image: '', focus: '' })
+  }
+
+  const saveCollectionItem = (key, prepared, resetDraft) => {
+    const items = draft[key] || []
+    const nextItems = editingItem?.type === key
+      ? items.map((item, index) => index === editingItem.index ? { ...item, ...prepared } : item)
+      : [prepared, ...items]
+    persistDraft({ ...draft, [key]: nextItems })
+    resetDraft()
+    setEditingItem(null)
   }
 
   const uploadToBucket = async (file) => {
@@ -192,12 +254,13 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
     const tagline = heroDraft.tagline.trim() || 'Perspective changes everything.'
     const image = heroDraft.image || '/image/hero/hero-1.jpg'
     const newSlide = { title, tagline, image, fallback: image, active: heroDraft.active !== false }
-    persistDraft({
-      ...draft,
-      heroTitle: draft.heroTitle || title,
-      heroSlides: [newSlide, ...(draft.heroSlides || [])],
-    })
-    setHeroDraft({ title: '', tagline: '', image: '', active: true })
+    if (editingItem?.type === 'heroSlides') {
+      saveCollectionItem('heroSlides', newSlide, () => setHeroDraft({ title: '', tagline: '', image: '', active: true }))
+    } else {
+      persistDraft({ ...draft, heroTitle: draft.heroTitle || title, heroSlides: [newSlide, ...(draft.heroSlides || [])] })
+      setHeroDraft({ title: '', tagline: '', image: '', active: true })
+      setEditingItem(null)
+    }
   }
 
   const toggleHeroSlide = (index, nextState) => {
@@ -229,8 +292,7 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
     event.preventDefault()
     if (!galleryDraft.title.trim()) return
     const prepared = { ...galleryDraft, image: galleryDraft.image || '/image/hero/hero-1.jpg' }
-    persistDraft({ ...draft, gallery: [prepared, ...(draft.gallery || [])] })
-    setGalleryDraft(emptyGalleryItem())
+    saveCollectionItem('gallery', prepared, () => setGalleryDraft(emptyGalleryItem()))
   }
 
   const onGalleryImage = async (event) => {
@@ -269,8 +331,7 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
         .map((point) => point.trim())
         .filter(Boolean),
     }
-    persistDraft({ ...draft, aboutSlides: [prepared, ...(draft.aboutSlides || [])] })
-    setAboutDraft({ label: 'About us', title: '', text: '', image: '', points: '' })
+    saveCollectionItem('aboutSlides', prepared, () => setAboutDraft({ label: 'About us', title: '', text: '', image: '', points: '' }))
   }
 
   const deleteAboutSlide = (index) => {
@@ -295,8 +356,7 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
       text: serviceDraft.text.trim() || 'A clear service offering tailored to your clients.',
       icon: serviceDraft.icon || 'BarChart3',
     }
-    persistDraft({ ...draft, services: [prepared, ...(draft.services || [])] })
-    setServiceDraft({ title: '', text: '', icon: 'BarChart3' })
+    saveCollectionItem('services', prepared, () => setServiceDraft({ title: '', text: '', icon: 'BarChart3' }))
   }
 
   const deleteServiceCard = (index) => {
@@ -332,8 +392,7 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
         .map((point) => point.trim())
         .filter(Boolean),
     }
-    persistDraft({ ...draft, investOpportunities: [prepared, ...(draft.investOpportunities || [])] })
-    setInvestDraft({ title: '', text: '', image: '', focus: '' })
+    saveCollectionItem('investOpportunities', prepared, () => setInvestDraft({ title: '', text: '', image: '', focus: '' }))
   }
 
   const deleteInvestCard = (index) => {
@@ -353,8 +412,7 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
       question: faqDraft.question.trim(),
       answer: faqDraft.answer.trim() || 'This answer will help visitors understand the next step more clearly.',
     }
-    persistDraft({ ...draft, faqs: [prepared, ...(draft.faqs || [])] })
-    setFaqDraft({ question: '', answer: '' })
+    saveCollectionItem('faqs', prepared, () => setFaqDraft({ question: '', answer: '' }))
   }
 
   const deleteFaqCard = (index) => {
@@ -379,7 +437,6 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
       ...draft,
       contact: updatedContact,
     })
-    setContactDraft(updatedContact)
   }
 
   const renderServiceIcon = (service) => {
@@ -425,12 +482,12 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
             <div className="panel-head">
               <div>
                 <p className="eyebrow">Hero content</p>
-                <h2>Create a hero post</h2>
+                <h2>{editingItem?.type === 'heroSlides' ? 'Edit hero post' : 'Create a hero post'}</h2>
               </div>
               <span className="draft-badge">Draft</span>
             </div>
 
-            <form onSubmit={handleHeroSlideSubmit} className="content-form-card hero-slide-form">
+            <form id="heroSlides-editor" onSubmit={handleHeroSlideSubmit} className="content-form-card hero-slide-form">
               <div className="field-group">
                 <label className="field-label">Title</label>
                 <input
@@ -469,7 +526,10 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
                   <input type="checkbox" checked={heroDraft.active !== false} onChange={(event) => setHeroDraft({ ...heroDraft, active: event.target.checked })} />
                   Publish immediately
                 </label>
-                <button type="submit" className="button button-dark">Publish</button>
+                <div className="admin-edit-actions">
+                  {editingItem?.type === 'heroSlides' && <button type="button" className="button button-quiet" onClick={cancelEditing}>Cancel</button>}
+                  <button type="submit" className="button button-dark">{editingItem?.type === 'heroSlides' ? 'Save changes' : 'Publish'}</button>
+                </div>
               </div>
             </form>
           </div>
@@ -478,12 +538,12 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
             <div className="panel-head">
               <div>
                 <p className="eyebrow">Property gallery</p>
-                <h2>Create a gallery post</h2>
+                <h2>{editingItem?.type === 'gallery' ? 'Edit gallery post' : 'Create a gallery post'}</h2>
               </div>
               <span className="draft-badge">Draft</span>
             </div>
 
-            <form onSubmit={handleGallerySubmit} className="content-form-card gallery-form">
+            <form id="gallery-editor" onSubmit={handleGallerySubmit} className="content-form-card gallery-form">
               <div className="field-group">
                 <label className="field-label">Title</label>
                 <input className="field-input" value={galleryDraft.title} onChange={(event) => setGalleryDraft({ ...galleryDraft, title: event.target.value })} placeholder="Ikoyi Residential Properties" />
@@ -533,7 +593,10 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
                 )}
               </div>
 
-              <button type="submit" className="button button-dark">Publish</button>
+              <div className="admin-edit-actions">
+                {editingItem?.type === 'gallery' && <button type="button" className="button button-quiet" onClick={cancelEditing}>Cancel</button>}
+                <button type="submit" className="button button-dark">{editingItem?.type === 'gallery' ? 'Save changes' : 'Publish'}</button>
+              </div>
             </form>
           </div>
 
@@ -541,12 +604,12 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
             <div className="panel-head">
               <div>
                 <p className="eyebrow">What we do</p>
-                <h2>Create a service card</h2>
+                <h2>{editingItem?.type === 'services' ? 'Edit service card' : 'Create a service card'}</h2>
               </div>
               <span className="draft-badge">Draft</span>
             </div>
 
-            <form onSubmit={handleServiceSubmit} className="content-form-card service-form">
+            <form id="services-editor" onSubmit={handleServiceSubmit} className="content-form-card service-form">
               <div className="field-group">
                 <label className="field-label">Title</label>
                 <input className="field-input" value={serviceDraft.title} onChange={(event) => setServiceDraft({ ...serviceDraft, title: event.target.value })} placeholder="Development Strategy" />
@@ -562,7 +625,10 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
                 <SearchableSelect className="field-input" value={serviceDraft.icon} onChange={(value) => setServiceDraft({ ...serviceDraft, icon: value })} ariaLabel="Service icon" options={[{ value: 'BarChart3', label: 'Valuation' }, { value: 'Building2', label: 'Development' }, { value: 'Home', label: 'Property management' }, { value: 'Leaf', label: 'Investment analysis' }]} />
               </div>
 
-              <button type="submit" className="button button-dark">Publish</button>
+              <div className="admin-edit-actions">
+                {editingItem?.type === 'services' && <button type="button" className="button button-quiet" onClick={cancelEditing}>Cancel</button>}
+                <button type="submit" className="button button-dark">{editingItem?.type === 'services' ? 'Save changes' : 'Publish'}</button>
+              </div>
             </form>
           </div>
 
@@ -570,12 +636,12 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
             <div className="panel-head">
               <div>
                 <p className="eyebrow">FAQ</p>
-                <h2>Create an FAQ entry</h2>
+                <h2>{editingItem?.type === 'faqs' ? 'Edit FAQ entry' : 'Create an FAQ entry'}</h2>
               </div>
               <span className="draft-badge">Draft</span>
             </div>
 
-            <form onSubmit={handleFaqSubmit} className="content-form-card faq-form">
+            <form id="faqs-editor" onSubmit={handleFaqSubmit} className="content-form-card faq-form">
               <div className="field-group">
                 <label className="field-label">Question</label>
                 <input className="field-input" value={faqDraft.question} onChange={(event) => setFaqDraft({ ...faqDraft, question: event.target.value })} placeholder="How do you support acquisition decisions?" />
@@ -586,7 +652,10 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
                 <textarea className="field-input" rows="3" value={faqDraft.answer} onChange={(event) => setFaqDraft({ ...faqDraft, answer: event.target.value })} placeholder="We review market, risk, opportunity, and asset quality before advising on a clear, evidence-based path." />
               </div>
 
-              <button type="submit" className="button button-dark">Publish</button>
+              <div className="admin-edit-actions">
+                {editingItem?.type === 'faqs' && <button type="button" className="button button-quiet" onClick={cancelEditing}>Cancel</button>}
+                <button type="submit" className="button button-dark">{editingItem?.type === 'faqs' ? 'Save changes' : 'Publish'}</button>
+              </div>
             </form>
           </div>
 
@@ -594,12 +663,12 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
             <div className="panel-head">
               <div>
                 <p className="eyebrow">About us</p>
-                <h2>Create an about slide</h2>
+                <h2>{editingItem?.type === 'aboutSlides' ? 'Edit about slide' : 'Create an about slide'}</h2>
               </div>
               <span className="draft-badge">Draft</span>
             </div>
 
-            <form onSubmit={handleAboutSubmit} className="content-form-card hero-slide-form">
+            <form id="aboutSlides-editor" onSubmit={handleAboutSubmit} className="content-form-card hero-slide-form">
               <div className="field-group">
                 <label className="field-label">Label</label>
                 <input className="field-input" value={aboutDraft.label} onChange={(event) => setAboutDraft({ ...aboutDraft, label: event.target.value })} placeholder="About us" />
@@ -633,7 +702,10 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
                 {aboutDraft.image && <div className="gallery-image-preview" style={{ backgroundImage: `url(${aboutDraft.image})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />}
               </div>
 
-              <button type="submit" className="button button-dark">Publish</button>
+              <div className="admin-edit-actions">
+                {editingItem?.type === 'aboutSlides' && <button type="button" className="button button-quiet" onClick={cancelEditing}>Cancel</button>}
+                <button type="submit" className="button button-dark">{editingItem?.type === 'aboutSlides' ? 'Save changes' : 'Publish'}</button>
+              </div>
             </form>
           </div>
 
@@ -641,12 +713,12 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
             <div className="panel-head">
               <div>
                 <p className="eyebrow">Invest with us</p>
-                <h2>Create an opportunity</h2>
+                <h2>{editingItem?.type === 'investOpportunities' ? 'Edit opportunity' : 'Create an opportunity'}</h2>
               </div>
               <span className="draft-badge">Draft</span>
             </div>
 
-            <form onSubmit={handleInvestSubmit} className="content-form-card hero-slide-form">
+            <form id="investOpportunities-editor" onSubmit={handleInvestSubmit} className="content-form-card hero-slide-form">
               <div className="field-group">
                 <label className="field-label">Title</label>
                 <input className="field-input" value={investDraft.title} onChange={(event) => setInvestDraft({ ...investDraft, title: event.target.value })} placeholder="Build with a clearer view." />
@@ -675,7 +747,10 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
                 {investDraft.image && <div className="gallery-image-preview" style={{ backgroundImage: `url(${investDraft.image})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />}
               </div>
 
-              <button type="submit" className="button button-dark">Publish</button>
+              <div className="admin-edit-actions">
+                {editingItem?.type === 'investOpportunities' && <button type="button" className="button button-quiet" onClick={cancelEditing}>Cancel</button>}
+                <button type="submit" className="button button-dark">{editingItem?.type === 'investOpportunities' ? 'Save changes' : 'Publish'}</button>
+              </div>
             </form>
           </div>
 
@@ -737,6 +812,7 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
                     <span className={slide.active === false ? 'status muted' : 'status'}>{slide.active === false ? 'Unpublished' : 'Published'}</span>
                   </div>
                   <div className="hero-slide-actions">
+                    <button type="button" className="text-link" onClick={() => startEditing('heroSlides', index)}>Edit</button>
                     <button type="button" className="text-link" onClick={() => requestHeroToggle(index, slide.active === false)}>{slide.active === false ? 'Publish' : 'Unpublish'}</button>
                     <button type="button" className="text-link danger" onClick={() => requestDelete('hero slide', () => deleteHeroSlide(index))}>Delete</button>
                   </div>
@@ -764,7 +840,7 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
                     <span className="status">Published</span>
                   </div>
                   <div className="hero-slide-actions">
-                    <button type="button" className="text-link">Edit</button>
+                    <button type="button" className="text-link" onClick={() => startEditing('gallery', index)}>Edit</button>
                     <button type="button" className="text-link danger" onClick={() => requestDelete(item?.title || 'gallery item', () => deleteGalleryItem(index))}>Delete</button>
                   </div>
                 </div>
@@ -791,7 +867,7 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
                     <span className="status">Published</span>
                   </div>
                   <div className="hero-slide-actions">
-                    <button type="button" className="text-link">Edit</button>
+                    <button type="button" className="text-link" onClick={() => startEditing('services', index)}>Edit</button>
                     <button type="button" className="text-link danger" onClick={() => requestDeleteService(index)}>Delete</button>
                   </div>
                 </div>
@@ -818,7 +894,7 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
                     <span className="status">Published</span>
                   </div>
                   <div className="hero-slide-actions">
-                    <button type="button" className="text-link">Edit</button>
+                    <button type="button" className="text-link" onClick={() => startEditing('faqs', index)}>Edit</button>
                     <button type="button" className="text-link danger" onClick={() => requestDeleteFaq(index)}>Delete</button>
                   </div>
                 </div>
@@ -845,7 +921,7 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
                     <span className="status">Published</span>
                   </div>
                   <div className="hero-slide-actions">
-                    <button type="button" className="text-link">Edit</button>
+                    <button type="button" className="text-link" onClick={() => startEditing('aboutSlides', index)}>Edit</button>
                     <button type="button" className="text-link danger" onClick={() => requestDelete(slide?.title || 'about slide', () => deleteAboutSlide(index))}>Delete</button>
                   </div>
                 </div>
@@ -872,7 +948,7 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
                     <span className="status">Published</span>
                   </div>
                   <div className="hero-slide-actions">
-                    <button type="button" className="text-link">Edit</button>
+                    <button type="button" className="text-link" onClick={() => startEditing('investOpportunities', index)}>Edit</button>
                     <button type="button" className="text-link danger" onClick={() => requestDeleteInvest(index)}>Delete</button>
                   </div>
                 </div>

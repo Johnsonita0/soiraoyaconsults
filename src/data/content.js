@@ -2,7 +2,7 @@ import { BarChart3, Building2, Home, Leaf } from '../components/icons'
 
 export const seedContent = {
   heroTitle: 'Own with confidence. Invest with insight. Manage for performance.',
-  heroText: 'We help property owners, investors, developers and institutions protect their assets, monitor performance and make informed real estate decisions.',
+  heroText: 'Rent collected promptly. Remittances made without delay. Tenants managed professionally. Repairs carried out. Monthly reports sent to landlords and investors.',
   heroSlides: [
     { image: '/image/hero/hero-1.jpg', fallback: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1600&q=88', title: 'Own with confidence. Invest with insight. Manage for performance.', tagline: 'Professional real estate management and investment advisory.', active: true },
     { image: '/image/hero/hero-2.jpg', fallback: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=1600&q=88', title: 'Your property is an investment. Protect its value.', tagline: 'A considered approach to property operations and oversight.', active: true },

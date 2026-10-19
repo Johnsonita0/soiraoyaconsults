@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import AboutModal from '../components/AboutModal'
 import Brand from '../components/Brand'
 import FaqSection from '../components/FaqSection'
 import HeroSlider from '../components/HeroSlider'
@@ -13,15 +12,6 @@ import './ConsultancyHome.css'
 const whatsappChatUrl = `https://wa.me/2349074091408?text=${encodeURIComponent('Hello, I would like to discuss a property or investment.')}`
 const revealEffects = ['fade-up', 'fade-right', 'zoom-in', 'fade-left', 'flip-up']
 const revealEffect = (index) => revealEffects[(index * 3 + 1) % revealEffects.length]
-const overviewWasDismissed = () => {
-  try {
-    return sessionStorage.getItem('soiraoya-overview-dismissed') === 'true'
-  } catch (error) {
-    console.error('Could not read overview modal state', error)
-    return false
-  }
-}
-
 const challenges = [
   {
     title: 'Limited visibility into performance',
@@ -129,7 +119,7 @@ export default function LandingPage({ content, goTo }) {
   const [servicesMenuOpen, setServicesMenuOpen] = useState(false)
   const [showBackToTop, setShowBackToTop] = useState(false)
   const [showEnquiryForm, setShowEnquiryForm] = useState(false)
-  const [showAboutModal, setShowAboutModal] = useState(() => !overviewWasDismissed())
+  const [showSplash, setShowSplash] = useState(true)
   const [sent, setSent] = useState(false)
   const [submitError, setSubmitError] = useState('')
   const [form, setForm] = useState({
@@ -153,6 +143,12 @@ export default function LandingPage({ content, goTo }) {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  useEffect(() => {
+    if (!showSplash) return undefined
+    const timer = window.setTimeout(() => setShowSplash(false), 6000)
+    return () => window.clearTimeout(timer)
+  }, [showSplash])
+
   const scrollToSection = (id) => {
     document.querySelector(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
@@ -171,15 +167,6 @@ export default function LandingPage({ content, goTo }) {
   }
 
   const updateForm = (field, value) => setForm((current) => ({ ...current, [field]: value }))
-  const dismissAboutModal = () => {
-    try {
-      sessionStorage.setItem('soiraoya-overview-dismissed', 'true')
-    } catch (error) {
-      console.error('Could not save overview modal state', error)
-    }
-    setShowAboutModal(false)
-  }
-
   const submit = async (event) => {
     event.preventDefault()
     setSubmitError('')
@@ -226,31 +213,54 @@ export default function LandingPage({ content, goTo }) {
   }
 
   return <div className="site-shell consultancy-home">
+    {showSplash && <div className="consultancy-splash" role="status" aria-label="Loading S.O. Iraoya Consulting">
+      <img src="/image/logo11.png" alt="S.O. Iraoya Consulting" />
+      <span className="consultancy-splash-rule" />
+      <p>Real estate managed with purpose.</p>
+    </div>}
     <header className="site-header">
       <Brand goTo={goTo} />
       <nav className={mobileOpen ? 'nav-open' : ''} aria-label="Main navigation">
-        <a href="#approach" onClick={(event) => handleNavClick(event, '#approach')}>About us</a>
+        <a href="#approach" onClick={(event) => handleNavClick(event, '#approach')}>About</a>
         <div className={`services-nav-item ${servicesMenuOpen ? 'is-open' : ''}`} onMouseLeave={() => setServicesMenuOpen(false)}>
-          <button type="button" className="services-nav-trigger" aria-expanded={servicesMenuOpen} onClick={() => setServicesMenuOpen((open) => !open)}>Services <ChevronDown size={14} /></button>
+          <button type="button" className="services-nav-trigger" aria-expanded={servicesMenuOpen} onClick={() => setServicesMenuOpen((open) => !open)}>Management <ChevronDown size={14} /></button>
           <ul className="services-submenu">
             {serviceItems.map((service) => <li key={service.title}><button type="button" onClick={() => openService(service)}>{service.title}</button></li>)}
           </ul>
         </div>
-        <a href="#who-we-serve" onClick={(event) => handleNavClick(event, '#who-we-serve')}>Who we serve</a>
-        <a href="/portfolio-management" onClick={(event) => { event.preventDefault(); setMobileOpen(false); goTo('/portfolio-management') }}>Portfolio management</a>
-        <a href="/properties" onClick={(event) => { event.preventDefault(); setMobileOpen(false); goTo('/properties') }}>Properties</a>
+        <a href="/properties/search?listingType=For+Rent" onClick={(event) => { event.preventDefault(); setMobileOpen(false); goTo('/properties/search?listingType=For+Rent') }}>Shortlets</a>
+        <a href="/properties" onClick={(event) => { event.preventDefault(); setMobileOpen(false); goTo('/properties') }}>Buy &amp; rent</a>
+        <a href="/properties/search?keyword=land" onClick={(event) => { event.preventDefault(); setMobileOpen(false); goTo('/properties/search?keyword=land') }}>Acres</a>
+        <a href="/portfolio-management" onClick={(event) => { event.preventDefault(); setMobileOpen(false); goTo('/portfolio-management') }}>Portfolio</a>
+        <a href="/services/property-management" onClick={(event) => { event.preventDefault(); setMobileOpen(false); goTo('/services/property-management') }}>RentAssist</a>
+        <a href="#faq" onClick={(event) => handleNavClick(event, '#faq')}>Blog</a>
         <a href="#contact" onClick={(event) => handleNavClick(event, '#contact')}>Contact</a>
       </nav>
       <button type="button" className="mobile-toggle" onClick={() => setMobileOpen((open) => !open)} aria-label={mobileOpen ? 'Close menu' : 'Open menu'} aria-expanded={mobileOpen}>{mobileOpen ? <X size={27} /> : <Menu size={27} />}</button>
-      <button type="button" className="header-cta" onClick={() => scrollToSection('#contact')}>Request a consultation <ArrowUpRight size={16} /></button>
+      <button type="button" className="header-cta" onClick={() => scrollToSection('#contact')}>Reach us <ArrowUpRight size={16} /></button>
     </header>
 
     <main>
-      <HeroSlider slides={content.heroSlides || []} content={content} onContact={() => scrollToSection('#contact')} />
+      <HeroSlider slides={content.heroSlides || []} onContact={() => scrollToSection('#contact')} />
 
-      <section className="consultancy-proof-strip" aria-label="Firm credentials">
-        <p>Professional real estate management. Informed investment decisions. Measurable asset performance.</p>
-        <div><span>Professional expertise</span><span>Local market knowledge</span><span>Support across the property lifecycle</span></div>
+      <section className="consultancy-proof-strip" aria-label="Our services">
+        <div className="consultancy-proof-track" aria-label="Property management, portfolio oversight, investment advisory, valuation, and facilities management">
+          {[0, 1].map((copy) => <div className="consultancy-proof-group" key={copy} aria-hidden={copy === 1}>
+            <span>Property management</span><i>·</i><span>Portfolio oversight</span><i>·</i><span>Investment advisory</span><i>·</i><span>Valuation &amp; due diligence</span><i>·</i><span>Facilities management</span><i>·</i>
+          </div>)}
+        </div>
+      </section>
+
+      <section className="consultancy-introduction" aria-labelledby="consultancy-introduction-title">
+        <div className="consultancy-introduction-heading">
+          <p className="eyebrow">Our commitment</p>
+          <h2 id="consultancy-introduction-title">Property ownership, with confidence and peace of mind.</h2>
+        </div>
+        <div className="consultancy-introduction-copy">
+          <p>For nearly 20 years, our team has been committed to helping property owners manage their investments with confidence, transparency, and peace of mind. Whether you live in Lagos, Canada, the UK, or elsewhere, our goal is to make property ownership easier, even when you cannot be there in person.</p>
+          <p>We believe property ownership should not come with the stress of daily operations or the uncertainty of not knowing how your investment is performing. That is why we prioritise honest communication, responsible management, and keeping our clients informed every step of the way.</p>
+          <p>At Soiraoya Consulting, we take a deliberate approach to every property entrusted to us, providing consistent updates, clear monthly reports, and transparent financial records. Our commitment is simple: to protect your interests, manage your property responsibly, and give you the confidence to own without the burden of managing every detail yourself.</p>
+        </div>
       </section>
 
       <section className="consultancy-challenges" aria-labelledby="challenges-title" data-aos="fade-up">
@@ -465,7 +475,6 @@ export default function LandingPage({ content, goTo }) {
     </footer>
 
     <a className="floating-whatsapp consultancy-whatsapp" href={whatsappChatUrl} target="_blank" rel="noreferrer" aria-label="Chat with us on WhatsApp"><Whatsapp size={24} /><span>Chat with us</span></a>
-    {showAboutModal && <AboutModal onClose={dismissAboutModal} onExploreServices={() => { dismissAboutModal(); window.setTimeout(() => scrollToSection('#services'), 0) }} />}
     {showBackToTop && <button type="button" className="back-to-top consultancy-back-to-top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Back to top"><ArrowUp size={18} /></button>}
   </div>
 }

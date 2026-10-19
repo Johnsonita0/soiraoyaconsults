@@ -151,8 +151,9 @@ export default function App() {
 
   useEffect(() => {
     const effects = ['fade-up', 'fade-right', 'zoom-in', 'fade-left', 'flip-up']
-    document.querySelectorAll('main section:not(.consultancy-contact):not([data-aos]), main article:not([data-aos]), main [class*="-card"]:not([data-aos])')
+    document.querySelectorAll('main section:not(.consultancy-contact):not(.consultancy-hero):not([data-aos]), main article:not([data-aos]), main [class*="-card"]:not([data-aos])')
       .forEach((element) => {
+        if (element.closest('.consultancy-hero')) return
         element.setAttribute('data-aos', effects[Math.floor(Math.random() * effects.length)])
       })
     AOS.refreshHard()

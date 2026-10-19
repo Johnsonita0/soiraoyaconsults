@@ -197,18 +197,104 @@ begin
 end;
 $$;
 
+insert into public.site_settings as stored (key, value)
+values (
+  'landing_content',
+  jsonb_build_object(
+    'contact',
+    jsonb_build_object(
+      'title', 'Let’s talk property',
+      'location', 'Head Office: Suite 30, Dolphin Plaza, Ikoyi, Lagos, Nigeria | Lekki/Ajah Office: Suite H272, Ikota Shopping Complex, Lagos, Nigeria',
+      'phone', '0907 409 1408',
+      'email', 'soiraoyaconsults@gmail.com'
+    )
+  )
+)
+on conflict (key) do update
+set value = stored.value || jsonb_build_object(
+  'contact',
+  coalesce(stored.value->'contact', '{}'::jsonb) || jsonb_build_object(
+    'location',
+    'Head Office: Suite 30, Dolphin Plaza, Ikoyi, Lagos, Nigeria | Lekki/Ajah Office: Suite H272, Ikota Shopping Complex, Lagos, Nigeria',
+    'email',
+    'soiraoyaconsults@gmail.com'
+  )
+),
+updated_at = now();
+
 create or replace function public.seed_default_gallery()
 returns void
 language plpgsql
 as $$
 begin
+  update public.gallery_items
+  set title = 'Ikoyi Residential Properties',
+      price = '₦520m'
+  where title = 'Ikoyi Garden Residence';
+
+  update public.gallery_items
+  set title = 'Lekki Axis'
+  where title = 'Lekki Waterside Villa';
+
   insert into public.gallery_items (title, location, type, price, description, image_url, sort_order, is_active)
-  values
-    ('Ikoyi Garden Residence', 'Ikoyi, Lagos', 'Residential', '₦185m', 'A considered family residence with generous light, mature landscaping, and quiet access to the city.', '/image/hero/hero-1.jpg', 0, true),
-    ('Victoria Island Offices', 'Victoria Island, Lagos', 'Commercial', '₦420m', 'A flexible office asset positioned for businesses looking for a central Lagos address.', '/image/hero/hero-4.jpg', 1, true)
-  on conflict do nothing;
+  select seed.title, seed.location, seed.type, seed.price, seed.description, seed.image_url, seed.sort_order, true
+  from (values
+    ('Ikoyi Residential Properties', 'Ikoyi, Lagos', 'Residential', '₦520m', 'A considered family residence with generous light, mature landscaping, and quiet access to the city.', '/image/hero/hero-1.jpg', 0),
+    ('Victoria Island Offices', 'Victoria Island, Lagos', 'Commercial', '₦420m', 'A flexible office asset positioned for businesses looking for a central Lagos address.', '/image/hero/hero-4.jpg', 1),
+    ('Lekki Axis', 'Lekki Phase 1, Lagos', 'Residential', '₦265m', 'Contemporary waterfront living with adaptable spaces for family life and entertaining.', '/image/hero/hero-2.jpg', 2)
+  ) as seed(title, location, type, price, description, image_url, sort_order)
+  where not exists (
+    select 1
+    from public.gallery_items as existing
+    where lower(trim(existing.title)) = lower(trim(seed.title))
+  );
 end;
 $$;
+
+update public.gallery_items
+set title = 'Ikoyi Residential Properties',
+    price = '₦520m'
+where title = 'Ikoyi Garden Residence';
+
+update public.gallery_items
+set title = 'Lekki Axis'
+where title = 'Lekki Waterside Villa';
+
+update public.site_settings as settings
+set value = jsonb_set(
+  settings.value,
+  '{gallery}',
+  coalesce((
+    select jsonb_agg(
+      case
+        when item.value->>'title' = 'Ikoyi Garden Residence'
+          then item.value || jsonb_build_object('title', 'Ikoyi Residential Properties', 'price', '₦520m')
+        when item.value->>'title' = 'Lekki Waterside Villa'
+          then item.value || jsonb_build_object('title', 'Lekki Axis')
+        else item.value
+      end
+      order by item.ordinality
+    )
+    from jsonb_array_elements(settings.value->'gallery') with ordinality as item(value, ordinality)
+  ), '[]'::jsonb),
+  true
+),
+updated_at = now()
+where settings.key = 'landing_content'
+  and jsonb_typeof(settings.value->'gallery') = 'array';
+
+update public.site_settings as settings
+set value = jsonb_set(
+  settings.value,
+  '{contact}',
+  coalesce(settings.value->'contact', '{}'::jsonb) || jsonb_build_object(
+    'email', 'soiraoyaconsults@gmail.com',
+    'location', 'Head Office: Suite 30, Dolphin Plaza, Ikoyi, Lagos, Nigeria | Lekki/Ajah Office: Suite H272, Ikota Shopping Complex, Lagos, Nigeria'
+  ),
+  true
+),
+updated_at = now()
+where settings.key = 'landing_content';
 
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values
@@ -244,4 +330,3 @@ for delete using (
   bucket_id in ('public-images', 'public-uploads')
   and public.is_admin_user()
 );
-

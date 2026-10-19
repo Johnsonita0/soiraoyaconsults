@@ -1,11 +1,31 @@
 import { ArrowUpRight } from './icons'
+import { useEffect, useMemo, useState } from 'react'
 
 export default function HeroSlider({ slides, onContact }) {
-  const activeSlide = Array.isArray(slides) ? slides.find((slide) => slide.active !== false) : null
-  const image = activeSlide?.image || '/image/hero/hero-1.jpg'
+  const activeSlides = useMemo(
+    () => Array.isArray(slides) ? slides.filter((slide) => slide.active !== false && slide.image) : [],
+    [slides],
+  )
+  const [slideIndex, setSlideIndex] = useState(0)
+
+  useEffect(() => {
+    if (activeSlides.length < 2) return undefined
+    const timer = window.setInterval(() => {
+      setSlideIndex((index) => (index + 1) % activeSlides.length)
+    }, 5_700)
+    return () => window.clearInterval(timer)
+  }, [activeSlides.length])
+  const activeIndex = activeSlides.length ? slideIndex % activeSlides.length : 0
 
   return <section className="hero-section consultancy-hero" aria-label="Real estate management">
-    <img className="hero-background" src={image} alt="" aria-hidden="true" />
+    {activeSlides.length ? activeSlides.map((slide, index) => <img
+      key={`${slide.image}-${index}`}
+      className={`hero-background${index === activeIndex ? ' is-active' : ''}`}
+      src={slide.image}
+      alt=""
+      aria-hidden="true"
+      loading={index === activeIndex ? 'eager' : 'lazy'}
+    />) : <img className="hero-background is-active" src="/image/hero/hero-1.jpg" alt="" aria-hidden="true" />}
     <div className="hero-overlay" />
     <div className="hero-content-row">
       <div className="hero-copy">
@@ -19,11 +39,11 @@ export default function HeroSlider({ slides, onContact }) {
       </div>
       <aside className="hero-side-cards" aria-label="Our approach">
         <div className="hero-investment-card">
-          <span>Protect and grow</span>
+          <span>Protect and grow it</span>
           <p>Your Property Is an Investment. We Help You Protect and Grow Its Value.</p>
         </div>
         <div className="hero-welcome-card">
-          <span>Now welcoming</span>
+          <span>Always Welcoming</span>
           <p>Property owners, investors and organisations seeking <em>professional management</em> and trusted advice.</p>
         </div>
         <div className="hero-promise-card">

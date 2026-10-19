@@ -2,21 +2,23 @@ import { useEffect, useState } from 'react'
 import Brand from '../components/Brand'
 import FaqSection from '../components/FaqSection'
 import HeroSlider from '../components/HeroSlider'
+import OfficeLocations from '../components/OfficeLocations'
+import afmpLogo from '../assets/afmp.png'
 import PropertyGallery from '../components/PropertyGallery'
 import SiteHeader from '../components/SiteHeader'
 import TestimonialsSection from '../components/TestimonialsSection'
-import { useToast } from '../components/ToastProvider'
 import { slug as serviceSlug } from './ServicePage'
 import { ArrowUp, ArrowUpRight, BarChart3, Building2, Check, ChevronDown, Facebook, Home, Instagram, Leaf, Linkedin, Mail, MapPin, Phone, Whatsapp, Youtube } from '../components/icons'
+import { openWhatsAppConversation } from '../lib/whatsapp'
 import './ConsultancyHome.css'
 
-const whatsappChatUrl = `https://wa.me/2349074091408?text=${encodeURIComponent('Hello, I would like to discuss a property or investment.')}`
+const whatsappChatUrl = 'https://wa.me/2349074091408?text=Hello%2C%20I%20would%20like%20to%20discuss%20a%20property%20or%20investment.'
 const revealEffects = ['fade-up', 'fade-right', 'zoom-in', 'fade-left', 'flip-up']
 const revealEffect = (index) => revealEffects[(index * 3 + 1) % revealEffects.length]
 const propertyFaqs = [
   {
     category: 'Problem 1: Poor visibility into property performance',
-    question: 'Are you receiving clear information about rental income, operating expenses, outstanding payments, maintenance costs and the overall performance of your property?',
+    question: 'Are you receiving clear information about rental income, operating expenses, maintenance costs and the overall performance of your property?',
     answer: 'Our response: We provide property management and reporting services designed to improve financial visibility, accountability and informed decision-making.',
   },
   {
@@ -30,17 +32,12 @@ const propertyFaqs = [
     answer: 'Our response: Our proposed portfolio management service focuses on consolidated reporting, performance monitoring, operating risks and recommendations for improvement.',
   },
   {
-    category: 'Problem 4: Uncertainty about real estate investments',
-    question: "A property's location or appearance does not, by itself, establish that it represents a sound investment.",
-    answer: 'Our response: We provide valuation, feasibility studies, investment analysis and due diligence services to help clients assess opportunities and understand potential risks before making investment decisions.',
-  },
-  {
-    category: 'Problem 5: Limited supervision of properties from abroad',
+    category: 'Problem 4: Supervision of properties of Diaspora investors',
     question: 'Diaspora investors and other non-resident owners may find it difficult to verify the condition of their properties, monitor expenditure and supervise local service providers.',
     answer: 'Our response: We can provide agreed inspection, documentation, management reporting and property oversight services to keep clients informed about their assets.',
   },
   {
-    category: 'Problem 6: Uncertainty during development and project planning',
+    category: 'Problem 5: Uncertainty during development and project planning',
     question: 'Real estate developments require careful consideration of market demand, costs, financing, phasing, revenue assumptions and development risks.',
     answer: 'Our response: We undertake feasibility studies and investment analysis to support development planning and commercial decision-making.',
   },
@@ -77,7 +74,7 @@ const leadershipMembers = [
     name: 'Dr. Olusegun Iraoya, PhD',
     role: 'Principal Partner',
     meta: 'RSV, NIESV | B.Sc (QS) | M.Sc | PhD',
-    description: 'Experience spanning estate survey, property valuation, facilities management, and strategic advisory across public and private sector assets.',
+    description: 'Experience spanning estate surveying, property valuation, facilities management, and strategic advisory across public and private sector assets.',
     tags: ['Asset Valuation', 'Facilities Management', 'Project Finance', 'Investment Analysis'],
   },
   {
@@ -115,7 +112,6 @@ function TeamMemberAvatar({ member }) {
 }
 
 export default function LandingPage({ content, goTo, showSplashOnEntry, onSplashShown }) {
-  const { showToast } = useToast()
   const [showBackToTop, setShowBackToTop] = useState(false)
   const [showEnquiryForm, setShowEnquiryForm] = useState(false)
   const [showSplash, setShowSplash] = useState(showSplashOnEntry)
@@ -149,16 +145,12 @@ export default function LandingPage({ content, goTo, showSplashOnEntry, onSplash
     return () => window.clearTimeout(timer)
   }, [showSplash, onSplashShown])
 
-  const scrollToSection = (id) => {
-    document.querySelector(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }
-
   const openService = (service) => {
     goTo(serviceRoute(service))
   }
 
   const updateForm = (field, value) => setForm((current) => ({ ...current, [field]: value }))
-  const submit = async (event) => {
+  const submit = (event) => {
     event.preventDefault()
     setSubmitError('')
 
@@ -167,40 +159,21 @@ export default function LandingPage({ content, goTo, showSplashOnEntry, onSplash
       return
     }
 
-    try {
-      const response = await fetch('/api/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          to: content.contact?.email || 'admin@soiraoyaconsulting.com.ng',
-          subject: `New consultation request from ${form.name || 'website visitor'}`,
-          text: [
-            `Name: ${form.name || 'Not provided'}`,
-            `Organisation: ${form.organisation || 'Not provided'}`,
-            `Email: ${form.email || 'Not provided'}`,
-            `Telephone/WhatsApp: ${form.phone || 'Not provided'}`,
-            `Client category: ${form.category || 'Not provided'}`,
-            `Location: ${form.location || 'Not provided'}`,
-            `Service required: ${form.request || 'Not provided'}`,
-            `Property location: ${form.propertyLocation || 'Not provided'}`,
-            `Property type: ${form.propertyType || 'Not provided'}`,
-            `Number of properties: ${form.propertyCount || 'Not provided'}`,
-            `Message: ${form.message || 'Not provided'}`,
-          ].join('\n'),
-        }),
-      })
-
-      if (!response.ok) {
-        const payload = await response.json().catch(() => ({}))
-        throw new Error(payload.message || 'Email delivery failed.')
-      }
-
-      setSent(true)
-      showToast('Your consultation request has been sent.', 'success')
-    } catch (error) {
-      setSubmitError(error.message || 'We could not send your request right now. Please try again.')
-      showToast(error.message || 'We could not send your request right now. Please try again.', 'error')
-    }
+    openWhatsAppConversation([
+      'Hello, I would like to discuss a property or investment.',
+      `Name: ${form.name || 'Not provided'}`,
+      `Organisation: ${form.organisation || 'Not provided'}`,
+      `Email: ${form.email || 'Not provided'}`,
+      `Telephone/WhatsApp: ${form.phone || 'Not provided'}`,
+      `Client category: ${form.category || 'Not provided'}`,
+      `Location: ${form.location || 'Not provided'}`,
+      `Service required: ${form.request || 'Not provided'}`,
+      `Property location: ${form.propertyLocation || 'Not provided'}`,
+      `Property type: ${form.propertyType || 'Not provided'}`,
+      `Number of properties: ${form.propertyCount || 'Not provided'}`,
+      `Message: ${form.message || 'Not provided'}`,
+    ].join('\n'))
+    setSent(true)
   }
 
   return <div className="site-shell consultancy-home">
@@ -213,10 +186,10 @@ export default function LandingPage({ content, goTo, showSplashOnEntry, onSplash
         <span className="consultancy-splash-progress-fill" />
       </div>
     </div>}
-    <SiteHeader content={content} goTo={goTo} onContact={() => scrollToSection('#contact')} />
+    <SiteHeader content={content} goTo={goTo} onContact={() => openWhatsAppConversation('Hello, I am visiting the S.O. Iraoya Consulting website and would like to discuss a property or investment.')} />
 
     <main>
-      <HeroSlider slides={content.heroSlides || []} onContact={() => scrollToSection('#contact')} />
+      <HeroSlider slides={content.heroSlides || []} onContact={() => openWhatsAppConversation('Hello, I would like to request a property or investment consultation.')} />
 
       <section className="consultancy-proof-strip" aria-label="Our services">
         <div className="consultancy-proof-track" aria-label="Property management, portfolio oversight, investment advisory, valuation, and facilities management">
@@ -238,7 +211,7 @@ export default function LandingPage({ content, goTo, showSplashOnEntry, onSplash
         </div>
       </section>
 
-      <div data-aos="fade-up"><FaqSection items={propertyFaqs} onContact={() => scrollToSection('#contact')} /></div>
+      <div data-aos="fade-up"><FaqSection items={propertyFaqs} onContact={() => openWhatsAppConversation('Hello, I have a question about the property challenges S.O. Iraoya Consulting addresses.')} /></div>
 
       <section className="consultancy-services" id="services" aria-labelledby="services-title" data-aos="fade-up">
         <div className="consultancy-section-heading consultancy-section-heading-row" data-aos="zoom-in">
@@ -259,7 +232,7 @@ export default function LandingPage({ content, goTo, showSplashOnEntry, onSplash
         </div>
       </section>
 
-      <PropertyGallery onContact={() => scrollToSection('#contact')} onViewAll={() => goTo('/properties')} properties={content.gallery || []} />
+      <PropertyGallery onContact={(message) => openWhatsAppConversation(message || 'Hello, I would like to discuss one of your property listings.')} onViewAll={() => goTo('/properties')} properties={content.gallery || []} />
 
       <section className="consultancy-portfolio-band" data-aos="fade-up">
         <div data-aos="fade-right">
@@ -348,29 +321,17 @@ export default function LandingPage({ content, goTo, showSplashOnEntry, onSplash
         </div>
       </section>
 
-      <section className="consultancy-affiliates" aria-label="Professional affiliates" data-aos="fade-up">
-        <div className="consultancy-affiliates-heading"><p className="eyebrow">Professional affiliates</p><h2>Connected to the standards shaping our profession.</h2></div>
-        <div className="consultancy-affiliate-marquee" role="region" aria-label="Professional affiliate logos">
-          <div className="consultancy-affiliate-track">
-            <div className="consultancy-affiliate-group">
-              {[
-                ['ESVARBON', '/logo/esvarbon.jpg'],
-                ['NIESV', '/logo/niesv.jpg'],
-                ['FIABCI', '/logo/fiabci.jpg'],
-                ['RICS', '/logo/rics.jpg'],
-                ['AfRES', '/logo/afres.jpg'],
-              ].map(([name, image]) => <div className="consultancy-affiliate-item" key={name}><img src={image} alt={name} /></div>)}
-            </div>
-            <div className="consultancy-affiliate-group" aria-hidden="true">
-              {[
-                ['ESVARBON', '/logo/esvarbon.jpg'],
-                ['NIESV', '/logo/niesv.jpg'],
-                ['FIABCI', '/logo/fiabci.jpg'],
-                ['RICS', '/logo/rics.jpg'],
-                ['AfRES', '/logo/afres.jpg'],
-              ].map(([name, image]) => <div className="consultancy-affiliate-item" key={name}><img src={image} alt="" /></div>)}
-            </div>
-          </div>
+      <section className="consultancy-affiliates" aria-label="Professional Regulators" data-aos="fade-up">
+        <div className="consultancy-affiliates-heading"><p className="eyebrow">Professional Regulators</p><h2>We are duly registered with:</h2></div>
+        <div className="consultancy-affiliate-grid">
+          {[
+            ['ESVARBON', 'Estate Surveyors and Valuers Registration Board of Nigeria', '/logo/esvarbon.jpg'],
+            ['NIESV', 'Nigerian Institution of Estate Surveyors and Valuers', '/logo/niesv.jpg'],
+            ['AFMP', 'Association of Facilities Management Practitioners', afmpLogo],
+          ].map(([name, description, image]) => <figure className="consultancy-affiliate-item" key={name}>
+            <img src={image} alt={`${name} logo`} />
+            <figcaption><strong>{name}</strong><span>{description}</span></figcaption>
+          </figure>)}
         </div>
       </section>
 
@@ -382,21 +343,22 @@ export default function LandingPage({ content, goTo, showSplashOnEntry, onSplash
           <h2 id="contact-title">Let’s discuss your property or investment objectives.</h2>
           <p>Tell us about your requirements and we will consider how our services may assist you.</p>
           <div className="consultancy-contact-details">
-            <span><MapPin size={17} /> {content.contact?.location || 'Suite 30, Dolphin Plaza, Ikoyi, Lagos'}</span>
+            <span><MapPin size={17} /> <OfficeLocations location={content.contact?.location} /></span>
             <a href={`tel:${content.contact?.phone || '+2349074091408'}`}><Phone size={17} /> {content.contact?.phone || '0907 409 1408'}</a>
-            <a href={`mailto:${content.contact?.email || 'info@soiraoyaconsulting.com.ng'}`}><Mail size={17} /> {content.contact?.email || 'info@soiraoyaconsulting.com.ng'}</a>
+            <a href={`mailto:${content.contact?.email || 'soiraoyaconsults@gmail.com'}`}><Mail size={17} /> {content.contact?.email || 'soiraoyaconsults@gmail.com'}</a>
           </div>
         </div>
         <div className={`consultancy-enquiry-panel ${showEnquiryForm ? 'is-open' : ''}`}>
+          <button type="button" className="button button-light" onClick={() => openWhatsAppConversation('Hello, I would like to request a consultation about a property or investment.')}>Request a consultation <ArrowUpRight size={18} /></button>
           <button type="button" className="consultancy-enquiry-toggle" onClick={() => setShowEnquiryForm((open) => !open)} aria-expanded={showEnquiryForm}>
-            <span>{showEnquiryForm ? 'Hide enquiry form' : 'Request a consultation'}</span>
+            <span>{showEnquiryForm ? 'Hide request details form' : 'Add request details first'}</span>
             <ChevronDown size={18} />
           </button>
           {showEnquiryForm && <form className="consultancy-enquiry-form" onSubmit={submit}>
           {sent ? <div className="consultancy-form-success">
             <span><Check size={22} /></span>
             <h3>Thank you, {form.name || 'we have your note'}.</h3>
-            <p>Our advisory team will be in touch shortly.</p>
+            <p>Your request is ready in WhatsApp. Send the message there to start the conversation.</p>
             <button type="button" className="text-link" onClick={() => { setSent(false); setSubmitError('') }}>Send another request <ArrowUpRight size={16} /></button>
           </div> : <>
             <div className="consultancy-form-grid">
@@ -425,7 +387,7 @@ export default function LandingPage({ content, goTo, showSplashOnEntry, onSplash
       <div className="footer-main">
         <div className="footer-brand"><Brand light goTo={goTo} /><p>Professional real estate management and informed investment advice for lasting asset performance.</p></div>
         <div className="footer-column"><p className="footer-label">Explore</p><a href="#approach">About us</a><a href="#services">Our services</a><a href="#who-we-serve">Who we serve</a><a href="/portfolio-management" onClick={(event) => { event.preventDefault(); goTo('/portfolio-management') }}>Portfolio management</a><a href="/properties" onClick={(event) => { event.preventDefault(); goTo('/properties') }}>Properties</a><a href="#faq">Frequently asked questions</a></div>
-        <div className="footer-column"><p className="footer-label">Contact</p><a href={`mailto:${content.contact?.email || 'info@soiraoyaconsulting.com.ng'}`}>{content.contact?.email || 'info@soiraoyaconsulting.com.ng'}</a><a href={`tel:${content.contact?.phone || '+2349074091408'}`}>{content.contact?.phone || '0907 409 1408'}</a><span>{content.contact?.location || 'Suite 30, Dolphin Plaza, Ikoyi, Lagos'}</span></div>
+        <div className="footer-column"><p className="footer-label">Contact</p><a href={`mailto:${content.contact?.email || 'soiraoyaconsults@gmail.com'}`}>{content.contact?.email || 'soiraoyaconsults@gmail.com'}</a><a href={`tel:${content.contact?.phone || '+2349074091408'}`}>{content.contact?.phone || '0907 409 1408'}</a><span><OfficeLocations location={content.contact?.location} /></span></div>
         <div className="footer-column footer-socials"><p className="footer-label">Follow our work</p><div className="social-links"><a href="https://www.facebook.com" target="_blank" rel="noreferrer" aria-label="Facebook"><Facebook size={17} /></a><a href="https://www.instagram.com" target="_blank" rel="noreferrer" aria-label="Instagram"><Instagram size={17} /></a><a href="https://www.linkedin.com" target="_blank" rel="noreferrer" aria-label="LinkedIn"><Linkedin size={17} /></a><a href="https://www.youtube.com" target="_blank" rel="noreferrer" aria-label="YouTube"><Youtube size={17} /></a></div></div>
       </div>
       <div className="footer-bottom"><span>© S.O. Iraoya Consulting. All rights reserved.</span><span>Registered with CAC · Licensed by ESVARBON</span></div>

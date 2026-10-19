@@ -33,7 +33,7 @@
   background: var(--ink);
 }
 
-.consultancy-home .hero-background {
+.consultancy-home .hero-section .hero-background {
   position: absolute;
   inset: 0;
   z-index: 0;
@@ -41,7 +41,21 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  opacity: 0;
+  transform: scale(1);
+  transition: opacity 1.8s ease-in-out, transform 5.7s ease-out;
+}
+
+.consultancy-home .hero-section .hero-background.is-active {
   opacity: 1;
+  transform: scale(1.045);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .consultancy-home .hero-section .hero-background {
+    transition: none;
+    transform: none;
+  }
 }
 
 .consultancy-home .hero-overlay {
@@ -655,7 +669,6 @@
   max-width: 1184px;
   margin: 0 auto;
   padding: 75px 28px;
-  overflow: hidden;
 }
 
 .consultancy-affiliates-heading {
@@ -668,58 +681,48 @@
   font-size: clamp(28px, 3vw, 40px);
 }
 
-.consultancy-affiliate-marquee {
-  width: 100%;
-  overflow: hidden;
-  mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
-}
-
-.consultancy-affiliate-track {
-  display: flex;
-  width: max-content;
-  animation: consultancy-affiliate-scroll 28s linear infinite;
-  will-change: transform;
-}
-
-.consultancy-affiliate-marquee:hover .consultancy-affiliate-track,
-.consultancy-affiliate-marquee:focus-within .consultancy-affiliate-track {
-  animation-play-state: paused;
-}
-
-.consultancy-affiliate-group {
-  display: flex;
-  align-items: center;
-  gap: clamp(30px, 5vw, 72px);
-  padding-right: clamp(30px, 5vw, 72px);
+.consultancy-affiliate-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
 }
 
 .consultancy-affiliate-item {
-  flex: 0 0 auto;
-  width: clamp(92px, 10vw, 132px);
-  height: 82px;
+  min-width: 0;
+  min-height: 190px;
+  margin: 0;
+  padding: 22px;
   display: grid;
-  place-items: center;
+  align-content: center;
+  justify-items: center;
+  gap: 14px;
+  border: 1px solid var(--line);
+  background: #fff;
+  text-align: center;
 }
 
 .consultancy-affiliate-item img {
   display: block;
-  max-width: 100%;
-  width: 100%;
-  height: 70px;
+  width: min(100%, 190px);
+  height: 105px;
   object-fit: contain;
-  opacity: .86;
-  transition: opacity .2s ease, filter .2s ease;
 }
 
-.consultancy-affiliate-item img:hover {
-  opacity: 1;
-  filter: none;
+.consultancy-affiliate-item figcaption {
+  display: grid;
+  gap: 5px;
+  color: var(--ink);
 }
 
-@keyframes consultancy-affiliate-scroll {
-  to {
-    transform: translateX(-50%);
-  }
+.consultancy-affiliate-item figcaption strong {
+  font-size: 13px;
+  letter-spacing: .04em;
+}
+
+.consultancy-affiliate-item figcaption span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 .consultancy-contact {
@@ -1384,6 +1387,15 @@
     padding: 60px 22px;
   }
 
+  .consultancy-affiliate-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .consultancy-affiliate-item {
+    min-height: 170px;
+  }
+
   .consultancy-enquiry-form {
     padding: 22px 16px;
   }
@@ -1464,12 +1476,6 @@
     align-items: start;
     flex-direction: column;
     padding: 55px 22px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .consultancy-affiliate-track {
-    animation: none;
   }
 }
 
@@ -2680,6 +2686,8 @@
   }
 
   .consultancy-home .hero-copy .eyebrow {
+    align-items: flex-start;
+    flex-direction: column;
     gap: 8px;
     font-size: 8px;
     line-height: 1.5;

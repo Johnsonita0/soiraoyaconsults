@@ -42,7 +42,10 @@ export default function SiteHeader({ content, goTo, onContact }) {
   }
 
   return <header className="site-header shared-site-header">
-    <Brand goTo={goTo} />
+    <div className="site-header-brand-group">
+      <Brand goTo={goTo} />
+      <img className="site-header-regulator-logo" src="/logo/niesv.jpg" alt="NIESV logo" />
+    </div>
     <nav className={mobileOpen ? 'nav-open' : ''} aria-label="Main navigation">
       <a href="/#approach" onClick={(event) => navigateToSection(event, '#approach')}>About</a>
       <div className={`services-nav-item ${servicesOpen ? 'is-open' : ''}`} onMouseLeave={() => setServicesOpen(false)}>

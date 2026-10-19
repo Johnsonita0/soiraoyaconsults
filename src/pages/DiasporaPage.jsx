@@ -1,6 +1,8 @@
 import Brand from '../components/Brand'
+import OfficeLocations from '../components/OfficeLocations'
 import SiteHeader from '../components/SiteHeader'
 import { ArrowUpRight, Check, Whatsapp } from '../components/icons'
+import { openWhatsAppConversation, whatsappUrl } from '../lib/whatsapp'
 
 const supportServices = [
   'Periodic property inspections and condition reports.',
@@ -14,20 +16,14 @@ const revealEffects = ['fade-right', 'zoom-in', 'fade-up', 'flip-up', 'fade-left
 const revealEffect = (index) => revealEffects[(index * 3 + 1) % revealEffects.length]
 
 export default function DiasporaPage({ content, goTo }) {
-  const whatsappChatUrl = `https://wa.me/2349074091408?text=${encodeURIComponent('Hello, I live abroad and would like to discuss oversight of my property in Nigeria.')}`
-
   const goToHomeSection = (event, sectionId) => {
     event.preventDefault()
     goTo('/')
     window.setTimeout(() => document.querySelector(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0)
   }
-  const scrollToContact = () => {
-    goTo('/')
-    window.setTimeout(() => document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0)
-  }
 
   return <div className="site-shell diaspora-page">
-    <SiteHeader content={content} goTo={goTo} onContact={scrollToContact} />
+    <SiteHeader content={content} goTo={goTo} onContact={() => openWhatsAppConversation('Hello, I live abroad and would like to discuss oversight of my property in Nigeria.')} />
 
     <main>
       <section className="diaspora-hero" data-aos="fade-up">
@@ -35,7 +31,7 @@ export default function DiasporaPage({ content, goTo }) {
           <p className="eyebrow">Property oversight for non-resident owners</p>
           <h1>Your property in Nigeria. Professional oversight you can rely on.</h1>
           <p>Owning property in Nigeria while living abroad should not mean being uncertain about its condition, income or management. We help diaspora investors and non-resident owners establish a structured approach to property supervision, maintenance coordination and reporting.</p>
-          <button className="button button-light" onClick={(event) => goToHomeSection(event, '#contact')}>Discuss your property <ArrowUpRight size={17} /></button>
+          <button className="button button-light" onClick={() => openWhatsAppConversation('Hello, I live abroad and would like to discuss oversight of my property in Nigeria.')}>Discuss your property <ArrowUpRight size={17} /></button>
         </div>
         <aside className="diaspora-hero-note" data-aos="fade-left">
           <span>Stay informed about</span>
@@ -74,7 +70,7 @@ export default function DiasporaPage({ content, goTo }) {
 
       <section className="diaspora-cta" data-aos="fade-up">
         <div><p className="eyebrow">Your property. A clearer view.</p><h2>Let’s discuss the oversight you need.</h2></div>
-        <button className="button button-light" onClick={(event) => goToHomeSection(event, '#contact')}>Request a consultation <ArrowUpRight size={17} /></button>
+        <button className="button button-light" onClick={() => openWhatsAppConversation('Hello, I would like to request a consultation about managing my property in Nigeria while I live abroad.')}>Request a consultation <ArrowUpRight size={17} /></button>
       </section>
     </main>
 
@@ -82,10 +78,10 @@ export default function DiasporaPage({ content, goTo }) {
       <div className="footer-main">
         <div className="footer-brand"><Brand light goTo={goTo} /><p>Professional property oversight for owners and investors.</p></div>
         <div className="footer-column"><p className="footer-label">Explore</p><a href="/" onClick={(event) => { event.preventDefault(); goTo('/') }}>Home</a><a href="/#services" onClick={(event) => goToHomeSection(event, '#services')}>Services</a><a href="/#who-we-serve" onClick={(event) => goToHomeSection(event, '#who-we-serve')}>Who we serve</a></div>
-        <div className="footer-column"><p className="footer-label">Contact</p><a href={`mailto:${content.contact?.email || 'info@soiraoyaconsulting.com.ng'}`}>{content.contact?.email || 'info@soiraoyaconsulting.com.ng'}</a><a href={`tel:${content.contact?.phone || '+2349074091408'}`}>{content.contact?.phone || '0907 409 1408'}</a><span>{content.contact?.location || 'Suite 30, Dolphin Plaza, Ikoyi, Lagos'}</span></div>
+        <div className="footer-column"><p className="footer-label">Contact</p><a href={`mailto:${content.contact?.email || 'soiraoyaconsults@gmail.com'}`}>{content.contact?.email || 'soiraoyaconsults@gmail.com'}</a><a href={`tel:${content.contact?.phone || '+2349074091408'}`}>{content.contact?.phone || '0907 409 1408'}</a><span><OfficeLocations location={content.contact?.location} /></span></div>
       </div>
       <div className="footer-bottom"><span>© S.O. Iraoya Consulting. All rights reserved.</span><span>Registered with CAC · Licensed by ESVARBON</span></div>
     </footer>
-    <a className="floating-whatsapp consultancy-whatsapp" href={whatsappChatUrl} target="_blank" rel="noreferrer" aria-label="Chat with us on WhatsApp"><Whatsapp size={24} /><span>Chat with us</span></a>
+    <a className="floating-whatsapp consultancy-whatsapp" href={whatsappUrl('Hello, I live abroad and would like to discuss oversight of my property in Nigeria.')} target="_blank" rel="noreferrer" aria-label="Chat with us on WhatsApp"><Whatsapp size={24} /><span>Chat with us</span></a>
   </div>
 }

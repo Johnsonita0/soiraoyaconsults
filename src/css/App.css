@@ -799,6 +799,14 @@ footer .admin-link { color:var(--green); }
 @media (max-width:800px) { .footer-brand .brand { justify-content:center; width:100%; }.footer-brand .brand-image-footer { margin:0 auto; }.footer-column:nth-child(2) { width:100%; display:flex; flex-direction:row; flex-wrap:wrap; justify-content:center; gap:8px 12px; }.footer-column:nth-child(2) .footer-label { flex-basis:100%; margin-bottom:2px; }.footer-column:nth-child(2) a { display:block; margin:0; white-space:nowrap; } }
 .site-footer { background:#eef3f8; color:var(--ink); border-top:1px solid var(--line); }
 .site-footer .footer-brand p { color:#61708c; }.site-footer .footer-column a,.site-footer .footer-column span { color:#49617f; }.site-footer .footer-column a:hover { color:var(--red); }.site-footer .footer-label { color:var(--red); }.site-footer .admin-link { color:var(--green); }.site-footer .footer-bottom { border-top-color:#cbd7e5; color:#70839d; }
+.office-locations { display:grid; gap:8px; }
+.office-location { display:grid; gap:2px; }
+.office-location-label--head { color:#456c2b; }
+.office-location-label--branch { color:#8a5610; }
+.consultancy-contact-details .office-location-label--head { color:#c7e998; }
+.consultancy-contact-details .office-location-label--branch { color:#f2c76a; }
+.site-header-brand-group { display:flex; flex:0 0 auto; align-items:center; gap:8px; }
+.site-header-regulator-logo { display:block; width:64px; height:64px; object-fit:contain; }
 .glyph { display:inline-flex; align-items:center; justify-content:center; line-height:1; font-family:Georgia,serif; }
 .glyph { color:currentColor; font-weight:700; }
 .hero-controls button .glyph,.about-controls button .glyph,.invest-controls button .glyph,.property-controls button .glyph { display:inline-flex; color:inherit; font-size:20px !important; line-height:1; visibility:visible; opacity:1; }
@@ -1373,6 +1381,15 @@ input, textarea, select, button.searchable-select-trigger { scroll-margin-block:
 
   .site-header.shared-site-header .brand-image-nav {
     width: min(145px, 42vw);
+  }
+
+  .site-header.shared-site-header .site-header-brand-group {
+    gap: 5px;
+  }
+
+  .site-header.shared-site-header .site-header-regulator-logo {
+    width: 50px;
+    height: 50px;
   }
 
   .site-header.shared-site-header .header-cta {

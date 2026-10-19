@@ -22,9 +22,9 @@ export const seedContent = {
     { title: 'Valuation & Due Diligence', text: 'Property evidence and risk reviews to support acquisition, disposal, financing and asset decisions.', icon: Leaf },
   ],
   gallery: [
-    { title: 'Ikoyi Garden Residence', location: 'Ikoyi, Lagos', type: 'Residential', price: '₦185m', description: 'A considered family residence with generous light, mature landscaping, and quiet access to the city.', image: '/image/hero/hero-1.jpg' },
+    { title: 'Ikoyi Residential Properties', location: 'Ikoyi, Lagos', type: 'Residential', price: '₦520m', description: 'A considered family residence with generous light, mature landscaping, and quiet access to the city.', image: '/image/hero/hero-1.jpg' },
     { title: 'Victoria Island Offices', location: 'Victoria Island, Lagos', type: 'Commercial', price: '₦420m', description: 'A flexible office asset positioned for businesses looking for a central Lagos address.', image: '/image/hero/hero-4.jpg' },
-    { title: 'Lekki Waterside Villa', location: 'Lekki Phase 1, Lagos', type: 'Residential', price: '₦265m', description: 'Contemporary waterfront living with adaptable spaces for family life and entertaining.', image: '/image/hero/hero-2.jpg' },
+    { title: 'Lekki Axis', location: 'Lekki Phase 1, Lagos', type: 'Residential', price: '₦265m', description: 'Contemporary waterfront living with adaptable spaces for family life and entertaining.', image: '/image/hero/hero-2.jpg' },
   ],
   rentalProperties: [
     { title: 'Ikoyi Garden Apartment', location: 'Ikoyi, Lagos', type: 'Residential', price: '₦8.5m', description: 'A bright, well-appointed apartment with secure parking and convenient access to Ikoyi amenities.', image: '/image/hero/hero-1.jpg', listingType: 'For Rent' },
@@ -68,9 +68,9 @@ export const seedContent = {
   ],
   contact: {
     title: 'Let’s talk property',
-    location: 'Suite 30, Dolphin Plaza, Ikoyi, Lagos',
+    location: 'Head Office: Suite 30, Dolphin Plaza, Ikoyi, Lagos, Nigeria | Lekki/Ajah Office: Suite H272, Ikota Shopping Complex, Lagos, Nigeria',
     phone: '0907 409 1408',
-    email: 'info@soiraoyaconsulting.com.ng',
+    email: 'soiraoyaconsults@gmail.com',
   },
 }
 

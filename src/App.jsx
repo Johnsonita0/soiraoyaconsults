@@ -7,6 +7,7 @@ import PropertySearchPage from './pages/PropertySearchPage'
 import PortfolioManagementPage from './pages/PortfolioManagementPage'
 import AdminPage from './pages/AdminPage'
 import LoginPage from './pages/LoginPage'
+import { normalizeOfficeLocation } from './components/OfficeLocations'
 import { seedContent } from './data/content'
 import { supabase } from './lib/supabase'
 import { ToastProvider } from './components/ToastProvider'
@@ -23,12 +24,27 @@ const mergeContent = (incoming = {}) => ({
   aboutSlides: incoming.aboutSlides || seedContent.aboutSlides,
   servicesVersion: seedContent.servicesVersion,
   services: incoming.servicesVersion === seedContent.servicesVersion ? incoming.services || seedContent.services : seedContent.services,
-  gallery: incoming.gallery || seedContent.gallery,
+  gallery: (incoming.gallery || seedContent.gallery).map((property) => {
+    if (property.title === 'Ikoyi Garden Residence') {
+      return { ...property, title: 'Ikoyi Residential Properties', price: '₦520m' }
+    }
+    if (property.title === 'Lekki Waterside Villa') {
+      return { ...property, title: 'Lekki Axis' }
+    }
+    return property
+  }),
   rentalProperties: incoming.rentalProperties || seedContent.rentalProperties,
   investOpportunities: incoming.investOpportunities || seedContent.investOpportunities,
   faqs: incoming.faqs || seedContent.faqs,
   testimonials: incoming.testimonials || seedContent.testimonials,
-  contact: incoming.contact || seedContent.contact,
+  contact: {
+    ...seedContent.contact,
+    ...incoming.contact,
+    email: incoming.contact?.email === 'info@soiraoyaconsulting.com.ng' || !incoming.contact?.email
+      ? seedContent.contact.email
+      : incoming.contact.email,
+    location: normalizeOfficeLocation(incoming.contact?.location),
+  },
 })
 
 export default function App() {

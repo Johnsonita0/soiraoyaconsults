@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import Brand from '../components/Brand'
 import { ArrowUp, ArrowUpRight, BarChart3, Building2, Check, ChevronDown, ChevronLeft, ChevronRight, ClipboardList, FileText, Home, Leaf, LogOut, MessageSquareQuote, Plus, Search, Sparkles, Upload, Users } from '../components/icons'
-import { seedRequests } from '../data/content'
+import { seedContent, seedRequests } from '../data/content'
 import { supabase } from '../lib/supabase'
 import SearchableSelect from '../components/SearchableSelect'
 import { useToast } from '../components/ToastProvider'
@@ -148,7 +148,6 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
   const [serviceDraft, setServiceDraft] = useState({ title: '', text: '', icon: 'BarChart3' })
   const [investDraft, setInvestDraft] = useState({ title: '', text: '', image: '', focus: '' })
   const [faqDraft, setFaqDraft] = useState({ question: '', answer: '' })
-  const [contactDraft, setContactDraft] = useState({ title: '', location: '', phone: '', email: '' })
   const [landingTab, setLandingTab] = useState('editor')
 
   const serviceIconMap = {
@@ -370,17 +369,17 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
 
   const handleContactSubmit = (event) => {
     event.preventDefault()
-    if (!contactDraft.title.trim()) return
+    const updatedContact = {
+      title: draft.contact?.title?.trim() || seedContent.contact.title,
+      location: draft.contact?.location?.trim() || seedContent.contact.location,
+      phone: draft.contact?.phone?.trim() || seedContent.contact.phone,
+      email: draft.contact?.email?.trim() || seedContent.contact.email,
+    }
     persistDraft({
       ...draft,
-      contact: {
-        title: contactDraft.title.trim(),
-        location: contactDraft.location.trim() || 'Suite 30, Dolphin Plaza, Ikoyi, Lagos',
-        phone: contactDraft.phone.trim() || '0907 409 1408',
-        email: contactDraft.email.trim() || 'info@soiraoyaconsulting.com.ng',
-      },
+      contact: updatedContact,
     })
-    setContactDraft({ title: '', location: '', phone: '', email: '' })
+    setContactDraft(updatedContact)
   }
 
   const renderServiceIcon = (service) => {
@@ -487,7 +486,7 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
             <form onSubmit={handleGallerySubmit} className="content-form-card gallery-form">
               <div className="field-group">
                 <label className="field-label">Title</label>
-                <input className="field-input" value={galleryDraft.title} onChange={(event) => setGalleryDraft({ ...galleryDraft, title: event.target.value })} placeholder="Ikoyi Garden Residence" />
+                <input className="field-input" value={galleryDraft.title} onChange={(event) => setGalleryDraft({ ...galleryDraft, title: event.target.value })} placeholder="Ikoyi Residential Properties" />
               </div>
 
               <div className="field-group">
@@ -692,22 +691,22 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
             <form onSubmit={handleContactSubmit} className="content-form-card faq-form">
               <div className="field-group">
                 <label className="field-label">Section title</label>
-                <input className="field-input" value={contactDraft.title} onChange={(event) => setContactDraft({ ...contactDraft, title: event.target.value })} placeholder="Let’s talk property" />
+                <input className="field-input" value={draft.contact?.title || seedContent.contact.title} onChange={(event) => setDraft((current) => ({ ...current, contact: { ...current.contact, title: event.target.value } }))} placeholder="Let’s talk property" />
               </div>
 
               <div className="field-group">
-                <label className="field-label">Location</label>
-                <input className="field-input" value={contactDraft.location} onChange={(event) => setContactDraft({ ...contactDraft, location: event.target.value })} placeholder="Suite 30, Dolphin Plaza, Ikoyi, Lagos" />
+                <label className="field-label">Office addresses (separate offices with |)</label>
+                <input className="field-input" value={draft.contact?.location || seedContent.contact.location} onChange={(event) => setDraft((current) => ({ ...current, contact: { ...current.contact, location: event.target.value } }))} placeholder={seedContent.contact.location} />
               </div>
 
               <div className="field-group field-grid two-up">
                 <div>
                   <label className="field-label">Phone</label>
-                  <input className="field-input" value={contactDraft.phone} onChange={(event) => setContactDraft({ ...contactDraft, phone: event.target.value })} placeholder="0907 409 1408" />
+                  <input className="field-input" value={draft.contact?.phone || seedContent.contact.phone} onChange={(event) => setDraft((current) => ({ ...current, contact: { ...current.contact, phone: event.target.value } }))} placeholder="0907 409 1408" />
                 </div>
                 <div>
                   <label className="field-label">Email</label>
-                  <input className="field-input" value={contactDraft.email} onChange={(event) => setContactDraft({ ...contactDraft, email: event.target.value })} placeholder="info@soiraoyaconsulting.com.ng" />
+                  <input className="field-input" type="email" value={draft.contact?.email || seedContent.contact.email} onChange={(event) => setDraft((current) => ({ ...current, contact: { ...current.contact, email: event.target.value } }))} placeholder="soiraoyaconsults@gmail.com" />
                 </div>
               </div>
 
@@ -919,7 +918,7 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
                 <div className="hero-slide-thumb service-list-icon">☎</div>
                 <div className="hero-slide-meta">
                   <b>{draft.contact?.title || 'Let’s talk property'}</b>
-                  <small>{draft.contact?.location || 'Suite 30, Dolphin Plaza, Ikoyi, Lagos'} · {draft.contact?.phone || '0907 409 1408'} · {draft.contact?.email || 'info@soiraoyaconsulting.com.ng'}</small>
+                  <small>{draft.contact?.location || seedContent.contact.location} · {draft.contact?.phone || seedContent.contact.phone} · {draft.contact?.email || seedContent.contact.email}</small>
                   <span className="status">Published</span>
                 </div>
               </div>

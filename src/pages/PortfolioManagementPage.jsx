@@ -1,6 +1,8 @@
 import Brand from '../components/Brand'
+import OfficeLocations from '../components/OfficeLocations'
 import SiteHeader from '../components/SiteHeader'
 import { ArrowUpRight, Check } from '../components/icons'
+import { openWhatsAppConversation } from '../lib/whatsapp'
 
 const portfolioServices = [
   {
@@ -46,7 +48,7 @@ export default function PortfolioManagementPage({ content, goTo }) {
   }
 
   return <div className="portfolio-page">
-    <SiteHeader content={content} goTo={goTo} onContact={() => { goTo('/'); window.setTimeout(() => document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0) }} />
+    <SiteHeader content={content} goTo={goTo} onContact={() => openWhatsAppConversation('Hello, I would like to discuss real estate portfolio management with S.O. Iraoya Consulting.')} />
 
     <main>
       <section className="portfolio-hero" data-aos="fade-up">
@@ -54,7 +56,7 @@ export default function PortfolioManagementPage({ content, goTo }) {
           <p className="eyebrow">Real estate portfolio management</p>
           <h1>See the whole portfolio. Make the next move with clarity.</h1>
           <p>We help property owners and investors bring asset information, performance and risk into focus—so decisions are based on a clearer view of what they own and how it is performing.</p>
-          <button className="button button-light" onClick={(event) => goToHomeSection(event, '#contact')}>Talk to our advisory team <ArrowUpRight size={17} /></button>
+          <button className="button button-light" onClick={() => openWhatsAppConversation('Hello, I would like to discuss real estate portfolio management with S.O. Iraoya Consulting.')}>Talk to our advisory team <ArrowUpRight size={17} /></button>
         </div>
         <div className="portfolio-hero-note">
           <span>THE INVESTOR’S VIEW</span>
@@ -134,7 +136,7 @@ export default function PortfolioManagementPage({ content, goTo }) {
       <div className="footer-main">
         <div className="footer-brand"><Brand light goTo={goTo} /><p>Portfolio management and real-estate advisory for better-informed property decisions.</p></div>
         <div className="footer-column"><p className="footer-label">Explore</p><a href="/" onClick={(event) => goToHomeSection(event, '#approach')}>Home</a><a href="#portfolio-services" onClick={(event) => { event.preventDefault(); document.querySelector('#portfolio-services')?.scrollIntoView({ behavior: 'smooth' }) }}>Portfolio services</a></div>
-        <div className="footer-column"><p className="footer-label">Contact</p><a href={`mailto:${content.contact?.email || 'info@soiraoyaconsulting.com.ng'}`}>{content.contact?.email || 'info@soiraoyaconsulting.com.ng'}</a><a href={`tel:${content.contact?.phone || '+2349074091408'}`}>{content.contact?.phone || '0907 409 1408'}</a><span>{content.contact?.location || 'Suite 30, Dolphin Plaza, Ikoyi, Lagos'}</span></div>
+        <div className="footer-column"><p className="footer-label">Contact</p><a href={`mailto:${content.contact?.email || 'soiraoyaconsults@gmail.com'}`}>{content.contact?.email || 'soiraoyaconsults@gmail.com'}</a><a href={`tel:${content.contact?.phone || '+2349074091408'}`}>{content.contact?.phone || '0907 409 1408'}</a><span><OfficeLocations location={content.contact?.location} /></span></div>
       </div>
       <div className="footer-bottom"><span>© S.O. Iraoya Consulting. All rights reserved.</span><span>Registered with CAC · Licensed by ESVARBON</span></div>
     </footer>

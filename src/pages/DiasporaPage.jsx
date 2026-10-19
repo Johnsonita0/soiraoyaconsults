@@ -23,7 +23,7 @@ export default function DiasporaPage({ content, goTo }) {
   }
 
   return <div className="site-shell diaspora-page">
-    <SiteHeader content={content} goTo={goTo} onContact={() => openWhatsAppConversation('Hello, I live abroad and would like to discuss oversight of my property in Nigeria.')} />
+    <SiteHeader content={content} goTo={goTo} onContact={openWhatsAppConversation} />
 
     <main>
       <section className="diaspora-hero" data-aos="fade-up">
@@ -31,7 +31,7 @@ export default function DiasporaPage({ content, goTo }) {
           <p className="eyebrow">Property oversight for non-resident owners</p>
           <h1>Your property in Nigeria. Professional oversight you can rely on.</h1>
           <p>Owning property in Nigeria while living abroad should not mean being uncertain about its condition, income or management. We help diaspora investors and non-resident owners establish a structured approach to property supervision, maintenance coordination and reporting.</p>
-          <button className="button button-light" onClick={() => openWhatsAppConversation('Hello, I live abroad and would like to discuss oversight of my property in Nigeria.')}>Discuss your property <ArrowUpRight size={17} /></button>
+          <button className="button button-light" onClick={openWhatsAppConversation}>Discuss your property <ArrowUpRight size={17} /></button>
         </div>
         <aside className="diaspora-hero-note" data-aos="fade-left">
           <span>Stay informed about</span>
@@ -70,7 +70,7 @@ export default function DiasporaPage({ content, goTo }) {
 
       <section className="diaspora-cta" data-aos="fade-up">
         <div><p className="eyebrow">Your property. A clearer view.</p><h2>Let’s discuss the oversight you need.</h2></div>
-        <button className="button button-light" onClick={() => openWhatsAppConversation('Hello, I would like to request a consultation about managing my property in Nigeria while I live abroad.')}>Request a consultation <ArrowUpRight size={17} /></button>
+        <button className="button button-light" onClick={openWhatsAppConversation}>Request a consultation <ArrowUpRight size={17} /></button>
       </section>
     </main>
 
@@ -82,6 +82,6 @@ export default function DiasporaPage({ content, goTo }) {
       </div>
       <div className="footer-bottom"><span>© S.O. Iraoya Consulting. All rights reserved.</span><span>Registered with CAC · Licensed by ESVARBON</span></div>
     </footer>
-    <a className="floating-whatsapp consultancy-whatsapp" href={whatsappUrl('Hello, I live abroad and would like to discuss oversight of my property in Nigeria.')} target="_blank" rel="noreferrer" aria-label="Chat with us on WhatsApp"><Whatsapp size={24} /><span>Chat with us</span></a>
+    <a className="floating-whatsapp consultancy-whatsapp" href={whatsappUrl()} target="_blank" rel="noreferrer" aria-label="Chat with us on WhatsApp"><Whatsapp size={24} /><span>Chat with us</span></a>
   </div>
 }

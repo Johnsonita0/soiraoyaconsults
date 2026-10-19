@@ -9,10 +9,10 @@ import SiteHeader from '../components/SiteHeader'
 import TestimonialsSection from '../components/TestimonialsSection'
 import { slug as serviceSlug } from './ServicePage'
 import { ArrowUp, ArrowUpRight, BarChart3, Building2, Check, ChevronDown, Facebook, Home, Instagram, Leaf, Linkedin, Mail, MapPin, Phone, Whatsapp, Youtube } from '../components/icons'
-import { openWhatsAppConversation } from '../lib/whatsapp'
+import { openWhatsAppConversation, whatsappUrl } from '../lib/whatsapp'
 import './ConsultancyHome.css'
 
-const whatsappChatUrl = 'https://wa.me/2349074091408?text=Hello%2C%20I%20would%20like%20to%20discuss%20a%20property%20or%20investment.'
+const whatsappChatUrl = whatsappUrl()
 const revealEffects = ['fade-up', 'fade-right', 'zoom-in', 'fade-left', 'flip-up']
 const revealEffect = (index) => revealEffects[(index * 3 + 1) % revealEffects.length]
 const propertyFaqs = [
@@ -159,20 +159,7 @@ export default function LandingPage({ content, goTo, showSplashOnEntry, onSplash
       return
     }
 
-    openWhatsAppConversation([
-      'Hello, I would like to discuss a property or investment.',
-      `Name: ${form.name || 'Not provided'}`,
-      `Organisation: ${form.organisation || 'Not provided'}`,
-      `Email: ${form.email || 'Not provided'}`,
-      `Telephone/WhatsApp: ${form.phone || 'Not provided'}`,
-      `Client category: ${form.category || 'Not provided'}`,
-      `Location: ${form.location || 'Not provided'}`,
-      `Service required: ${form.request || 'Not provided'}`,
-      `Property location: ${form.propertyLocation || 'Not provided'}`,
-      `Property type: ${form.propertyType || 'Not provided'}`,
-      `Number of properties: ${form.propertyCount || 'Not provided'}`,
-      `Message: ${form.message || 'Not provided'}`,
-    ].join('\n'))
+    openWhatsAppConversation()
     setSent(true)
   }
 
@@ -186,10 +173,10 @@ export default function LandingPage({ content, goTo, showSplashOnEntry, onSplash
         <span className="consultancy-splash-progress-fill" />
       </div>
     </div>}
-    <SiteHeader content={content} goTo={goTo} onContact={() => openWhatsAppConversation('Hello, I am visiting the S.O. Iraoya Consulting website and would like to discuss a property or investment.')} />
+    <SiteHeader content={content} goTo={goTo} onContact={openWhatsAppConversation} />
 
     <main>
-      <HeroSlider slides={content.heroSlides || []} onContact={() => openWhatsAppConversation('Hello, I would like to request a property or investment consultation.')} />
+      <HeroSlider slides={content.heroSlides || []} onContact={openWhatsAppConversation} />
 
       <section className="consultancy-proof-strip" aria-label="Our services">
         <div className="consultancy-proof-track" aria-label="Property management, portfolio oversight, investment advisory, valuation, and facilities management">
@@ -211,7 +198,7 @@ export default function LandingPage({ content, goTo, showSplashOnEntry, onSplash
         </div>
       </section>
 
-      <div data-aos="fade-up"><FaqSection items={propertyFaqs} onContact={() => openWhatsAppConversation('Hello, I have a question about the property challenges S.O. Iraoya Consulting addresses.')} /></div>
+      <div data-aos="fade-up"><FaqSection items={propertyFaqs} onContact={openWhatsAppConversation} /></div>
 
       <section className="consultancy-services" id="services" aria-labelledby="services-title" data-aos="fade-up">
         <div className="consultancy-section-heading consultancy-section-heading-row" data-aos="zoom-in">
@@ -232,7 +219,7 @@ export default function LandingPage({ content, goTo, showSplashOnEntry, onSplash
         </div>
       </section>
 
-      <PropertyGallery onContact={(message) => openWhatsAppConversation(message || 'Hello, I would like to discuss one of your property listings.')} onViewAll={() => goTo('/properties')} properties={content.gallery || []} />
+      <PropertyGallery onContact={openWhatsAppConversation} onViewAll={() => goTo('/properties')} properties={content.gallery || []} />
 
       <section className="consultancy-portfolio-band" data-aos="fade-up">
         <div data-aos="fade-right">
@@ -349,7 +336,6 @@ export default function LandingPage({ content, goTo, showSplashOnEntry, onSplash
           </div>
         </div>
         <div className={`consultancy-enquiry-panel ${showEnquiryForm ? 'is-open' : ''}`}>
-          <button type="button" className="button button-light" onClick={() => openWhatsAppConversation('Hello, I would like to request a consultation about a property or investment.')}>Request a consultation <ArrowUpRight size={18} /></button>
           <button type="button" className="consultancy-enquiry-toggle" onClick={() => setShowEnquiryForm((open) => !open)} aria-expanded={showEnquiryForm}>
             <span>{showEnquiryForm ? 'Hide request details form' : 'Add request details first'}</span>
             <ChevronDown size={18} />
@@ -358,7 +344,7 @@ export default function LandingPage({ content, goTo, showSplashOnEntry, onSplash
           {sent ? <div className="consultancy-form-success">
             <span><Check size={22} /></span>
             <h3>Thank you, {form.name || 'we have your note'}.</h3>
-            <p>Your request is ready in WhatsApp. Send the message there to start the conversation.</p>
+            <p>WhatsApp is open. Send your enquiry there to start the conversation.</p>
             <button type="button" className="text-link" onClick={() => { setSent(false); setSubmitError('') }}>Send another request <ArrowUpRight size={16} /></button>
           </div> : <>
             <div className="consultancy-form-grid">

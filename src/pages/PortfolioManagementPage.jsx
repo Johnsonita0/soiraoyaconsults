@@ -48,7 +48,7 @@ export default function PortfolioManagementPage({ content, goTo }) {
   }
 
   return <div className="portfolio-page">
-    <SiteHeader content={content} goTo={goTo} onContact={() => openWhatsAppConversation('Hello, I would like to discuss real estate portfolio management with S.O. Iraoya Consulting.')} />
+    <SiteHeader content={content} goTo={goTo} onContact={openWhatsAppConversation} />
 
     <main>
       <section className="portfolio-hero" data-aos="fade-up">
@@ -56,7 +56,7 @@ export default function PortfolioManagementPage({ content, goTo }) {
           <p className="eyebrow">Real estate portfolio management</p>
           <h1>See the whole portfolio. Make the next move with clarity.</h1>
           <p>We help property owners and investors bring asset information, performance and risk into focus—so decisions are based on a clearer view of what they own and how it is performing.</p>
-          <button className="button button-light" onClick={() => openWhatsAppConversation('Hello, I would like to discuss real estate portfolio management with S.O. Iraoya Consulting.')}>Talk to our advisory team <ArrowUpRight size={17} /></button>
+          <button className="button button-light" onClick={openWhatsAppConversation}>Talk to our advisory team <ArrowUpRight size={17} /></button>
         </div>
         <div className="portfolio-hero-note">
           <span>THE INVESTOR’S VIEW</span>

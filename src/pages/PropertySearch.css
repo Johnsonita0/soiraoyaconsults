@@ -67,11 +67,11 @@
 
 .property-whatsapp-button {
   color: #fff;
-  background: #168447;
+  background: #000;
 }
 
 .property-whatsapp-button:hover {
-  background: #116a38;
+  background: #262626;
 }
 
 .property-enquiry-context {

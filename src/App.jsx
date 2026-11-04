@@ -53,6 +53,7 @@ export default function App() {
   const markHomeSplashShown = useCallback(() => setShowHomeSplash(false), [])
   const [adminUser, setAdminUser] = useState(null)
   const contentDirtyRef = useRef(false)
+  const aosInitializedRef = useRef(false)
   const [content, setContent] = useState(() => {
     try {
       const stored = JSON.parse(localStorage.getItem('soiraoya-content'))
@@ -158,24 +159,28 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    AOS.init({
-      duration: 350,
-      easing: 'ease-out-cubic',
-      once: true,
-      offset: 10,
-      disable: () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-    })
-  }, [])
-
-  useEffect(() => {
     const effects = ['fade-up', 'fade-right', 'zoom-in', 'fade-left', 'flip-up']
+    let effectIndex = 0
     document.querySelectorAll('main section:not(.consultancy-contact):not(.consultancy-hero):not([data-aos]), main article:not([data-aos]), main [class*="-card"]:not([data-aos])')
       .forEach((element) => {
-        if (element.closest('.consultancy-hero')) return
-        element.setAttribute('data-aos', effects[Math.floor(Math.random() * effects.length)])
+        if (element.closest('.consultancy-hero, .consultancy-proof-strip')) return
+        element.setAttribute('data-aos', effects[effectIndex % effects.length])
+        effectIndex += 1
       })
-    AOS.refreshHard()
-  }, [route])
+
+    if (!aosInitializedRef.current) {
+      AOS.init({
+        duration: 350,
+        easing: 'ease-out-cubic',
+        once: true,
+        offset: 10,
+        disable: () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false,
+      })
+      aosInitializedRef.current = true
+    } else {
+      AOS.refreshHard()
+    }
+  }, [route, content])
 
   const goTo = (path) => {
     window.history.pushState({}, '', path)

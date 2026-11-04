@@ -2226,8 +2226,8 @@
   }
 
   @keyframes consultancy-proof-marquee {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
+    from { transform: translateX(-50%); }
+    to { transform: translateX(0); }
   }
 
   @media (max-width: 1100px) {

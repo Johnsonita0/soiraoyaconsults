@@ -679,7 +679,7 @@
   }
   .mobile-admin-tabs button {
     display:grid;
-    grid-template-rows:16px 10px;
+    grid-template-rows:16px 13px;
     align-content:center;
     justify-items:center;
     row-gap:4px;
@@ -717,16 +717,16 @@
     width:100%;
     min-width:0;
     margin:0;
-    height:10px;
-    line-height:10px;
-    font-size:clamp(7px, 2.2vw, 9px) !important;
+    height:13px;
+    line-height:13px;
+    font-size:clamp(10px, 3vw, 11px) !important;
     text-align:center;
     max-width:100%;
     white-space:nowrap;
     overflow:visible;
     text-overflow:ellipsis;
     color:inherit !important;
-    font-weight:500 !important;
+    font-weight:700 !important;
     visibility:visible !important;
     opacity:1 !important;
     transform:none !important;

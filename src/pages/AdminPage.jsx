@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Brand from '../components/Brand'
-import { ArrowUp, ArrowUpRight, BarChart3, Building2, Check, ChevronDown, ChevronLeft, ChevronRight, ClipboardList, FileText, Home, Leaf, LogOut, Mail, MessageSquareQuote, Search, Upload, Users } from '../components/icons'
+import { ArrowUp, ArrowUpRight, BarChart3, Bell, Building2, Check, ChevronDown, ChevronLeft, ChevronRight, ClipboardList, FileText, Home, Leaf, LogOut, Mail, MessageSquareQuote, Search, Upload, Users } from '../components/icons'
 import { seedContent } from '../data/content'
 import { supabase } from '../lib/supabase'
 import SearchableSelect from '../components/SearchableSelect'
@@ -12,11 +12,23 @@ export default function AdminPage({ content, setContent, goTo }) {
   const [draft, setDraft] = useState(content)
   const [sidebarExpanded, setSidebarExpanded] = useState(true)
   const [mobileProfileMenuOpen, setMobileProfileMenuOpen] = useState(false)
+  const [testimonialTab, setTestimonialTab] = useState('add')
   const [requestSearch, setRequestSearch] = useState('')
-  const [searchOpen, setSearchOpen] = useState(false)
   const [confirmAction, setConfirmAction] = useState(null)
   const [requests, setRequests] = useState([])
   const [requestsLoading, setRequestsLoading] = useState(true)
+  const [notifications, setNotifications] = useState([])
+  const [notificationsOpen, setNotificationsOpen] = useState(false)
+  const [readNotificationIds, setReadNotificationIds] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('soiraoya-admin-notifications-read') || '[]')
+      return Array.isArray(saved) ? saved : []
+    } catch (error) {
+      console.error('Could not read notification state', error)
+      return []
+    }
+  })
+  const notificationsRef = useRef(null)
 
   useEffect(() => {
     setDraft(content)
@@ -42,6 +54,65 @@ export default function AdminPage({ content, setContent, goTo }) {
 
   useEffect(() => { void loadRequests() }, [loadRequests])
 
+  const loadNotifications = useCallback(async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) throw new Error('Your admin session has expired. Please sign in again.')
+      const response = await fetch('/api/admin/notifications', {
+        headers: { Authorization: 'Bearer ' + session.access_token },
+      })
+      const result = await response.json()
+      if (!response.ok || !result.ok) throw new Error(result.message || 'Could not load dashboard notifications.')
+      setNotifications(result.notifications || [])
+    } catch (error) {
+      console.error('Could not load dashboard notifications', error)
+      showToast(error.message || 'Could not load dashboard notifications.', 'error')
+    }
+  }, [showToast])
+
+  useEffect(() => {
+    void loadNotifications()
+    const interval = window.setInterval(() => void loadNotifications(), 60000)
+    return () => window.clearInterval(interval)
+  }, [loadNotifications])
+
+  useEffect(() => {
+    if (!notificationsOpen) return undefined
+    const closeOnOutsideClick = (event) => {
+      if (!notificationsRef.current?.contains(event.target)) setNotificationsOpen(false)
+    }
+    const closeOnEscape = (event) => {
+      if (event.key === 'Escape') setNotificationsOpen(false)
+    }
+    document.addEventListener('pointerdown', closeOnOutsideClick)
+    window.addEventListener('keydown', closeOnEscape)
+    return () => {
+      document.removeEventListener('pointerdown', closeOnOutsideClick)
+      window.removeEventListener('keydown', closeOnEscape)
+    }
+  }, [notificationsOpen])
+
+  const unreadNotifications = notifications.filter((item) => !readNotificationIds.includes(item.id))
+
+  const markNotificationsRead = (ids) => {
+    const updated = [...new Set([...readNotificationIds, ...ids])].slice(-500)
+    setReadNotificationIds(updated)
+    try {
+      localStorage.setItem('soiraoya-admin-notifications-read', JSON.stringify(updated))
+    } catch (error) {
+      console.error('Could not save notification state', error)
+      showToast('Notifications were marked read for this session only.', 'error')
+    }
+  }
+
+  const openNotification = (notification) => {
+    markNotificationsRead([notification.id])
+    setNotificationsOpen(false)
+    if (notification.type === 'testimonial') setTestimonialTab('sent')
+    setTab(notification.type === 'request' ? 'Consult requests' : notification.type === 'testimonial' ? 'Testimonials' : 'Newsletter')
+    setSidebarExpanded(false)
+  }
+
   const markRequestContacted = async (requestId) => {
     try {
       const { data: { session } } = await supabase.auth.getSession()
@@ -54,6 +125,7 @@ export default function AdminPage({ content, setContent, goTo }) {
       const result = await response.json()
       if (!response.ok || !result.ok) throw new Error(result.message || 'Could not update this request.')
       setRequests((current) => current.map((item) => item.id === requestId ? result.request : item))
+      void loadNotifications()
       showToast('Request marked as contacted.', 'success')
     } catch (error) {
       console.error('Could not mark request as contacted', error)
@@ -103,17 +175,6 @@ export default function AdminPage({ content, setContent, goTo }) {
   }
 
   const tabs = [['Overview', ClipboardList], ['Consult requests', MessageSquareQuote], ['Landing page', FileText], ['Testimonials', Users], ['Newsletter', Mail]]
-  const handleSearchAction = () => {
-    const nextState = !searchOpen
-    setSearchOpen(nextState)
-    if (nextState) {
-      setTab('Consult requests')
-      window.setTimeout(() => {
-        document.getElementById('header-search-input')?.focus()
-      }, 0)
-    }
-  }
-
   const openConfirm = (action) => setConfirmAction(action)
   const closeConfirm = () => setConfirmAction(null)
   const completeConfirm = () => {
@@ -121,13 +182,83 @@ export default function AdminPage({ content, setContent, goTo }) {
     closeConfirm()
   }
 
-  return <div className="admin-shell"><aside className={`admin-sidebar ${sidebarExpanded ? 'expanded' : 'collapsed'}`}><button className="sidebar-toggle" type="button" onClick={() => setSidebarExpanded((current) => !current)} aria-label={sidebarExpanded ? 'Collapse sidebar' : 'Expand sidebar'}>{sidebarExpanded ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}</button><Brand admin goTo={goTo} /><div className="admin-nav">{tabs.map(([label, Icon]) => <button className={tab === label ? 'active' : ''} onClick={() => handleTabSelect(label)} key={label}><span className="nav-item-icon"><Icon size={17} />{label === 'Consult requests' && requests.filter((item) => item.status === 'new').length > 0 && <b className="nav-count">{requests.filter((item) => item.status === 'new').length}</b>}</span><span>{label}</span></button>)}</div><div className="sidebar-bottom"><button type="button" className="sidebar-logout" onClick={handleLogout} aria-label="Logout"><LogOut size={16} /><span>Logout</span></button><div className="profile"><span>OI</span><div><b>Iraoya</b><small>Principal partner</small></div><ChevronDown size={14} /></div></div></aside><main className="admin-main"><header className="admin-topbar"><div className="mobile-admin-brand"><Brand admin mobile goTo={goTo} /></div><div className="admin-breadcrumb">S.O.Iraoya / <b>{tab}</b></div><div className="admin-actions"><div className={`header-search-toggle ${searchOpen ? 'open' : ''}`}><button className="icon-button" aria-label="Toggle search" onClick={handleSearchAction}><Search size={18} /></button>{searchOpen && <input id="header-search-input" value={requestSearch} onChange={(event) => setRequestSearch(event.target.value)} placeholder="Search requests" aria-label="Search requests" />}</div><span className="notification-dot"></span><div className="mobile-profile-menu-wrap"><button type="button" className="avatar mobile-user-trigger" aria-label="User menu" onClick={() => setMobileProfileMenuOpen((current) => !current)}><span>OI</span><ChevronDown size={11} /></button>{mobileProfileMenuOpen && <div className="profile-dropdown mobile-dropdown"><div className="mobile-profile-summary"><span className="profile-badge">OI</span><div><b>Iraoya</b><small>Principal partner</small></div></div><button type="button" onClick={handleLogout}>Logout</button></div>}</div></div></header>{tab === 'Overview' && <Overview setTab={setTab} requests={requests} requestsLoading={requestsLoading} markRequestContacted={markRequestContacted} />}{tab === 'Consult requests' && <Requests requests={requests} requestsLoading={requestsLoading} requestSearch={requestSearch} markRequestContacted={markRequestContacted} refreshRequests={loadRequests} />}{tab === 'Landing page' && <LandingEditor draft={draft} setDraft={setDraft} save={save} persistDraft={persistDraft} openConfirm={openConfirm} />}{tab === 'Testimonials' && <Testimonials draft={draft} persistDraft={persistDraft} openConfirm={openConfirm} />}{tab === 'Newsletter' && <NewsletterPanel />}</main><nav className="mobile-admin-tabs" aria-label="Admin navigation">{tabs.map(([label, Icon]) => {
-    const mobileLabel = ({ Overview: 'Home', 'Consult requests': 'Requests', 'Landing page': 'Site', Testimonials: 'Reviews', Newsletter: 'News' })[label]
-    return <button aria-label={label} title={label} data-label={mobileLabel} className={tab === label ? 'active' : ''} onClick={() => handleTabSelect(label)} key={label}><Icon size={16} /></button>
-  })}</nav><ConfirmDialog action={confirmAction} onCancel={closeConfirm} onConfirm={completeConfirm} /></div>
+  return <div className="admin-shell">
+    <aside className={`admin-sidebar ${sidebarExpanded ? 'expanded' : 'collapsed'}`}>
+      <button className="sidebar-toggle" type="button" onClick={() => setSidebarExpanded((current) => !current)} aria-label={sidebarExpanded ? 'Collapse sidebar' : 'Expand sidebar'}>
+        {sidebarExpanded ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}
+      </button>
+      <Brand admin goTo={goTo} />
+      <div className="admin-nav">{tabs.map(([label, Icon]) => <button className={tab === label ? 'active' : ''} onClick={() => handleTabSelect(label)} key={label}>
+        <span className="nav-item-icon"><Icon size={17} />{label === 'Consult requests' && requests.filter((item) => item.status === 'new').length > 0 && <b className="nav-count">{requests.filter((item) => item.status === 'new').length}</b>}</span>
+        <span>{label}</span>
+      </button>)}</div>
+      <div className="sidebar-bottom">
+        <button type="button" className="sidebar-logout" onClick={handleLogout} aria-label="Logout"><LogOut size={16} /><span>Logout</span></button>
+        <div className="profile"><span>OI</span><div><b>Iraoya</b><small>Principal partner</small></div><ChevronDown size={14} /></div>
+      </div>
+    </aside>
+    <main className="admin-main">
+      <header className="admin-topbar">
+        <div className="mobile-admin-brand"><Brand admin mobile goTo={goTo} /></div>
+        <div className="admin-breadcrumb">S.O.Iraoya / <b>{tab}</b></div>
+        <div className="admin-actions">
+          <div className="admin-notifications" ref={notificationsRef}>
+            <button type="button" className="notification-trigger" aria-label={`Notifications${unreadNotifications.length ? `, ${unreadNotifications.length} unread` : ''}`} aria-expanded={notificationsOpen} onClick={() => {
+              const opening = !notificationsOpen
+              setNotificationsOpen(opening)
+              if (opening) void loadNotifications()
+            }}>
+              <Bell size={18} />
+              {unreadNotifications.length > 0 && <span className="notification-count">{unreadNotifications.length > 99 ? '99+' : unreadNotifications.length}</span>}
+            </button>
+            {notificationsOpen && <section className="notification-panel" aria-label="Dashboard notifications">
+              <div className="notification-panel-heading">
+                <div><strong>Notifications</strong><small>{unreadNotifications.length ? `${unreadNotifications.length} unread` : 'You’re all caught up'}</small></div>
+                <div className="notification-panel-actions">
+                  <button type="button" onClick={() => void loadNotifications()}>Refresh</button>
+                  {unreadNotifications.length > 0 && <button type="button" onClick={() => markNotificationsRead(unreadNotifications.map((item) => item.id))}>Mark all read</button>}
+                </div>
+              </div>
+              <div className="notification-list">
+                {notifications.length === 0
+                  ? <p className="notification-empty">No recent activity to show.</p>
+                  : notifications.map((item) => <button type="button" className={`notification-item ${readNotificationIds.includes(item.id) ? '' : 'unread'}`} key={item.id} onClick={() => openNotification(item)}>
+                    <span className={`notification-item-icon ${item.type}`} aria-hidden="true">{item.type === 'request' ? <MessageSquareQuote size={15} /> : item.type === 'testimonial' ? <Users size={15} /> : <Mail size={15} />}</span>
+                    <span className="notification-item-copy"><strong>{item.title}</strong><small>{item.detail}</small><time dateTime={item.createdAt}>{formatNotificationDate(item.createdAt)}</time></span>
+                    {!readNotificationIds.includes(item.id) && <span className="notification-unread-dot" aria-label="Unread" />}
+                  </button>)}
+              </div>
+            </section>}
+          </div>
+          <div className="mobile-profile-menu-wrap">
+            <button type="button" className="avatar mobile-user-trigger" aria-label="User menu" onClick={() => setMobileProfileMenuOpen((current) => !current)}><span>OI</span><ChevronDown size={11} /></button>
+            {mobileProfileMenuOpen && <div className="profile-dropdown mobile-dropdown"><div className="mobile-profile-summary"><span className="profile-badge">OI</span><div><b>Iraoya</b><small>Principal partner</small></div></div><button type="button" onClick={handleLogout}>Logout</button></div>}
+          </div>
+        </div>
+      </header>
+      {tab === 'Overview' && <Overview setTab={setTab} requests={requests} requestsLoading={requestsLoading} markRequestContacted={markRequestContacted} />}
+      {tab === 'Consult requests' && <Requests requests={requests} requestsLoading={requestsLoading} requestSearch={requestSearch} setRequestSearch={setRequestSearch} markRequestContacted={markRequestContacted} refreshRequests={loadRequests} />}
+      {tab === 'Landing page' && <LandingEditor draft={draft} setDraft={setDraft} save={save} persistDraft={persistDraft} openConfirm={openConfirm} />}
+      {tab === 'Testimonials' && <Testimonials key={testimonialTab} draft={draft} persistDraft={persistDraft} openConfirm={openConfirm} initialTab={testimonialTab} />}
+      {tab === 'Newsletter' && <NewsletterPanel />}
+    </main>
+    <nav className="mobile-admin-tabs" aria-label="Admin navigation">{tabs.map(([label, Icon]) => {
+      const mobileLabel = ({ Overview: 'Home', 'Consult requests': 'Requests', 'Landing page': 'Site', Testimonials: 'Reviews', Newsletter: 'News' })[label]
+      return <button aria-label={label} title={label} className={tab === label ? 'active' : ''} onClick={() => handleTabSelect(label)} key={label}>
+        <Icon size={16} />
+        <span className="mobile-admin-tab-label">{mobileLabel}</span>
+      </button>
+    })}</nav>
+    <ConfirmDialog action={confirmAction} onCancel={closeConfirm} onConfirm={completeConfirm} />
+  </div>
 }
 
 const blankCampaign = () => ({ subject: '', previewText: '', body: '', scheduledAt: '', imageUrl: '' })
+function formatNotificationDate(value) {
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? '' : date.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })
+}
+
 const localDateTimeValue = (value) => {
   if (!value) return ''
   const date = new Date(value)
@@ -462,9 +593,9 @@ function RequestList({ requests, loading, markRequestContacted, query = '', limi
   })}</div>
 }
 
-function Requests({ requests, requestsLoading, requestSearch, markRequestContacted, refreshRequests }) {
+function Requests({ requests, requestsLoading, requestSearch, setRequestSearch, markRequestContacted, refreshRequests }) {
   const newCount = requests.filter((request) => request.status === 'new').length
-  return <div className="admin-content"><div className="admin-heading"><div><p className="eyebrow">Inbox · {newCount} new</p><h1>Consult requests</h1><p className="admin-subtitle">Saved enquiries, client details and follow-up status.</p></div><button type="button" className="quiet-button" onClick={() => void refreshRequests()}>Refresh <ArrowUpRight size={15} /></button></div><div className="request-search-summary">{requestsLoading ? 'Loading requests…' : `${requests.length} saved requests · Newest first`}</div><div className="panel request-panel"><RequestList requests={requests} loading={requestsLoading} markRequestContacted={markRequestContacted} query={requestSearch} /></div></div>
+  return <div className="admin-content"><div className="admin-heading"><div><p className="eyebrow">Inbox · {newCount} new</p><h1>Consult requests</h1><p className="admin-subtitle">Saved enquiries, client details and follow-up status.</p></div><button type="button" className="quiet-button" onClick={() => void refreshRequests()}>Refresh <ArrowUpRight size={15} /></button></div><div className="request-list-toolbar"><div className="search-field"><Search size={16} /><input value={requestSearch} onChange={(event) => setRequestSearch(event.target.value)} placeholder="Search saved requests" aria-label="Search consultation requests" /></div><div className="request-search-summary">{requestsLoading ? 'Loading requests…' : `${requests.length} saved · Newest first`}</div></div><div className="panel request-panel"><RequestList requests={requests} loading={requestsLoading} markRequestContacted={markRequestContacted} query={requestSearch} /></div></div>
 }
 function ConfirmDialog({ action, onCancel, onConfirm }) {
   const [showBackToTop, setShowBackToTop] = useState(false)
@@ -1364,9 +1495,9 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
     </div>
   )
 }
-function Testimonials({ draft, persistDraft, openConfirm }) {
+function Testimonials({ draft, persistDraft, openConfirm, initialTab = 'add' }) {
   const { showToast } = useToast()
-  const [tab, setTab] = useState('add')
+  const [tab, setTab] = useState(initialTab)
   const [sentTestimonials, setSentTestimonials] = useState([])
   const [selected, setSelected] = useState(null)
   const [form, setForm] = useState({ name: '', email: '', role: '', rating: '5', quote: '' })

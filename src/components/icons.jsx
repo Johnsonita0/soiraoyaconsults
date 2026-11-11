@@ -1,5 +1,6 @@
 export const ArrowUpRight = ({ size = 18, ...props }) => <i className="fa-solid fa-arrow-up-right" style={{ fontSize: size, ...props.style }} {...props} />
 export const BarChart3 = ({ size = 18, ...props }) => <i className="fa-solid fa-chart-line" style={{ fontSize: size, ...props.style }} {...props} />
+export const Bell = ({ size = 18, ...props }) => <i className="fa-solid fa-bell" style={{ fontSize: size, ...props.style }} {...props} />
 export const Building2 = ({ size = 18, ...props }) => <i className="fa-solid fa-building" style={{ fontSize: size, ...props.style }} {...props} />
 export const Check = ({ size = 18, ...props }) => <i className="fa-solid fa-check" style={{ fontSize: size, ...props.style }} {...props} />
 export const ChevronDown = ({ size = 18, ...props }) => <i className="fa-solid fa-chevron-down" style={{ fontSize: size, ...props.style }} {...props} />

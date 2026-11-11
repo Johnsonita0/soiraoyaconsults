@@ -415,6 +415,20 @@
   color: #102b3f;
 }
 
+.newsletter-email-preview > footer .newsletter-preview-whatsapp {
+  display: inline-block;
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: #167a50;
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.newsletter-email-preview > footer > p {
+  margin: 14px 0;
+}
+
 .newsletter-email-preview-socials {
   display: flex;
   justify-content: center;

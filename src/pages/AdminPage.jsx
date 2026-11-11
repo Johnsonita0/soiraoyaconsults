@@ -301,9 +301,14 @@ function NewsletterPanel() {
             </div>
             <footer>
               <strong>S.O. Iraoya Consulting</strong><br />
-              Lagos, Nigeria · Estate Surveyors &amp; Valuers<br />
+              Estate Surveyors &amp; Valuers<br />
               <a href="https://soiraoyaconsulting.org">soiraoyaconsulting.org</a> · <a href="mailto:soiraoyaconsults@gmail.com">soiraoyaconsults@gmail.com</a><br />
-              <a href="tel:+2349074091408">+234 907 409 1408</a>
+              <a href="tel:+2349074091408">+234 907 409 1408</a><br />
+              <strong>Head Office</strong><br />
+              Suite 30, Dolphin Plaza, Ikoyi, Lagos, Nigeria<br />
+              <strong>Lekki/Ajah Office</strong><br />
+              Suite H272, Ikota Shopping Complex, Lagos, Nigeria
+              <p><a className="newsletter-preview-whatsapp" href="https://wa.me/2349074091408">Chat with us on WhatsApp</a></p>
               <div className="newsletter-email-preview-socials" aria-label="Social media links">
                 <a href="https://www.facebook.com" aria-label="Facebook">f</a>
                 <a href="https://www.instagram.com" aria-label="Instagram">◎</a>

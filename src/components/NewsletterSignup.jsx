@@ -96,7 +96,7 @@ export default function NewsletterSignup() {
         {error && <p className="newsletter-message newsletter-error" role="alert">{error}</p>}
         <button type="submit" className="button button-dark" disabled={isSubmitting}>{isSubmitting ? 'Subscribing…' : 'Subscribe'} <ArrowUpRight size={17} /></button>
       </form>}
-      <p className="newsletter-footnote">We respect your inbox. Please confirm your email to complete signup.</p>
+      <p className="newsletter-footnote">Read our <a href="/privacy-policy">Privacy Policy</a> and <a href="/data-usage">Data Usage Policy</a>.</p>
     </section>
   </div>
 }

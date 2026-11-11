@@ -65,7 +65,7 @@ export default function PropertySearchPage({ content, filters, goTo }) {
       <section className="property-results-section" data-aos="fade-up">
         <div className="property-results-heading"><div><p className="eyebrow">Available properties</p><h2>{results.length} {filters.listingType.toLowerCase()} listings found.</h2></div></div>
         <form className="property-listing-search" onSubmit={submitSearch}>
-          <label>Listing type<select value={searchForm.listingType} onChange={(event) => setSearchForm({ ...searchForm, listingType: event.target.value })}><option>For Sale</option><option>For Rent</option></select></label>
+          <label>Listing type<SearchableSelect value={searchForm.listingType} onChange={(value) => setSearchForm({ ...searchForm, listingType: value })} ariaLabel="Listing type" options={[{ value: 'For Sale', label: 'For Sale' }, { value: 'For Rent', label: 'For Rent' }]} /></label>
           <label>Keyword<input value={searchForm.keyword} onChange={(event) => setSearchForm({ ...searchForm, keyword: event.target.value })} placeholder="Property, type or area" /></label>
           <label>Property title<input value={searchForm.title} onChange={(event) => setSearchForm({ ...searchForm, title: event.target.value })} placeholder="Enter a property name" /></label>
           <label>Location<input value={searchForm.address} onChange={(event) => setSearchForm({ ...searchForm, address: event.target.value })} placeholder="City or neighbourhood" /></label>

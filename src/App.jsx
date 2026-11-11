@@ -140,7 +140,7 @@ export default function App() {
 
   useEffect(() => {
     let focusedControl = null
-    const isFormControl = (control) => control instanceof HTMLElement && control.matches('input, textarea, select, button.searchable-select-trigger')
+    const isFormControl = (control) => control instanceof HTMLElement && control.matches('input, textarea, button.searchable-select-trigger')
     const centerFocusedControl = () => {
       if (!focusedControl || !window.matchMedia('(max-width: 900px)').matches) return
       focusedControl.scrollIntoView({ block: 'center', behavior: 'smooth' })

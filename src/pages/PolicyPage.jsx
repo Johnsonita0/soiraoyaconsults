@@ -78,8 +78,6 @@ const usageSections = [
     rows: [
       ['Website enquiry details', 'Name, email, organisation, phone, location, service requested and property or message details that you choose to provide.', 'Respond to your enquiry, understand the requested service, arrange follow-up and keep appropriate business records. The enquiry is sent to the business inbox through an email provider.'],
       ['Newsletter details', 'Email address, confirmation and subscription status, and signup or unsubscribe dates.', 'Confirm that you control the address, send requested newsletters, manage subscriptions and prevent further campaigns after unsubscribe.'],
-      ['Website and device storage', 'A copy of website content saved in browser local storage and a session marker for the newsletter prompt.', 'Load the website’s saved content and avoid repeatedly showing the signup prompt during the same browser session.'],
-      ['Technical and security information', 'Limited request or security information processed by website hosting and service providers.', 'Deliver the website, diagnose service problems, prevent abuse and maintain security.'],
     ],
   },
   {

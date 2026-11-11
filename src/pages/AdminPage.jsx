@@ -902,10 +902,7 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
 
               <div className="field-group">
                 <label className="field-label">Listing type</label>
-                <select className="field-input" value={galleryDraft.listingType} onChange={(event) => setGalleryDraft({ ...galleryDraft, listingType: event.target.value })}>
-                  <option>For Sale</option>
-                  <option>For Rent</option>
-                </select>
+                <SearchableSelect className="admin-listing-select" value={galleryDraft.listingType} onChange={(value) => setGalleryDraft({ ...galleryDraft, listingType: value })} ariaLabel="Listing type" options={[{ value: 'For Sale', label: 'For Sale' }, { value: 'For Rent', label: 'For Rent' }]} />
               </div>
 
               <div className="field-group">

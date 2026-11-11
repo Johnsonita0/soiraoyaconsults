@@ -130,6 +130,12 @@
   line-height: 1.5;
 }
 
+.newsletter-footnote a {
+  color: #102b3f;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .newsletter-message {
   margin: 0;
   padding: 11px 12px;

@@ -18,16 +18,21 @@
 }
 
 .property-listing-search input,
-.property-listing-search select {
+.property-listing-search .searchable-select-trigger {
   width: 100%;
   min-width: 0;
   min-height: 44px;
+  box-sizing: border-box;
   padding: 10px;
   color: var(--ink);
   background: white;
   border: 1px solid var(--line);
   font: inherit;
   font-size: 12px;
+}
+
+.property-listing-search .searchable-select {
+  min-width: 0;
 }
 
 .property-listing-search .button {

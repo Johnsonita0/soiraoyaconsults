@@ -826,16 +826,22 @@
 }
 
 .consultancy-enquiry-form input,
-.consultancy-enquiry-form select,
+.consultancy-enquiry-form .searchable-select-trigger,
 .consultancy-enquiry-form textarea {
   width: 100%;
   min-height: 45px;
+  box-sizing: border-box;
   padding: 11px 12px;
   color: var(--ink);
   background: #fff;
   border: 1px solid var(--line);
   border-radius: 0;
   font-size: 13px;
+}
+
+.consultancy-enquiry-form .searchable-select-trigger {
+  border-radius: 0;
+  text-align: left;
 }
 
 .consultancy-enquiry-form textarea {

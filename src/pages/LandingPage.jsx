@@ -172,6 +172,7 @@ export default function LandingPage({ content, goTo, showSplashOnEntry, onSplash
       })
       const result = await response.json()
       if (!response.ok || !result.ok) throw new Error(result.message || 'Email notification failed.')
+      if (result.notificationSent === false) setSubmitError(result.message || 'Your request was saved, but our email notification could not be sent.')
       setSent(true)
     } catch (error) {
       setSubmitError(error.message || 'WhatsApp is open, but the email notification could not be sent. Please contact us directly as well.')
@@ -361,7 +362,8 @@ export default function LandingPage({ content, goTo, showSplashOnEntry, onSplash
           {sent ? <div className="consultancy-form-success">
             <span><Check size={22} /></span>
             <h3>Thank you, {form.name || 'we have your note'}.</h3>
-            <p>WhatsApp is open. Send your enquiry there to start the conversation.</p>
+            <p>Your enquiry details have been saved and sent to the consulting team. WhatsApp is open if you would also like to start a conversation.</p>
+            {submitError && <p className="consultancy-form-error" role="status">{submitError}</p>}
             <button type="button" className="text-link" onClick={() => { setSent(false); setSubmitError('') }}>Send another request <ArrowUpRight size={16} /></button>
           </div> : <>
             <div className="consultancy-form-grid">

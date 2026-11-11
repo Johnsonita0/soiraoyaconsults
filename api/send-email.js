@@ -1,4 +1,5 @@
 import { emailLayout, escapeHtml, sendEmail } from './_lib/email.js'
+import { getServiceClient } from './_lib/admin.js'
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const fieldLimits = {
@@ -30,18 +31,46 @@ export default async function handler(request, response) {
     }
   }
 
+  const requestRecord = {
+    name,
+    email,
+    organisation: String(form.organisation || '').trim() || null,
+    phone: String(form.phone || '').trim() || null,
+    location: String(form.location || '').trim() || null,
+    category: String(form.category || '').trim() || null,
+    request: String(form.request).trim(),
+    property_location: String(form.propertyLocation || '').trim() || null,
+    property_type: String(form.propertyType || '').trim() || null,
+    property_count: String(form.propertyCount || '').trim() || null,
+    message: String(form.message || '').trim() || null,
+    status: 'new',
+  }
+
+  let supabase
+  try {
+    supabase = getServiceClient()
+  } catch (error) {
+    console.error('Consultation request storage is unavailable', error)
+    return response.status(500).json({ ok: false, message: 'We could not save your request. Please contact us directly.' })
+  }
+  const { error: saveError } = await supabase.from('contact_messages').insert(requestRecord)
+  if (saveError) {
+    console.error('Could not save consultation request', saveError)
+    return response.status(500).json({ ok: false, message: 'We could not save your request. Please contact us directly.' })
+  }
+
   const fields = [
     ['Name', name],
     ['Email', email],
-    ['Organisation', form.organisation],
-    ['Phone', form.phone],
-    ['Location', form.location],
-    ['Client category', form.category],
-    ['Service required', form.request],
-    ['Property location', form.propertyLocation],
-    ['Property type', form.propertyType],
-    ['Number of properties', form.propertyCount],
-    ['Message', form.message],
+    ['Organisation', requestRecord.organisation],
+    ['Phone', requestRecord.phone],
+    ['Location', requestRecord.location],
+    ['Client category', requestRecord.category],
+    ['Service required', requestRecord.request],
+    ['Property location', requestRecord.property_location],
+    ['Property type', requestRecord.property_type],
+    ['Number of properties', requestRecord.property_count],
+    ['Message', requestRecord.message],
   ].filter(([, value]) => String(value || '').trim())
 
   const html = fields.map(([label, value]) => `<p><strong>${escapeHtml(label)}:</strong><br>${escapeHtml(value).replace(/\r?\n/g, '<br>')}</p>`).join('')
@@ -57,6 +86,6 @@ export default async function handler(request, response) {
     return response.status(200).json({ ok: true })
   } catch (error) {
     console.error('Website enquiry notification failed', error)
-    return response.status(502).json({ ok: false, message: 'We could not send your enquiry by email. Please continue in WhatsApp or contact us directly.' })
+    return response.status(200).json({ ok: true, notificationSent: false, message: 'Your request was saved, but the email notification could not be sent. Please also contact us by WhatsApp.' })
   }
 }

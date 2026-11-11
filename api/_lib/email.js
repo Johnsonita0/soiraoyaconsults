@@ -26,10 +26,10 @@ export async function sendEmail({ to, subject, html, text, replyTo, headers }) {
     body: JSON.stringify({
       from,
       to: [to],
+      reply_to: replyTo || process.env.RESEND_REPLY_TO_EMAIL || process.env.RESEND_TO_EMAIL || 'soiraoyaconsults@gmail.com',
       subject,
       html,
       text,
-      ...(replyTo ? { reply_to: replyTo } : {}),
       ...(headers ? { headers } : {}),
     }),
   })

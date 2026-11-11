@@ -11,7 +11,7 @@ export default async function handler(request, response) {
 
   if (request.method === 'GET') {
     const [{ data: campaigns, error }, { count, error: countError }] = await Promise.all([
-      supabase.from('newsletter_campaigns').select('id,subject,preview_text,body,status,scheduled_at,sent_at,sent_count,failed_count,created_at').order('created_at', { ascending: false }).limit(50),
+      supabase.from('newsletter_campaigns').select('id,subject,preview_text,body,image_url,status,scheduled_at,sent_at,sent_count,failed_count,created_at').order('created_at', { ascending: false }).limit(50),
       supabase.from('newsletter_subscribers').select('id', { count: 'exact', head: true }).eq('status', 'active'),
     ])
     if (error || countError) {
@@ -21,7 +21,7 @@ export default async function handler(request, response) {
     return response.status(200).json({ ok: true, campaigns: campaigns || [], subscriberCount: count || 0 })
   }
 
-  const { action, campaignId, subject, previewText = '', body = '', scheduledAt } = request.body || {}
+  const { action, campaignId, subject, previewText = '', body = '', imageUrl = '', scheduledAt } = request.body || {}
   if (action === 'cancel') {
     if (!campaignId) return response.status(400).json({ ok: false, message: 'Campaign ID is required.' })
     const { data, error } = await supabase.from('newsletter_campaigns')
@@ -50,6 +50,9 @@ export default async function handler(request, response) {
   if (typeof body !== 'string' || body.trim().length < 3 || body.length > maximumLength) {
     return response.status(400).json({ ok: false, message: 'Newsletter content must be between 3 and 20,000 characters.' })
   }
+  if (typeof imageUrl !== 'string' || imageUrl.length > 2000 || (imageUrl && !/^https:\/\//i.test(imageUrl))) {
+    return response.status(400).json({ ok: false, message: 'Newsletter image must be a valid HTTPS URL.' })
+  }
 
   const scheduledFor = action === 'save' ? null : action === 'send-now' ? new Date().toISOString() : new Date(scheduledAt)
   if (action === 'schedule' && (!scheduledAt || Number.isNaN(scheduledFor.getTime()) || scheduledFor.getTime() < Date.now() + 30000)) {
@@ -60,6 +63,7 @@ export default async function handler(request, response) {
     subject: subject.trim(),
     preview_text: previewText.trim(),
     body: body.trim(),
+    image_url: imageUrl.trim() || null,
     status: action === 'save' ? 'draft' : 'scheduled',
     scheduled_at: scheduledFor,
     claimed_at: null,

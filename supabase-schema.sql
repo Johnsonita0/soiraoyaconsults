@@ -40,13 +40,31 @@ create table if not exists public.gallery_items (
 
 create table if not exists public.contact_messages (
   id uuid primary key default uuid_generate_v4(),
-  name text,
+  name text not null,
   email text not null,
+  organisation text,
+  phone text,
+  location text,
+  category text,
   request text,
+  property_location text,
+  property_type text,
+  property_count text,
   message text,
   created_at timestamptz not null default now(),
-  status text not null default 'new'
+  status text not null default 'new' check (status in ('new', 'contacted')),
+  contacted_at timestamptz
 );
+
+alter table public.contact_messages
+  add column if not exists organisation text,
+  add column if not exists phone text,
+  add column if not exists location text,
+  add column if not exists category text,
+  add column if not exists property_location text,
+  add column if not exists property_type text,
+  add column if not exists property_count text,
+  add column if not exists contacted_at timestamptz;
 
 create table if not exists public.newsletter_subscribers (
   id uuid primary key default uuid_generate_v4(),
@@ -68,6 +86,7 @@ create table if not exists public.newsletter_campaigns (
   subject text not null,
   preview_text text not null default '',
   body text not null,
+  image_url text,
   status text not null default 'draft' check (status in ('draft', 'scheduled', 'sending', 'sent', 'cancelled')),
   scheduled_at timestamptz,
   sent_at timestamptz,
@@ -78,6 +97,9 @@ create table if not exists public.newsletter_campaigns (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.newsletter_campaigns
+  add column if not exists image_url text;
 
 create table if not exists public.newsletter_deliveries (
   id uuid primary key default uuid_generate_v4(),

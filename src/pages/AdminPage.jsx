@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import Brand from '../components/Brand'
-import { ArrowUp, ArrowUpRight, BarChart3, Building2, Check, ChevronDown, ChevronLeft, ChevronRight, ClipboardList, FileText, Home, Leaf, LogOut, Mail, MessageSquareQuote, Plus, Search, Sparkles, Upload, Users } from '../components/icons'
-import { seedContent, seedRequests } from '../data/content'
+import { ArrowUp, ArrowUpRight, BarChart3, Building2, Check, ChevronDown, ChevronLeft, ChevronRight, ClipboardList, FileText, Home, Leaf, LogOut, Mail, MessageSquareQuote, Search, Upload, Users } from '../components/icons'
+import { seedContent } from '../data/content'
 import { supabase } from '../lib/supabase'
 import SearchableSelect from '../components/SearchableSelect'
 import { useToast } from '../components/ToastProvider'
@@ -15,10 +15,51 @@ export default function AdminPage({ content, setContent, goTo }) {
   const [requestSearch, setRequestSearch] = useState('')
   const [searchOpen, setSearchOpen] = useState(false)
   const [confirmAction, setConfirmAction] = useState(null)
+  const [requests, setRequests] = useState([])
+  const [requestsLoading, setRequestsLoading] = useState(true)
 
   useEffect(() => {
     setDraft(content)
   }, [content])
+
+  const loadRequests = useCallback(async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) throw new Error('Your admin session has expired. Please sign in again.')
+      const response = await fetch('/api/admin/requests', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      const result = await response.json()
+      if (!response.ok || !result.ok) throw new Error(result.message || 'Could not load consultation requests.')
+      setRequests(result.requests || [])
+    } catch (error) {
+      console.error('Could not load consultation requests', error)
+      showToast(error.message || 'Could not load consultation requests.', 'error')
+    } finally {
+      setRequestsLoading(false)
+    }
+  }, [showToast])
+
+  useEffect(() => { void loadRequests() }, [loadRequests])
+
+  const markRequestContacted = async (requestId) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) throw new Error('Your admin session has expired. Please sign in again.')
+      const response = await fetch('/api/admin/requests', {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ requestId, status: 'contacted' }),
+      })
+      const result = await response.json()
+      if (!response.ok || !result.ok) throw new Error(result.message || 'Could not update this request.')
+      setRequests((current) => current.map((item) => item.id === requestId ? result.request : item))
+      showToast('Request marked as contacted.', 'success')
+    } catch (error) {
+      console.error('Could not mark request as contacted', error)
+      showToast(error.message || 'Could not update this request.', 'error')
+    }
+  }
 
   const syncLandingContent = async (nextDraft) => {
     try {
@@ -80,10 +121,10 @@ export default function AdminPage({ content, setContent, goTo }) {
     closeConfirm()
   }
 
-  return <div className="admin-shell"><aside className={`admin-sidebar ${sidebarExpanded ? 'expanded' : 'collapsed'}`}><button className="sidebar-toggle" type="button" onClick={() => setSidebarExpanded((current) => !current)} aria-label={sidebarExpanded ? 'Collapse sidebar' : 'Expand sidebar'}>{sidebarExpanded ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}</button><Brand admin goTo={goTo} /><div className="admin-nav">{tabs.map(([label, Icon]) => <button className={tab === label ? 'active' : ''} onClick={() => handleTabSelect(label)} key={label}><span className="nav-item-icon"><Icon size={17} />{label === 'Consult requests' && <b className="nav-count">3</b>}</span><span>{label}</span></button>)}</div><div className="sidebar-bottom"><button type="button" className="sidebar-logout" onClick={handleLogout} aria-label="Logout"><LogOut size={16} /><span>Logout</span></button><div className="profile"><span>OI</span><div><b>Iraoya</b><small>Principal partner</small></div><ChevronDown size={14} /></div></div></aside><main className="admin-main"><header className="admin-topbar"><div className="mobile-admin-brand"><Brand admin mobile goTo={goTo} /></div><div className="admin-breadcrumb">S.O.Iraoya / <b>{tab}</b></div><div className="admin-actions"><div className={`header-search-toggle ${searchOpen ? 'open' : ''}`}><button className="icon-button" aria-label="Toggle search" onClick={handleSearchAction}><Search size={18} /></button>{searchOpen && <input id="header-search-input" value={requestSearch} onChange={(event) => setRequestSearch(event.target.value)} placeholder="Search requests" aria-label="Search requests" />}</div><span className="notification-dot"></span><div className="mobile-profile-menu-wrap"><button type="button" className="avatar mobile-user-trigger" aria-label="User menu" onClick={() => setMobileProfileMenuOpen((current) => !current)}><span>OI</span><ChevronDown size={11} /></button>{mobileProfileMenuOpen && <div className="profile-dropdown mobile-dropdown"><div className="mobile-profile-summary"><span className="profile-badge">OI</span><div><b>Iraoya</b><small>Principal partner</small></div></div><button type="button" onClick={handleLogout}>Logout</button></div>}</div></div></header>{tab === 'Overview' && <Overview setTab={setTab} />}{tab === 'Consult requests' && <Requests requestSearch={requestSearch} setRequestSearch={setRequestSearch} />}{tab === 'Landing page' && <LandingEditor draft={draft} setDraft={setDraft} save={save} persistDraft={persistDraft} openConfirm={openConfirm} />}{tab === 'Testimonials' && <Testimonials draft={draft} persistDraft={persistDraft} openConfirm={openConfirm} />}{tab === 'Newsletter' && <NewsletterPanel />}</main><nav className="mobile-admin-tabs" aria-label="Admin navigation">{tabs.map(([label, Icon]) => <button className={tab === label ? 'active' : ''} onClick={() => handleTabSelect(label)} key={label}><Icon size={16} /><span>{label}</span></button>)}</nav><ConfirmDialog action={confirmAction} onCancel={closeConfirm} onConfirm={completeConfirm} /></div>
+  return <div className="admin-shell"><aside className={`admin-sidebar ${sidebarExpanded ? 'expanded' : 'collapsed'}`}><button className="sidebar-toggle" type="button" onClick={() => setSidebarExpanded((current) => !current)} aria-label={sidebarExpanded ? 'Collapse sidebar' : 'Expand sidebar'}>{sidebarExpanded ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}</button><Brand admin goTo={goTo} /><div className="admin-nav">{tabs.map(([label, Icon]) => <button className={tab === label ? 'active' : ''} onClick={() => handleTabSelect(label)} key={label}><span className="nav-item-icon"><Icon size={17} />{label === 'Consult requests' && requests.filter((item) => item.status === 'new').length > 0 && <b className="nav-count">{requests.filter((item) => item.status === 'new').length}</b>}</span><span>{label}</span></button>)}</div><div className="sidebar-bottom"><button type="button" className="sidebar-logout" onClick={handleLogout} aria-label="Logout"><LogOut size={16} /><span>Logout</span></button><div className="profile"><span>OI</span><div><b>Iraoya</b><small>Principal partner</small></div><ChevronDown size={14} /></div></div></aside><main className="admin-main"><header className="admin-topbar"><div className="mobile-admin-brand"><Brand admin mobile goTo={goTo} /></div><div className="admin-breadcrumb">S.O.Iraoya / <b>{tab}</b></div><div className="admin-actions"><div className={`header-search-toggle ${searchOpen ? 'open' : ''}`}><button className="icon-button" aria-label="Toggle search" onClick={handleSearchAction}><Search size={18} /></button>{searchOpen && <input id="header-search-input" value={requestSearch} onChange={(event) => setRequestSearch(event.target.value)} placeholder="Search requests" aria-label="Search requests" />}</div><span className="notification-dot"></span><div className="mobile-profile-menu-wrap"><button type="button" className="avatar mobile-user-trigger" aria-label="User menu" onClick={() => setMobileProfileMenuOpen((current) => !current)}><span>OI</span><ChevronDown size={11} /></button>{mobileProfileMenuOpen && <div className="profile-dropdown mobile-dropdown"><div className="mobile-profile-summary"><span className="profile-badge">OI</span><div><b>Iraoya</b><small>Principal partner</small></div></div><button type="button" onClick={handleLogout}>Logout</button></div>}</div></div></header>{tab === 'Overview' && <Overview setTab={setTab} requests={requests} requestsLoading={requestsLoading} markRequestContacted={markRequestContacted} />}{tab === 'Consult requests' && <Requests requests={requests} requestsLoading={requestsLoading} requestSearch={requestSearch} markRequestContacted={markRequestContacted} refreshRequests={loadRequests} />}{tab === 'Landing page' && <LandingEditor draft={draft} setDraft={setDraft} save={save} persistDraft={persistDraft} openConfirm={openConfirm} />}{tab === 'Testimonials' && <Testimonials draft={draft} persistDraft={persistDraft} openConfirm={openConfirm} />}{tab === 'Newsletter' && <NewsletterPanel />}</main><nav className="mobile-admin-tabs" aria-label="Admin navigation">{tabs.map(([label, Icon]) => <button className={tab === label ? 'active' : ''} onClick={() => handleTabSelect(label)} key={label}><Icon size={16} /><span>{label}</span></button>)}</nav><ConfirmDialog action={confirmAction} onCancel={closeConfirm} onConfirm={completeConfirm} /></div>
 }
 
-const blankCampaign = () => ({ subject: '', previewText: '', body: '', scheduledAt: '' })
+const blankCampaign = () => ({ subject: '', previewText: '', body: '', scheduledAt: '', imageUrl: '' })
 const localDateTimeValue = (value) => {
   if (!value) return ''
   const date = new Date(value)
@@ -100,6 +141,7 @@ function NewsletterPanel() {
   const [editingId, setEditingId] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
+  const [isUploadingImage, setIsUploadingImage] = useState(false)
 
   const loadCampaigns = useCallback(async () => {
     try {
@@ -137,6 +179,7 @@ function NewsletterPanel() {
           subject: campaign.subject,
           previewText: campaign.previewText,
           body: campaign.body,
+          imageUrl: campaign.imageUrl,
           scheduledAt: campaign.scheduledAt ? new Date(campaign.scheduledAt).toISOString() : '',
         }),
       })
@@ -181,8 +224,42 @@ function NewsletterPanel() {
       previewText: item.preview_text || '',
       body: item.body,
       scheduledAt: localDateTimeValue(item.scheduled_at),
+      imageUrl: item.image_url || '',
     })
     window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const uploadNewsletterImage = async (event) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file) return
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      showToast('Choose a JPG, PNG or WebP image.', 'error')
+      return
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('Newsletter images must be 5 MB or smaller.', 'error')
+      return
+    }
+
+    setIsUploadingImage(true)
+    try {
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '-').toLowerCase()
+      const path = `newsletters/${Date.now()}-${safeName}`
+      const { data, error } = await supabase.storage.from('public-images').upload(path, file, {
+        cacheControl: '3600',
+        upsert: false,
+      })
+      if (error) throw error
+      const { data: publicData } = supabase.storage.from('public-images').getPublicUrl(data.path)
+      setCampaign((current) => ({ ...current, imageUrl: publicData.publicUrl }))
+      showToast('Newsletter image uploaded.', 'success')
+    } catch (error) {
+      console.error('Newsletter image upload failed', error)
+      showToast(error.message || 'Could not upload newsletter image.', 'error')
+    } finally {
+      setIsUploadingImage(false)
+    }
   }
 
   return <div className="admin-content newsletter-admin">
@@ -197,12 +274,31 @@ function NewsletterPanel() {
         <label className="field-group"><span className="field-label">Email subject</span><input className="field-input" required minLength={3} maxLength={150} value={campaign.subject} onChange={(event) => updateCampaign('subject', event.target.value)} placeholder="Property perspectives from S.O. Iraoya" /></label>
         <label className="field-group"><span className="field-label">Inbox preview <span>(optional)</span></span><input className="field-input" maxLength={180} value={campaign.previewText} onChange={(event) => updateCampaign('previewText', event.target.value)} placeholder="A short line shown beside the subject" /></label>
         <label className="field-group"><span className="field-label">Newsletter content</span><textarea className="field-input" required minLength={3} maxLength={20000} rows="10" value={campaign.body} onChange={(event) => updateCampaign('body', event.target.value)} placeholder="Write the newsletter. Separate paragraphs with a blank line." /></label>
+        <div className="field-group newsletter-image-field">
+          <span className="field-label">Newsletter image <span>(optional · JPG, PNG or WebP, max 5 MB)</span></span>
+          <label className="newsletter-image-upload"><Upload size={17} />{isUploadingImage ? 'Uploading image…' : campaign.imageUrl ? 'Replace image' : 'Add image'}<input type="file" accept="image/jpeg,image/png,image/webp" disabled={isUploadingImage} onChange={uploadNewsletterImage} /></label>
+          {campaign.imageUrl && <div className="newsletter-image-selected"><img src={campaign.imageUrl} alt="Selected newsletter" /><button type="button" className="text-link danger" onClick={() => updateCampaign('imageUrl', '')}>Remove image</button></div>}
+        </div>
         <label className="field-group"><span className="field-label">Do not send before</span><input className="field-input" type="datetime-local" value={campaign.scheduledAt} onChange={(event) => updateCampaign('scheduledAt', event.target.value)} /></label>
         <div className="newsletter-composer-actions">
-          <button type="submit" className="button button-dark" disabled={isSaving}>{isSaving ? 'Saving…' : 'Save draft'}</button>
-          <button type="button" className="button button-dark" disabled={isSaving || !campaign.scheduledAt} onClick={() => void saveCampaign('schedule')}>{isSaving ? 'Saving…' : 'Schedule newsletter'}</button>
-          <button type="button" className="quiet-button" disabled={isSaving} onClick={() => void saveCampaign('send-now')}>Queue for next run <ArrowUpRight size={15} /></button>
+          <button type="submit" className="button button-dark" disabled={isSaving || isUploadingImage}>{isSaving ? 'Saving…' : 'Save draft'}</button>
+          <button type="button" className="button button-dark" disabled={isSaving || isUploadingImage || !campaign.scheduledAt} onClick={() => void saveCampaign('schedule')}>{isSaving ? 'Saving…' : 'Schedule newsletter'}</button>
+          <button type="button" className="quiet-button" disabled={isSaving || isUploadingImage} onClick={() => void saveCampaign('send-now')}>Queue for next run <ArrowUpRight size={15} /></button>
           {editingId && <button type="button" className="text-link" onClick={() => { setEditingId(null); setCampaign(blankCampaign()) }}>Discard edit</button>}
+        </div>
+        <div className="newsletter-preview-section">
+          <div className="newsletter-preview-heading"><span className="eyebrow">Live email preview</span><span className="newsletter-preview-label">Recipient view</span></div>
+          <div className="newsletter-email-preview">
+            <header>S.O. Iraoya Consulting</header>
+            <div className="newsletter-email-preview-content">
+              {campaign.imageUrl && <img className="newsletter-preview-image" src={campaign.imageUrl} alt="Newsletter preview" />}
+              <p className="newsletter-preview-subject">{campaign.subject || 'Your newsletter subject'}</p>
+              <p className="newsletter-preview-inbox">{campaign.previewText || 'Inbox preview text appears here.'}</p>
+              <h3>{campaign.subject || 'Newsletter headline'}</h3>
+              {(campaign.body || 'Your newsletter content will appear here. Separate paragraphs with a blank line.').split(/\n\s*\n/).map((paragraph, index) => <p className="newsletter-preview-paragraph" key={`${index}-${paragraph}`}>{paragraph}</p>)}
+            </div>
+            <footer>S.O. Iraoya Consulting · Lagos, Nigeria<br />Unsubscribe from this newsletter</footer>
+          </div>
         </div>
       </form>
       <p className="newsletter-composer-note">On the Vercel Hobby plan, delivery runs at 00:00 UTC daily. Campaigns are sent in batches of 50; each additional batch waits for the next daily run. Scheduled campaigns are sent on the first run after their selected time. Newsletter links include a working unsubscribe action.</p>
@@ -230,7 +326,9 @@ function readFileAsDataUrl(file) {
   })
 }
 
-function Overview({ setTab }) {
+function Overview({ setTab, requests, requestsLoading, markRequestContacted }) {
+  const { showToast } = useToast()
+  const [subscriberCount, setSubscriberCount] = useState(null)
   const now = new Date()
   const hour = now.getHours()
   const period = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening'
@@ -247,18 +345,104 @@ function Overview({ setTab }) {
     hour12: true,
   })
 
-  return <div className="admin-content"><div className="admin-heading"><div><p className="eyebrow">{formattedDate} • {formattedTime}</p><h1>{greeting}, Iraoya.</h1><p className="admin-subtitle">Here is what is happening across your advisory practice.</p></div><button className="button button-dark" onClick={() => setTab('Landing page')}><Plus size={17} /> New update</button></div><div className="stat-grid"><div><span>Open requests</span><b>03</b><small className="positive">+2 this week</small></div><div><span>Published stories</span><b>08</b><small>Across your landing page</small></div><div><span>Profile views</span><b>1,284</b><small className="positive">+18.4% this month</small></div></div><div className="dashboard-grid"><div className="panel"><div className="panel-head"><div><p className="eyebrow">Needs your attention</p><h2>Recent consult requests</h2></div><button className="quiet-button" onClick={() => setTab('Consult requests')}>View all <ArrowUpRight size={14} /></button></div><RequestList /></div><div className="panel activity-panel"><div className="panel-head"><div><p className="eyebrow">Live preview</p><h2>Landing page health</h2></div><span className="live-badge"><span></span> Live</span></div><div className="health-score"><div className="score-ring"><b>92</b><small>/100</small></div><div><b>Looking good</b><p>Your public site is current and performing well.</p></div></div><div className="health-row"><span><Check size={14} /> Hero content</span><span><Check size={14} /> Services</span><span><Check size={14} /> Contact flow</span></div></div></div></div>
-}
-function RequestList({ query = '' }) {
-  const filteredRequests = seedRequests.filter((request) => {
-    if (!query) return true
-    const searchValue = query.toLowerCase()
-    return [request.name, request.type, request.status, request.date].some((value) => String(value).toLowerCase().includes(searchValue))
-  })
+  useEffect(() => {
+    let active = true
+    const loadSubscriberCount = async () => {
+      const { count, error } = await supabase.from('newsletter_subscribers')
+        .select('id', { count: 'exact', head: true }).eq('status', 'active')
+      if (error) {
+        console.error('Could not load active newsletter subscriber count', error)
+        showToast(error.message || 'Could not load subscriber count.', 'error')
+      } else if (active) {
+        setSubscriberCount(count || 0)
+      }
+    }
+    void loadSubscriberCount()
+    return () => { active = false }
+  }, [showToast])
 
-  return <div className="request-list">{filteredRequests.map((request) => <div className="request-row" key={request.name}><span className="request-avatar">{request.initials}</span><div><b>{request.name}</b><small>{request.type}</small></div><span className={`status status-${request.status.toLowerCase().replace(' ', '-')}`}>{request.status}</span><small className="request-date">{request.date}</small><ChevronRight size={16} /></div>)}</div> }
-function Requests({ requestSearch }) {
-  return <div className="admin-content"><div className="admin-heading"><div><p className="eyebrow">Inbox</p><h1>Consult requests</h1><p className="admin-subtitle">A clear view of the people asking for your expertise.</p></div><button className="button button-dark"><Plus size={17} /> Add request</button></div><div className="filter-bar"><button className="filter-button">All requests <ChevronDown size={15} /></button><button className="filter-button">Newest first <ChevronDown size={15} /></button></div><div className="panel request-panel"><RequestList query={requestSearch} /></div></div> }
+  const newRequests = requests.filter((request) => request.status === 'new').length
+  return <div className="admin-content">
+    <div className="admin-heading"><div><p className="eyebrow">{formattedDate} · {formattedTime}</p><h1>{greeting}, Iraoya.</h1><p className="admin-subtitle">Live activity from consultation requests and newsletter subscribers.</p></div><button className="button button-dark" onClick={() => setTab('Consult requests')}><MessageSquareQuote size={17} /> View requests</button></div>
+    <div className="stat-grid">
+      <div><span>New requests</span><b>{requestsLoading ? '—' : newRequests}</b><small>Awaiting follow-up</small></div>
+      <div><span>All requests</span><b>{requestsLoading ? '—' : requests.length}</b><small>Most recent 200</small></div>
+      <div><span>Confirmed subscribers</span><b>{subscriberCount === null ? '—' : subscriberCount}</b><small>Newsletter opt-ins</small></div>
+    </div>
+    <div className="dashboard-grid dashboard-grid-live"><div className="panel"><div className="panel-head"><div><p className="eyebrow">Inbox</p><h2>Recent consult requests</h2></div><button className="quiet-button" onClick={() => setTab('Consult requests')}>View all <ArrowUpRight size={14} /></button></div><RequestList requests={requests} loading={requestsLoading} markRequestContacted={markRequestContacted} limit={5} /></div></div>
+  </div>
+}
+function defaultWhatsAppMessage(request) {
+  const name = request.name?.trim().split(/\s+/)[0] || 'there'
+  return `Hello ${name}, this is S.O. Iraoya Consulting. Thank you for your enquiry about ${request.request || 'our services'}${request.property_location ? ` for your property in ${request.property_location}` : ''}. We would be happy to discuss how we can help. Please let us know a convenient time to speak.`
+}
+
+function whatsAppUrl(phone, message) {
+  const digits = String(phone || '').replace(/\D/g, '')
+  const internationalNumber = digits.startsWith('0') ? `234${digits.slice(1)}` : digits
+  if (!internationalNumber) return ''
+  return `https://wa.me/${internationalNumber}?text=${encodeURIComponent(message)}`
+}
+
+function RequestList({ requests, loading, markRequestContacted, query = '', limit }) {
+  const [expandedId, setExpandedId] = useState(null)
+  const [messages, setMessages] = useState({})
+  const filteredRequests = requests.filter((request) => {
+    const searchValue = query.trim().toLowerCase()
+    return !searchValue || [
+      request.name, request.email, request.phone, request.organisation,
+      request.request, request.category, request.status, request.location,
+      request.property_location, request.property_type, request.message,
+    ].some((value) => String(value || '').toLowerCase().includes(searchValue))
+  }).slice(0, limit || requests.length)
+
+  if (loading) return <p className="empty-list-note">Loading saved consultation requests…</p>
+  if (filteredRequests.length === 0) return <p className="empty-list-note">{query ? 'No requests match this search.' : 'No consultation requests have been received yet.'}</p>
+
+  return <div className="request-list">{filteredRequests.map((request) => {
+    const expanded = expandedId === request.id
+    const message = messages[request.id] ?? defaultWhatsAppMessage(request)
+    const initials = String(request.name || '?').trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase()
+    const waHref = whatsAppUrl(request.phone, message)
+    return <article className={`request-record ${expanded ? 'is-expanded' : ''}`} key={request.id}>
+      <button type="button" className="request-row" aria-expanded={expanded} onClick={() => setExpandedId(expanded ? null : request.id)}>
+        <span className="request-avatar">{initials}</span>
+        <span className="request-row-summary"><b>{request.name}</b><small>{request.request || 'Consultation request'}</small></span>
+        <span className={`status ${request.status === 'contacted' ? '' : 'muted'}`}>{request.status === 'contacted' ? 'Contacted' : 'New'}</span>
+        <small className="request-date">{new Date(request.created_at).toLocaleDateString()}</small>
+        <ChevronDown size={16} />
+      </button>
+      {expanded && <div className="request-details">
+        <div className="request-details-grid">
+          <div><span>Email</span>{request.email ? <a href={`mailto:${request.email}`}>{request.email}</a> : <b>Not provided</b>}</div>
+          <div><span>Phone / WhatsApp</span>{request.phone ? <a href={`tel:${request.phone}`}>{request.phone}</a> : <b>Not provided</b>}</div>
+          <div><span>Organisation</span><b>{request.organisation || 'Not provided'}</b></div>
+          <div><span>Client category</span><b>{request.category || 'Not provided'}</b></div>
+          <div><span>Location</span><b>{request.location || 'Not provided'}</b></div>
+          <div><span>Property</span><b>{[request.property_type, request.property_location].filter(Boolean).join(' · ') || 'Not provided'}</b></div>
+          <div><span>Number of properties</span><b>{request.property_count || 'Not provided'}</b></div>
+          <div><span>Received</span><b>{new Date(request.created_at).toLocaleString()}</b></div>
+        </div>
+        <div className="request-client-message"><span>Client message</span><p>{request.message || 'No additional message provided.'}</p></div>
+        <label className="request-whatsapp-label">WhatsApp message (you can edit before sending)
+          <textarea rows="4" value={message} onChange={(event) => setMessages((current) => ({ ...current, [request.id]: event.target.value }))} />
+        </label>
+        <div className="request-contact-actions">
+          {waHref
+            ? <a className="button button-dark" href={waHref} target="_blank" rel="noreferrer">Contact via WhatsApp <ArrowUpRight size={15} /></a>
+            : <span className="request-missing-phone">Add a phone number before contacting via WhatsApp.</span>}
+          {request.status !== 'contacted' && <button type="button" className="quiet-button" onClick={() => markRequestContacted(request.id)}>Mark as contacted <Check size={15} /></button>}
+          {request.status === 'contacted' && <span className="request-contacted-date">Marked contacted {request.contacted_at ? new Date(request.contacted_at).toLocaleDateString() : ''}</span>}
+        </div>
+      </div>}
+    </article>
+  })}</div>
+}
+
+function Requests({ requests, requestsLoading, requestSearch, markRequestContacted, refreshRequests }) {
+  const newCount = requests.filter((request) => request.status === 'new').length
+  return <div className="admin-content"><div className="admin-heading"><div><p className="eyebrow">Inbox · {newCount} new</p><h1>Consult requests</h1><p className="admin-subtitle">Saved enquiries, client details and follow-up status.</p></div><button type="button" className="quiet-button" onClick={() => void refreshRequests()}>Refresh <ArrowUpRight size={15} /></button></div><div className="request-search-summary">{requestsLoading ? 'Loading requests…' : `${requests.length} saved requests · Newest first`}</div><div className="panel request-panel"><RequestList requests={requests} loading={requestsLoading} markRequestContacted={markRequestContacted} query={requestSearch} /></div></div>
+}
 function ConfirmDialog({ action, onCancel, onConfirm }) {
   const [showBackToTop, setShowBackToTop] = useState(false)
 

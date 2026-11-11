@@ -251,6 +251,132 @@
   line-height: 1.5;
 }
 
+.newsletter-image-upload {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid #d5dce0;
+  border-radius: 6px;
+  background: #fff;
+  color: #17364b;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.newsletter-image-upload input {
+  display: none;
+}
+
+.newsletter-image-selected {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.newsletter-image-selected img {
+  width: 110px;
+  height: 72px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.newsletter-preview-section {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+  padding-top: 20px;
+  border-top: 1px solid #e1e6e9;
+}
+
+.newsletter-preview-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.newsletter-preview-heading .eyebrow {
+  margin: 0;
+  color: #66717c;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.newsletter-preview-label {
+  color: #71808a;
+  font-size: 11px;
+}
+
+.newsletter-email-preview {
+  max-width: 640px;
+  margin: 0 auto;
+  overflow: hidden;
+  border: 1px solid #e1e6e9;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 8px 26px rgba(20, 42, 55, .08);
+}
+
+.newsletter-email-preview > header {
+  padding: 22px 28px;
+  background: #102b3f;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.newsletter-email-preview-content {
+  padding: 28px;
+}
+
+.newsletter-email-preview-content h3 {
+  margin: 20px 0 14px;
+  color: #18212b;
+  font-family: Georgia, serif;
+  font-size: 24px;
+}
+
+.newsletter-preview-subject {
+  margin: 0;
+  color: #273943;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.newsletter-preview-inbox {
+  margin: 6px 0 0;
+  color: #74808a;
+  font-size: 12px;
+}
+
+.newsletter-preview-paragraph {
+  margin: 0 0 14px;
+  color: #46545d;
+  font-size: 14px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.newsletter-preview-image {
+  display: block;
+  width: 100%;
+  max-height: 320px;
+  margin-bottom: 20px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.newsletter-email-preview > footer {
+  padding: 18px 28px;
+  background: #f8f8f6;
+  color: #74808a;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
 .newsletter-campaign-items {
   display: grid;
 }

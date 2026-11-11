@@ -7,6 +7,7 @@ import afmpLogo from '../assets/afmp.png'
 import PropertyGallery from '../components/PropertyGallery'
 import SiteHeader from '../components/SiteHeader'
 import TestimonialsSection from '../components/TestimonialsSection'
+import LegalFooterLinks from '../components/LegalFooterLinks'
 import { slug as serviceSlug } from './ServicePage'
 import { ArrowUp, ArrowUpRight, BarChart3, Building2, Check, ChevronDown, Facebook, Home, Instagram, Leaf, Linkedin, Mail, MapPin, Phone, Whatsapp, Youtube } from '../components/icons'
 import { openWhatsAppConversation, whatsappUrl } from '../lib/whatsapp'
@@ -129,6 +130,7 @@ export default function LandingPage({ content, goTo, showSplashOnEntry, onSplash
     propertyType: '',
     propertyCount: '',
     message: '',
+    website: '',
   })
   const serviceItems = content.services || []
 
@@ -150,7 +152,8 @@ export default function LandingPage({ content, goTo, showSplashOnEntry, onSplash
   }
 
   const updateForm = (field, value) => setForm((current) => ({ ...current, [field]: value }))
-  const submit = (event) => {
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const submit = async (event) => {
     event.preventDefault()
     setSubmitError('')
 
@@ -160,7 +163,21 @@ export default function LandingPage({ content, goTo, showSplashOnEntry, onSplash
     }
 
     openWhatsAppConversation()
-    setSent(true)
+    setIsSubmitting(true)
+    try {
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      })
+      const result = await response.json()
+      if (!response.ok || !result.ok) throw new Error(result.message || 'Email notification failed.')
+      setSent(true)
+    } catch (error) {
+      setSubmitError(error.message || 'WhatsApp is open, but the email notification could not be sent. Please contact us directly as well.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return <div className="site-shell consultancy-home">
@@ -359,10 +376,11 @@ export default function LandingPage({ content, goTo, showSplashOnEntry, onSplash
               <label>Property type<select value={form.propertyType} onChange={(event) => updateForm('propertyType', event.target.value)}><option value="">Select a property type</option>{['Residential', 'Commercial', 'Retail', 'Mixed-use', 'Development land', 'Other'].map((option) => <option key={option}>{option}</option>)}</select></label>
               <label>Number of properties<select value={form.propertyCount} onChange={(event) => updateForm('propertyCount', event.target.value)}><option value="">Select a range</option>{['One', 'Two to five', 'Six to ten', 'More than ten', 'Not yet determined'].map((option) => <option key={option}>{option}</option>)}</select></label>
               <label className="consultancy-form-message">Brief description<textarea rows="4" value={form.message} onChange={(event) => updateForm('message', event.target.value)} placeholder="Tell us a little about your property, portfolio or proposed investment." /></label>
+              <label className="newsletter-honeypot" aria-hidden="true">Website<input name="website" tabIndex="-1" autoComplete="off" value={form.website} onChange={(event) => updateForm('website', event.target.value)} /></label>
             </div>
             {submitError && <p className="consultancy-form-error" role="alert">{submitError}</p>}
             <p className="consultancy-privacy-note">Please do not include confidential or sensitive documents in this form. Your information will be used to respond to your enquiry.</p>
-            <button className="button button-light" type="submit">Request a consultation <ArrowUpRight size={18} /></button>
+            <button className="button button-light" type="submit" disabled={isSubmitting}>{isSubmitting ? 'Sending request…' : 'Request a consultation'} <ArrowUpRight size={18} /></button>
           </>}
           </form>}
         </div>
@@ -374,7 +392,8 @@ export default function LandingPage({ content, goTo, showSplashOnEntry, onSplash
         <div className="footer-brand"><Brand light goTo={goTo} /><p>Professional real estate management and informed investment advice for lasting asset performance.</p></div>
         <div className="footer-column"><p className="footer-label">Explore</p><a href="#approach">About us</a><a href="#services">Our services</a><a href="#who-we-serve">Who we serve</a><a href="/portfolio-management" onClick={(event) => { event.preventDefault(); goTo('/portfolio-management') }}>Portfolio management</a><a href="/properties" onClick={(event) => { event.preventDefault(); goTo('/properties') }}>Properties</a><a href="#faq">FAQ</a></div>
         <div className="footer-column"><p className="footer-label">Contact</p><a href={`mailto:${content.contact?.email || 'soiraoyaconsults@gmail.com'}`}>{content.contact?.email || 'soiraoyaconsults@gmail.com'}</a><a href={`tel:${content.contact?.phone || '+2349074091408'}`}>{content.contact?.phone || '0907 409 1408'}</a><span><OfficeLocations location={content.contact?.location} /></span></div>
-        <div className="footer-column footer-socials"><p className="footer-label">Follow our work</p><div className="social-links"><a href="https://www.facebook.com" target="_blank" rel="noreferrer" aria-label="Facebook"><Facebook size={17} /></a><a href="https://www.instagram.com" target="_blank" rel="noreferrer" aria-label="Instagram"><Instagram size={17} /></a><a href="https://www.linkedin.com/in/soiraoya-consulting-983372445/" target="_blank" rel="noreferrer" aria-label="LinkedIn"><Linkedin size={17} /></a><a href="https://www.youtube.com" target="_blank" rel="noreferrer" aria-label="YouTube"><Youtube size={17} /></a></div></div>
+        <div className="footer-column footer-socials"><p className="footer-label">Follow our work</p><div className="social-links"><a href="https://www.facebook.com" target="_blank" rel="noreferrer" aria-label="Facebook"><Facebook size={17} /></a><a href="https://www.instagram.com" target="_blank" rel="noreferrer" aria-label="Instagram"><Instagram size={17} /></a><a href="https://www.linkedin.com/in/soiraoya-consulting-983372445/" target="_blank" rel="noreferrer" aria-label="LinkedIn"><Linkedin size={17} /></a><a href="https://www.youtube.com" target="_blank" rel="noreferrer" aria-label="YouTube"><Youtube size={17} /></a></div><p className="footer-label newsletter-footer-heading">Stay informed</p><button className="newsletter-footer-link" type="button" onClick={() => window.dispatchEvent(new Event('soiraoya:open-newsletter'))}>Subscribe to our newsletter</button></div>
+        <LegalFooterLinks goTo={goTo} />
       </div>
       <div className="footer-bottom"><span>© S.O. Iraoya Consulting. All rights reserved.</span><span>Registered with CAC · Licensed by ESVARBON</span></div>
     </footer>

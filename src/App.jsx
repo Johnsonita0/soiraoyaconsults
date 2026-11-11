@@ -7,9 +7,12 @@ import PropertySearchPage from './pages/PropertySearchPage'
 import PortfolioManagementPage from './pages/PortfolioManagementPage'
 import AdminPage from './pages/AdminPage'
 import LoginPage from './pages/LoginPage'
+import NewsletterSignup from './components/NewsletterSignup'
+import PolicyPage from './pages/PolicyPage'
 import { normalizeOfficeLocation } from './components/OfficeLocations'
 import { seedContent } from './data/content'
 import { supabase } from './lib/supabase'
+import { updateSeoMetadata } from './lib/seo'
 import { ToastProvider } from './components/ToastProvider'
 import './css/App.css'
 import 'aos/dist/aos.css'
@@ -197,6 +200,10 @@ export default function App() {
   const servicePath = route.startsWith('/services/') ? route.slice('/services/'.length) : ''
   const service = content.services?.find((item) => serviceSlug(item.title) === servicePath)
   const routePath = route.split('?')[0]
+  useEffect(() => {
+    updateSeoMetadata({ routePath, content, service })
+  }, [routePath, content, service])
+
   const isPropertySearch = routePath === '/properties/search'
   const isPropertyListings = routePath === '/properties'
   const searchQuery = isPropertySearch ? new URLSearchParams(route.split('?')[1] || '') : null
@@ -207,9 +214,11 @@ export default function App() {
     ? canAccessDashboard ? <AdminPage content={content} setContent={updateContent} goTo={goTo} /> : <LoginPage goTo={goTo} />
     : routePath === '/portfolio-management' ? <PortfolioManagementPage content={content} goTo={goTo} />
     : routePath === '/diaspora-property-management' ? <DiasporaPage content={content} goTo={goTo} />
+    : routePath === '/privacy-policy' || routePath === '/data-usage' ? <PolicyPage routePath={routePath} goTo={goTo} />
     : service ? <ServicePage content={content} service={service} goTo={goTo} />
     : isPropertySearch || isPropertyListings ? <PropertySearchPage key={route} content={content} filters={searchFilters} goTo={goTo} />
     : <LandingPage content={content} goTo={goTo} showSplashOnEntry={showHomeSplash} onSplashShown={markHomeSplashShown} />
 
-  return <ToastProvider>{page}</ToastProvider>
+  const showNewsletterSignup = !['/login', '/dashboard', '/admin', '/privacy-policy', '/data-usage'].includes(routePath)
+  return <ToastProvider>{page}{showNewsletterSignup && <NewsletterSignup />}</ToastProvider>
 }

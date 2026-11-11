@@ -1,6 +1,7 @@
 import Brand from '../components/Brand'
 import OfficeLocations from '../components/OfficeLocations'
 import SiteHeader from '../components/SiteHeader'
+import LegalFooterLinks from '../components/LegalFooterLinks'
 import { ArrowUpRight, Check, Whatsapp } from '../components/icons'
 import { openWhatsAppConversation, whatsappUrl } from '../lib/whatsapp'
 
@@ -79,6 +80,7 @@ export default function DiasporaPage({ content, goTo }) {
         <div className="footer-brand"><Brand light goTo={goTo} /><p>Professional property oversight for owners and investors.</p></div>
         <div className="footer-column"><p className="footer-label">Explore</p><a href="/" onClick={(event) => { event.preventDefault(); goTo('/') }}>Home</a><a href="/#services" onClick={(event) => goToHomeSection(event, '#services')}>Services</a><a href="/#who-we-serve" onClick={(event) => goToHomeSection(event, '#who-we-serve')}>Who we serve</a></div>
         <div className="footer-column"><p className="footer-label">Contact</p><a href={`mailto:${content.contact?.email || 'soiraoyaconsults@gmail.com'}`}>{content.contact?.email || 'soiraoyaconsults@gmail.com'}</a><a href={`tel:${content.contact?.phone || '+2349074091408'}`}>{content.contact?.phone || '0907 409 1408'}</a><span><OfficeLocations location={content.contact?.location} /></span></div>
+        <LegalFooterLinks goTo={goTo} />
       </div>
       <div className="footer-bottom"><span>© S.O. Iraoya Consulting. All rights reserved.</span><span>Registered with CAC · Licensed by ESVARBON</span></div>
     </footer>

@@ -48,6 +48,56 @@ create table if not exists public.contact_messages (
   status text not null default 'new'
 );
 
+create table if not exists public.newsletter_subscribers (
+  id uuid primary key default uuid_generate_v4(),
+  email text not null unique,
+  status text not null default 'pending' check (status in ('pending', 'active', 'unsubscribed')),
+  confirmation_token uuid,
+  unsubscribe_token uuid not null default uuid_generate_v4() unique,
+  consented_at timestamptz not null default now(),
+  subscribed_at timestamptz,
+  unsubscribed_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
+alter table public.newsletter_subscribers
+  add column if not exists consented_at timestamptz not null default now();
+
+create table if not exists public.newsletter_campaigns (
+  id uuid primary key default uuid_generate_v4(),
+  subject text not null,
+  preview_text text not null default '',
+  body text not null,
+  status text not null default 'draft' check (status in ('draft', 'scheduled', 'sending', 'sent', 'cancelled')),
+  scheduled_at timestamptz,
+  sent_at timestamptz,
+  claimed_at timestamptz,
+  last_subscriber_id uuid,
+  sent_count integer not null default 0,
+  failed_count integer not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.newsletter_deliveries (
+  id uuid primary key default uuid_generate_v4(),
+  campaign_id uuid not null references public.newsletter_campaigns(id) on delete cascade,
+  subscriber_id uuid not null references public.newsletter_subscribers(id) on delete cascade,
+  status text not null check (status in ('sent', 'failed')),
+  sent_at timestamptz,
+  error_message text,
+  created_at timestamptz not null default now(),
+  unique (campaign_id, subscriber_id)
+);
+
+create index if not exists newsletter_campaigns_due_idx
+  on public.newsletter_campaigns (scheduled_at)
+  where status in ('scheduled', 'sending');
+
+alter table public.newsletter_subscribers enable row level security;
+alter table public.newsletter_campaigns enable row level security;
+alter table public.newsletter_deliveries enable row level security;
+
 create table if not exists public.files (
   id uuid primary key default uuid_generate_v4(),
   bucket_name text not null,
@@ -78,6 +128,38 @@ alter table public.contact_messages enable row level security;
 alter table public.files enable row level security;
 alter table public.testimonials enable row level security;
 
+create or replace function public.claim_newsletter_campaign()
+returns setof public.newsletter_campaigns
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  claimed_id uuid;
+begin
+  select id into claimed_id
+  from public.newsletter_campaigns
+  where (status = 'scheduled' and scheduled_at <= now())
+     or (status = 'sending' and (claimed_at is null or claimed_at < now() - interval '10 minutes'))
+  order by coalesce(scheduled_at, created_at), created_at
+  limit 1
+  for update skip locked;
+
+  if claimed_id is null then
+    return;
+  end if;
+
+  return query
+  update public.newsletter_campaigns
+  set status = 'sending', claimed_at = now()
+  where id = claimed_id
+  returning *;
+end;
+$$;
+
+revoke all on function public.claim_newsletter_campaign() from public, anon, authenticated;
+grant execute on function public.claim_newsletter_campaign() to service_role;
+
 create or replace function public.is_admin_user()
 returns boolean
 language sql
@@ -86,6 +168,21 @@ as $$
   select auth.uid() = '8b4f5926-c6ec-43a0-aa34-7277a2732577'::uuid
     and lower(auth.email()) = 'admin@soiraoyaconsulting.com.ng';
 $$;
+
+drop policy if exists "Admins can manage newsletter subscribers" on public.newsletter_subscribers;
+drop policy if exists "Admins can manage newsletter campaigns" on public.newsletter_campaigns;
+drop policy if exists "Admins can read newsletter deliveries" on public.newsletter_deliveries;
+
+create policy "Admins can manage newsletter subscribers" on public.newsletter_subscribers
+for all using (public.is_admin_user())
+with check (public.is_admin_user());
+
+create policy "Admins can manage newsletter campaigns" on public.newsletter_campaigns
+for all using (public.is_admin_user())
+with check (public.is_admin_user());
+
+create policy "Admins can read newsletter deliveries" on public.newsletter_deliveries
+for select using (public.is_admin_user());
 
 drop policy if exists "Admins can read site settings" on public.site_settings;
 drop policy if exists "Admins can insert site settings" on public.site_settings;
@@ -170,6 +267,7 @@ $$;
 drop trigger if exists set_site_settings_updated_at on public.site_settings;
 drop trigger if exists set_hero_slides_updated_at on public.hero_slides;
 drop trigger if exists set_gallery_items_updated_at on public.gallery_items;
+drop trigger if exists set_newsletter_campaigns_updated_at on public.newsletter_campaigns;
 
 create trigger set_site_settings_updated_at
 before update on public.site_settings
@@ -181,6 +279,10 @@ for each row execute procedure public.handle_updated_at();
 
 create trigger set_gallery_items_updated_at
 before update on public.gallery_items
+for each row execute procedure public.handle_updated_at();
+
+create trigger set_newsletter_campaigns_updated_at
+before update on public.newsletter_campaigns
 for each row execute procedure public.handle_updated_at();
 
 create or replace function public.seed_default_content()

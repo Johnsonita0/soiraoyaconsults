@@ -1,6 +1,7 @@
 import Brand from '../components/Brand'
 import OfficeLocations from '../components/OfficeLocations'
 import SiteHeader from '../components/SiteHeader'
+import LegalFooterLinks from '../components/LegalFooterLinks'
 import { ArrowUpRight, Check } from '../components/icons'
 import { openWhatsAppConversation } from '../lib/whatsapp'
 
@@ -137,6 +138,7 @@ export default function PortfolioManagementPage({ content, goTo }) {
         <div className="footer-brand"><Brand light goTo={goTo} /><p>Portfolio management and real-estate advisory for better-informed property decisions.</p></div>
         <div className="footer-column"><p className="footer-label">Explore</p><a href="/" onClick={(event) => goToHomeSection(event, '#approach')}>Home</a><a href="#portfolio-services" onClick={(event) => { event.preventDefault(); document.querySelector('#portfolio-services')?.scrollIntoView({ behavior: 'smooth' }) }}>Portfolio services</a></div>
         <div className="footer-column"><p className="footer-label">Contact</p><a href={`mailto:${content.contact?.email || 'soiraoyaconsults@gmail.com'}`}>{content.contact?.email || 'soiraoyaconsults@gmail.com'}</a><a href={`tel:${content.contact?.phone || '+2349074091408'}`}>{content.contact?.phone || '0907 409 1408'}</a><span><OfficeLocations location={content.contact?.location} /></span></div>
+        <LegalFooterLinks goTo={goTo} />
       </div>
       <div className="footer-bottom"><span>© S.O. Iraoya Consulting. All rights reserved.</span><span>Registered with CAC · Licensed by ESVARBON</span></div>
     </footer>

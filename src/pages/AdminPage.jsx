@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Brand from '../components/Brand'
-import { ArrowUp, ArrowUpRight, BarChart3, Building2, Check, ChevronDown, ChevronLeft, ChevronRight, ClipboardList, FileText, Home, Leaf, LogOut, MessageSquareQuote, Plus, Search, Sparkles, Upload, Users } from '../components/icons'
+import { ArrowUp, ArrowUpRight, BarChart3, Building2, Check, ChevronDown, ChevronLeft, ChevronRight, ClipboardList, FileText, Home, Leaf, LogOut, Mail, MessageSquareQuote, Plus, Search, Sparkles, Upload, Users } from '../components/icons'
 import { seedContent, seedRequests } from '../data/content'
 import { supabase } from '../lib/supabase'
 import SearchableSelect from '../components/SearchableSelect'
@@ -61,7 +61,7 @@ export default function AdminPage({ content, setContent, goTo }) {
     }
   }
 
-  const tabs = [['Overview', ClipboardList], ['Consult requests', MessageSquareQuote], ['Landing page', FileText], ['Testimonials', Users]]
+  const tabs = [['Overview', ClipboardList], ['Consult requests', MessageSquareQuote], ['Landing page', FileText], ['Testimonials', Users], ['Newsletter', Mail]]
   const handleSearchAction = () => {
     const nextState = !searchOpen
     setSearchOpen(nextState)
@@ -80,7 +80,143 @@ export default function AdminPage({ content, setContent, goTo }) {
     closeConfirm()
   }
 
-  return <div className="admin-shell"><aside className={`admin-sidebar ${sidebarExpanded ? 'expanded' : 'collapsed'}`}><button className="sidebar-toggle" type="button" onClick={() => setSidebarExpanded((current) => !current)} aria-label={sidebarExpanded ? 'Collapse sidebar' : 'Expand sidebar'}>{sidebarExpanded ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}</button><Brand admin goTo={goTo} /><div className="admin-nav">{tabs.map(([label, Icon]) => <button className={tab === label ? 'active' : ''} onClick={() => handleTabSelect(label)} key={label}><span className="nav-item-icon"><Icon size={17} />{label === 'Consult requests' && <b className="nav-count">3</b>}</span><span>{label}</span></button>)}</div><div className="sidebar-bottom"><button type="button" className="sidebar-logout" onClick={handleLogout} aria-label="Logout"><LogOut size={16} /><span>Logout</span></button><div className="profile"><span>OI</span><div><b>Iraoya</b><small>Principal partner</small></div><ChevronDown size={14} /></div></div></aside><main className="admin-main"><header className="admin-topbar"><div className="mobile-admin-brand"><Brand admin mobile goTo={goTo} /></div><div className="admin-breadcrumb">S.O.Iraoya / <b>{tab}</b></div><div className="admin-actions"><div className={`header-search-toggle ${searchOpen ? 'open' : ''}`}><button className="icon-button" aria-label="Toggle search" onClick={handleSearchAction}><Search size={18} /></button>{searchOpen && <input id="header-search-input" value={requestSearch} onChange={(event) => setRequestSearch(event.target.value)} placeholder="Search requests" aria-label="Search requests" />}</div><span className="notification-dot"></span><div className="mobile-profile-menu-wrap"><button type="button" className="avatar mobile-user-trigger" aria-label="User menu" onClick={() => setMobileProfileMenuOpen((current) => !current)}><span>OI</span><ChevronDown size={11} /></button>{mobileProfileMenuOpen && <div className="profile-dropdown mobile-dropdown"><div className="mobile-profile-summary"><span className="profile-badge">OI</span><div><b>Iraoya</b><small>Principal partner</small></div></div><button type="button" onClick={handleLogout}>Logout</button></div>}</div></div></header>{tab === 'Overview' && <Overview setTab={setTab} />}{tab === 'Consult requests' && <Requests requestSearch={requestSearch} setRequestSearch={setRequestSearch} />}{tab === 'Landing page' && <LandingEditor draft={draft} setDraft={setDraft} save={save} persistDraft={persistDraft} openConfirm={openConfirm} />}{tab === 'Testimonials' && <Testimonials draft={draft} persistDraft={persistDraft} openConfirm={openConfirm} />}</main><nav className="mobile-admin-tabs" aria-label="Admin navigation">{tabs.map(([label, Icon]) => <button className={tab === label ? 'active' : ''} onClick={() => handleTabSelect(label)} key={label}><Icon size={16} /><span>{label}</span></button>)}</nav><ConfirmDialog action={confirmAction} onCancel={closeConfirm} onConfirm={completeConfirm} /></div>
+  return <div className="admin-shell"><aside className={`admin-sidebar ${sidebarExpanded ? 'expanded' : 'collapsed'}`}><button className="sidebar-toggle" type="button" onClick={() => setSidebarExpanded((current) => !current)} aria-label={sidebarExpanded ? 'Collapse sidebar' : 'Expand sidebar'}>{sidebarExpanded ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}</button><Brand admin goTo={goTo} /><div className="admin-nav">{tabs.map(([label, Icon]) => <button className={tab === label ? 'active' : ''} onClick={() => handleTabSelect(label)} key={label}><span className="nav-item-icon"><Icon size={17} />{label === 'Consult requests' && <b className="nav-count">3</b>}</span><span>{label}</span></button>)}</div><div className="sidebar-bottom"><button type="button" className="sidebar-logout" onClick={handleLogout} aria-label="Logout"><LogOut size={16} /><span>Logout</span></button><div className="profile"><span>OI</span><div><b>Iraoya</b><small>Principal partner</small></div><ChevronDown size={14} /></div></div></aside><main className="admin-main"><header className="admin-topbar"><div className="mobile-admin-brand"><Brand admin mobile goTo={goTo} /></div><div className="admin-breadcrumb">S.O.Iraoya / <b>{tab}</b></div><div className="admin-actions"><div className={`header-search-toggle ${searchOpen ? 'open' : ''}`}><button className="icon-button" aria-label="Toggle search" onClick={handleSearchAction}><Search size={18} /></button>{searchOpen && <input id="header-search-input" value={requestSearch} onChange={(event) => setRequestSearch(event.target.value)} placeholder="Search requests" aria-label="Search requests" />}</div><span className="notification-dot"></span><div className="mobile-profile-menu-wrap"><button type="button" className="avatar mobile-user-trigger" aria-label="User menu" onClick={() => setMobileProfileMenuOpen((current) => !current)}><span>OI</span><ChevronDown size={11} /></button>{mobileProfileMenuOpen && <div className="profile-dropdown mobile-dropdown"><div className="mobile-profile-summary"><span className="profile-badge">OI</span><div><b>Iraoya</b><small>Principal partner</small></div></div><button type="button" onClick={handleLogout}>Logout</button></div>}</div></div></header>{tab === 'Overview' && <Overview setTab={setTab} />}{tab === 'Consult requests' && <Requests requestSearch={requestSearch} setRequestSearch={setRequestSearch} />}{tab === 'Landing page' && <LandingEditor draft={draft} setDraft={setDraft} save={save} persistDraft={persistDraft} openConfirm={openConfirm} />}{tab === 'Testimonials' && <Testimonials draft={draft} persistDraft={persistDraft} openConfirm={openConfirm} />}{tab === 'Newsletter' && <NewsletterPanel />}</main><nav className="mobile-admin-tabs" aria-label="Admin navigation">{tabs.map(([label, Icon]) => <button className={tab === label ? 'active' : ''} onClick={() => handleTabSelect(label)} key={label}><Icon size={16} /><span>{label}</span></button>)}</nav><ConfirmDialog action={confirmAction} onCancel={closeConfirm} onConfirm={completeConfirm} /></div>
+}
+
+const blankCampaign = () => ({ subject: '', previewText: '', body: '', scheduledAt: '' })
+const localDateTimeValue = (value) => {
+  if (!value) return ''
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+  const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+  return localDate.toISOString().slice(0, 16)
+}
+
+function NewsletterPanel() {
+  const { showToast } = useToast()
+  const [campaigns, setCampaigns] = useState([])
+  const [subscriberCount, setSubscriberCount] = useState(0)
+  const [campaign, setCampaign] = useState(blankCampaign)
+  const [editingId, setEditingId] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSaving, setIsSaving] = useState(false)
+
+  const loadCampaigns = useCallback(async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) throw new Error('Your admin session has expired. Please sign in again.')
+      const response = await fetch('/api/newsletter/campaigns', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      const result = await response.json()
+      if (!response.ok || !result.ok) throw new Error(result.message || 'Could not load newsletter campaigns.')
+      setCampaigns(result.campaigns)
+      setSubscriberCount(result.subscriberCount)
+    } catch (error) {
+      console.error('Could not load newsletter campaigns', error)
+      showToast(error.message || 'Could not load newsletter campaigns.', 'error')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [showToast])
+
+  useEffect(() => { void loadCampaigns() }, [loadCampaigns])
+
+  const updateCampaign = (field, value) => setCampaign((current) => ({ ...current, [field]: value }))
+  const saveCampaign = async (action) => {
+    setIsSaving(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) throw new Error('Your admin session has expired. Please sign in again.')
+      const response = await fetch('/api/newsletter/campaigns', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action,
+          campaignId: editingId,
+          subject: campaign.subject,
+          previewText: campaign.previewText,
+          body: campaign.body,
+          scheduledAt: campaign.scheduledAt ? new Date(campaign.scheduledAt).toISOString() : '',
+        }),
+      })
+      const result = await response.json()
+      if (!response.ok || !result.ok) throw new Error(result.message || 'Could not save this campaign.')
+      showToast(action === 'save' ? 'Newsletter draft saved.' : action === 'send-now' ? 'Newsletter queued for delivery.' : 'Newsletter scheduled.', 'success')
+      setCampaign(blankCampaign())
+      setEditingId(null)
+      await loadCampaigns()
+    } catch (error) {
+      console.error('Could not save newsletter campaign', error)
+      showToast(error.message || 'Could not save this campaign.', 'error')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const cancelCampaign = async (campaignId) => {
+    if (!window.confirm('Cancel this newsletter campaign?')) return
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) throw new Error('Your admin session has expired. Please sign in again.')
+      const response = await fetch('/api/newsletter/campaigns', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'cancel', campaignId }),
+      })
+      const result = await response.json()
+      if (!response.ok || !result.ok) throw new Error(result.message || 'Could not cancel this campaign.')
+      showToast('Newsletter campaign cancelled.', 'success')
+      await loadCampaigns()
+    } catch (error) {
+      console.error('Could not cancel newsletter campaign', error)
+      showToast(error.message || 'Could not cancel this campaign.', 'error')
+    }
+  }
+
+  const editCampaign = (item) => {
+    setEditingId(item.id)
+    setCampaign({
+      subject: item.subject,
+      previewText: item.preview_text || '',
+      body: item.body,
+      scheduledAt: localDateTimeValue(item.scheduled_at),
+    })
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  return <div className="admin-content newsletter-admin">
+    <div className="admin-heading"><div><p className="eyebrow">Email marketing</p><h1>Newsletter</h1><p className="admin-subtitle">Write, schedule and manage updates for your opted-in audience.</p></div></div>
+    <div className="newsletter-admin-stats">
+      <div className="panel"><span>Confirmed subscribers</span><strong>{subscriberCount}</strong><small>Only confirmed addresses receive campaigns.</small></div>
+      <div className="panel"><span>Scheduled campaigns</span><strong>{campaigns.filter((item) => item.status === 'scheduled' || item.status === 'sending').length}</strong><small>Sent in batches by the scheduled delivery service.</small></div>
+    </div>
+    <section className="panel newsletter-composer">
+      <div className="panel-head"><div><p className="eyebrow">{editingId ? 'Edit campaign' : 'Create campaign'}</p><h2>{editingId ? 'Update newsletter' : 'Compose a newsletter'}</h2></div></div>
+      <form className="newsletter-composer-form" onSubmit={(event) => { event.preventDefault(); void saveCampaign('save') }}>
+        <label className="field-group"><span className="field-label">Email subject</span><input className="field-input" required minLength={3} maxLength={150} value={campaign.subject} onChange={(event) => updateCampaign('subject', event.target.value)} placeholder="Property perspectives from S.O. Iraoya" /></label>
+        <label className="field-group"><span className="field-label">Inbox preview <span>(optional)</span></span><input className="field-input" maxLength={180} value={campaign.previewText} onChange={(event) => updateCampaign('previewText', event.target.value)} placeholder="A short line shown beside the subject" /></label>
+        <label className="field-group"><span className="field-label">Newsletter content</span><textarea className="field-input" required minLength={3} maxLength={20000} rows="10" value={campaign.body} onChange={(event) => updateCampaign('body', event.target.value)} placeholder="Write the newsletter. Separate paragraphs with a blank line." /></label>
+        <label className="field-group"><span className="field-label">Schedule for</span><input className="field-input" type="datetime-local" value={campaign.scheduledAt} onChange={(event) => updateCampaign('scheduledAt', event.target.value)} /></label>
+        <div className="newsletter-composer-actions">
+          <button type="submit" className="button button-dark" disabled={isSaving}>{isSaving ? 'Saving…' : 'Save draft'}</button>
+          <button type="button" className="button button-dark" disabled={isSaving || !campaign.scheduledAt} onClick={() => void saveCampaign('schedule')}>{isSaving ? 'Saving…' : 'Schedule newsletter'}</button>
+          <button type="button" className="quiet-button" disabled={isSaving} onClick={() => void saveCampaign('send-now')}>Send now <ArrowUpRight size={15} /></button>
+          {editingId && <button type="button" className="text-link" onClick={() => { setEditingId(null); setCampaign(blankCampaign()) }}>Discard edit</button>}
+        </div>
+      </form>
+      <p className="newsletter-composer-note">Scheduled delivery checks every five minutes. Newsletter links include a working unsubscribe action.</p>
+    </section>
+    <section className="panel newsletter-campaign-list">
+      <div className="panel-head"><div><p className="eyebrow">Campaign history</p><h2>Recent newsletters</h2></div><button type="button" className="quiet-button" onClick={() => void loadCampaigns()}>Refresh</button></div>
+      {isLoading ? <p className="empty-list-note">Loading newsletter campaigns…</p> : campaigns.length === 0 ? <p className="empty-list-note">No campaigns yet. Save a draft or schedule your first newsletter.</p> : <div className="newsletter-campaign-items">
+        {campaigns.map((item) => <article className="newsletter-campaign-item" key={item.id}>
+          <div className="newsletter-campaign-info"><strong>{item.subject}</strong><span className={`status ${item.status === 'sent' ? '' : 'muted'}`}>{item.status}</span><small>{item.status === 'sent' ? `Sent ${item.sent_count} · Failed ${item.failed_count}` : item.status === 'scheduled' || item.status === 'sending' ? `${item.status === 'sending' ? 'Sending' : 'Scheduled'} · ${item.scheduled_at ? new Date(item.scheduled_at).toLocaleString() : ''}` : `Created ${new Date(item.created_at).toLocaleDateString()}`}</small></div>
+          <div className="newsletter-campaign-actions">{['draft', 'scheduled'].includes(item.status) && <><button type="button" className="text-link" onClick={() => editCampaign(item)}>Edit</button><button type="button" className="text-link danger" onClick={() => void cancelCampaign(item.id)}>Cancel</button></>}</div>
+        </article>)}
+      </div>}
+    </section>
+  </div>
 }
 
 const emptyGalleryItem = () => ({ title: '', location: '', type: 'Residential', listingType: 'For Sale', price: '', description: '', image: '' })

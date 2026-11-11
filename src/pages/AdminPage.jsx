@@ -161,6 +161,7 @@ export default function AdminPage({ content, setContent, goTo }) {
   const handleTabSelect = (label) => {
     setTab(label)
     setSidebarExpanded(false)
+    window.scrollTo({ top: 0, behavior: 'instant' })
   }
 
   const handleLogout = async () => {

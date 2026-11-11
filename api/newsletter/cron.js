@@ -1,5 +1,5 @@
 import { getServiceClient } from '../_lib/admin.js'
-import { escapeHtml, siteUrl } from '../_lib/email.js'
+import { emailLayout, escapeHtml, resendFromEmail, siteUrl } from '../_lib/email.js'
 
 const batchSize = 50
 
@@ -8,7 +8,8 @@ function campaignHtml(campaign, unsubscribeUrl) {
   const image = campaign.image_url
     ? `<img src="${escapeHtml(campaign.image_url)}" alt="" width="528" style="display:block;width:100%;height:auto;margin:0 0 24px;border-radius:8px">`
     : ''
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>${escapeHtml(campaign.subject)}</title></head><body style="margin:0;background:#f4f5f7;font-family:Arial,sans-serif;color:#18212b"><span style="display:none;max-height:0;overflow:hidden">${escapeHtml(campaign.preview_text || campaign.subject)}</span><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="padding:32px 12px;background:#f4f5f7"><tr><td align="center"><table role="presentation" width="600" cellspacing="0" cellpadding="0" style="max-width:600px;background:#fff;border-radius:12px;overflow:hidden"><tr><td style="padding:28px 36px;background:#102b3f;color:#fff;font-size:18px;font-weight:bold">S.O. Iraoya Consulting</td></tr><tr><td style="padding:36px">${image}<h1 style="font-size:24px;line-height:1.3">${escapeHtml(campaign.subject)}</h1>${paragraphs}</td></tr><tr><td style="padding:20px 36px;background:#f8f8f6;color:#66717c;font-size:12px;line-height:1.6">S.O. Iraoya Consulting · Lagos, Nigeria<br><a href="${escapeHtml(unsubscribeUrl)}" style="color:#102b3f">Unsubscribe from this newsletter</a></td></tr></table></td></tr></table></body></html>`
+  const unsubscribe = `<a href="${escapeHtml(unsubscribeUrl)}" style="color:#102b3f">Unsubscribe from this newsletter</a>`
+  return emailLayout(campaign.subject, `${image}${paragraphs}`, campaign.preview_text || campaign.subject, unsubscribe)
 }
 
 export default async function handler(request, response) {
@@ -51,7 +52,7 @@ export default async function handler(request, response) {
     const messages = batch.map((subscriber) => {
       const unsubscribeUrl = `${unsubscribeBase}?token=${encodeURIComponent(subscriber.unsubscribe_token)}`
       return {
-        from: process.env.RESEND_FROM_EMAIL,
+        from: resendFromEmail(),
         to: [subscriber.email],
         subject: campaign.subject,
         html: campaignHtml(campaign, unsubscribeUrl),
@@ -64,7 +65,7 @@ export default async function handler(request, response) {
     })
 
     const apiKey = process.env.RESEND_API_KEY
-    if (!apiKey || !process.env.RESEND_FROM_EMAIL) throw new Error('Missing Resend configuration.')
+    if (!apiKey) throw new Error('Missing Resend configuration. Set RESEND_API_KEY.')
     const emailResponse = await fetch('https://api.resend.com/emails/batch', {
       method: 'POST',
       headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },

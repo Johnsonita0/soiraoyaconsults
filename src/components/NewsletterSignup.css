@@ -320,12 +320,37 @@
   box-shadow: 0 8px 26px rgba(20, 42, 55, .08);
 }
 
+.newsletter-preview-envelope {
+  display: grid;
+  gap: 5px;
+  padding: 14px 20px;
+  border-bottom: 1px solid #e8ecef;
+  background: #fafbfc;
+  color: #66717c;
+  font-size: 11px;
+}
+
+.newsletter-preview-envelope p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.newsletter-preview-envelope strong {
+  color: #35434d;
+}
+
 .newsletter-email-preview > header {
-  padding: 22px 28px;
-  background: #102b3f;
-  color: #fff;
-  font-size: 16px;
-  font-weight: 700;
+  display: flex;
+  justify-content: center;
+  padding: 22px 24px;
+  border-top: 4px solid #d8ae4a;
+  background: #fff;
+}
+
+.newsletter-email-preview > header img {
+  display: block;
+  width: min(260px, 100%);
+  height: auto;
 }
 
 .newsletter-email-preview-content {
@@ -333,10 +358,12 @@
 }
 
 .newsletter-email-preview-content h3 {
-  margin: 20px 0 14px;
-  color: #18212b;
+  margin: 0 0 18px;
+  color: #102b3f;
   font-family: Georgia, serif;
   font-size: 24px;
+  line-height: 1.35;
+  text-align: center;
 }
 
 .newsletter-preview-subject {
@@ -375,6 +402,36 @@
   color: #74808a;
   font-size: 11px;
   line-height: 1.6;
+  text-align: center;
+}
+
+.newsletter-email-preview > footer a {
+  color: #102b3f;
+}
+
+.newsletter-email-preview-socials {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.newsletter-email-preview-socials a {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #102b3f;
+  color: #fff !important;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.newsletter-preview-unsubscribe {
+  color: #102b3f;
+  text-decoration: underline;
 }
 
 .newsletter-campaign-items {

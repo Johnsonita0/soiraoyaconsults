@@ -18,7 +18,7 @@ The canonical domain is configured as `https://soiraoyaconsulting.org` in `index
 
 Configure these server-side environment variables in Vercel (never expose the service-role key or Resend key as `VITE_` variables):
 
-- `RESEND_API_KEY` and `RESEND_FROM_EMAIL` for verified Resend sending.
+- `RESEND_API_KEY` for Resend sending. The verified `soiraoyaconsulting.org` domain uses `S.O. Iraoya Consulting <notifications@soiraoyaconsulting.org>` as the default `RESEND_FROM_EMAIL`; set that exact value in Vercel if you want to configure it explicitly.
 - `RESEND_TO_EMAIL` for website enquiry notifications (defaults to `soiraoyaconsults@gmail.com`).
 - `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` for the existing browser client, plus `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` for protected API operations. The service-role key must remain server-only.
 - `CRON_SECRET` for scheduled campaign delivery and `SITE_URL` for confirmation and unsubscribe links.

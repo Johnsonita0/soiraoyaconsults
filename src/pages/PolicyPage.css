@@ -209,25 +209,129 @@
 }
 
 @media (max-width: 600px) {
+  .policy-page {
+    width: 100%;
+    min-width: 0;
+    overflow-x: clip;
+  }
+
   .policy-header {
+    box-sizing: border-box;
+    width: 100%;
     min-height: 68px;
     padding-inline: 16px;
+    gap: 12px;
+  }
+
+  .policy-header .brand {
+    min-width: 0;
+  }
+
+  .policy-header .brand-image-nav {
+    width: min(155px, 42vw);
+  }
+
+  .policy-home-link {
+    flex-shrink: 0;
+    padding: 9px 11px;
+    font-size: 12px;
   }
 
   .policy-main {
     width: min(100% - 32px, 850px);
+    min-width: 0;
     padding: 42px 0 56px;
   }
 
+  .policy-heading h1,
+  .policy-content section h2 {
+    overflow-wrap: anywhere;
+  }
+
+  .policy-heading > p:not(.eyebrow),
+  .policy-content section p,
+  .policy-contact-note {
+    overflow-wrap: anywhere;
+  }
+
+  .policy-table-wrap {
+    overflow: visible;
+    border-radius: 8px;
+  }
+
+  .policy-table-wrap table,
+  .policy-table-wrap tbody {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .policy-table-wrap thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .policy-table-wrap tbody tr {
+    display: grid;
+    width: 100%;
+    padding: 14px;
+    border-bottom: 1px solid #e7ecee;
+  }
+
+  .policy-table-wrap tbody tr:last-child {
+    border-bottom: 0;
+  }
+
+  .policy-table-wrap tbody th,
+  .policy-table-wrap td {
+    display: block;
+    min-width: 0;
+    padding: 8px 0;
+    border: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .policy-table-wrap tbody th {
+    padding-top: 0;
+    font-size: 13px;
+  }
+
+  .policy-table-wrap td::before {
+    display: block;
+    margin-bottom: 3px;
+    color: #17364b;
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  .policy-table-wrap td[data-label]::before {
+    content: attr(data-label);
+  }
+
   .policy-footer {
+    box-sizing: border-box;
+    width: 100%;
     align-items: flex-start;
     flex-direction: column;
     padding: 22px 16px;
   }
 
   .policy-footer .footer-column {
+    min-width: 0;
     align-items: flex-start;
     flex-direction: column;
     gap: 10px;
+  }
+
+  .policy-footer .footer-column a {
+    max-width: 100%;
+    overflow-wrap: anywhere;
   }
 }

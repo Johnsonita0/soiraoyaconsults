@@ -138,7 +138,7 @@ export default function PolicyPage({ routePath, goTo }) {
         {sections.map((section) => <section key={section.title}>
           <h2>{section.title}</h2>
           {section.paragraphs?.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
-          {section.rows && <div className="policy-table-wrap"><table><thead><tr><th>Information</th><th>What it may include</th><th>How it is used</th></tr></thead><tbody>{section.rows.map(([label, information, purpose]) => <tr key={label}><th scope="row">{label}</th><td>{information}</td><td>{purpose}</td></tr>)}</tbody></table></div>}
+          {section.rows && <div className="policy-table-wrap"><table><thead><tr><th>Information</th><th>What it may include</th><th>How it is used</th></tr></thead><tbody>{section.rows.map(([label, information, purpose]) => <tr key={label}><th scope="row">{label}</th><td data-label="What it may include">{information}</td><td data-label="How it is used">{purpose}</td></tr>)}</tbody></table></div>}
         </section>)}
       </article>
       <p className="policy-contact-note">Questions or requests? <a href="mailto:soiraoyaconsults@gmail.com">soiraoyaconsults@gmail.com</a></p>

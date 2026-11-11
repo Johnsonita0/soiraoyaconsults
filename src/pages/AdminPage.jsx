@@ -142,7 +142,7 @@ function NewsletterPanel() {
       })
       const result = await response.json()
       if (!response.ok || !result.ok) throw new Error(result.message || 'Could not save this campaign.')
-      showToast(action === 'save' ? 'Newsletter draft saved.' : action === 'send-now' ? 'Newsletter queued for delivery.' : 'Newsletter scheduled.', 'success')
+      showToast(action === 'save' ? 'Newsletter draft saved.' : action === 'send-now' ? 'Newsletter queued for the next daily delivery run.' : 'Newsletter scheduled.', 'success')
       setCampaign(blankCampaign())
       setEditingId(null)
       await loadCampaigns()
@@ -197,15 +197,15 @@ function NewsletterPanel() {
         <label className="field-group"><span className="field-label">Email subject</span><input className="field-input" required minLength={3} maxLength={150} value={campaign.subject} onChange={(event) => updateCampaign('subject', event.target.value)} placeholder="Property perspectives from S.O. Iraoya" /></label>
         <label className="field-group"><span className="field-label">Inbox preview <span>(optional)</span></span><input className="field-input" maxLength={180} value={campaign.previewText} onChange={(event) => updateCampaign('previewText', event.target.value)} placeholder="A short line shown beside the subject" /></label>
         <label className="field-group"><span className="field-label">Newsletter content</span><textarea className="field-input" required minLength={3} maxLength={20000} rows="10" value={campaign.body} onChange={(event) => updateCampaign('body', event.target.value)} placeholder="Write the newsletter. Separate paragraphs with a blank line." /></label>
-        <label className="field-group"><span className="field-label">Schedule for</span><input className="field-input" type="datetime-local" value={campaign.scheduledAt} onChange={(event) => updateCampaign('scheduledAt', event.target.value)} /></label>
+        <label className="field-group"><span className="field-label">Do not send before</span><input className="field-input" type="datetime-local" value={campaign.scheduledAt} onChange={(event) => updateCampaign('scheduledAt', event.target.value)} /></label>
         <div className="newsletter-composer-actions">
           <button type="submit" className="button button-dark" disabled={isSaving}>{isSaving ? 'Saving…' : 'Save draft'}</button>
           <button type="button" className="button button-dark" disabled={isSaving || !campaign.scheduledAt} onClick={() => void saveCampaign('schedule')}>{isSaving ? 'Saving…' : 'Schedule newsletter'}</button>
-          <button type="button" className="quiet-button" disabled={isSaving} onClick={() => void saveCampaign('send-now')}>Send now <ArrowUpRight size={15} /></button>
+          <button type="button" className="quiet-button" disabled={isSaving} onClick={() => void saveCampaign('send-now')}>Queue for next run <ArrowUpRight size={15} /></button>
           {editingId && <button type="button" className="text-link" onClick={() => { setEditingId(null); setCampaign(blankCampaign()) }}>Discard edit</button>}
         </div>
       </form>
-      <p className="newsletter-composer-note">Scheduled delivery checks every five minutes. Newsletter links include a working unsubscribe action.</p>
+      <p className="newsletter-composer-note">On the Vercel Hobby plan, delivery runs at 00:00 UTC daily. Campaigns are sent in batches of 50; each additional batch waits for the next daily run. Scheduled campaigns are sent on the first run after their selected time. Newsletter links include a working unsubscribe action.</p>
     </section>
     <section className="panel newsletter-campaign-list">
       <div className="panel-head"><div><p className="eyebrow">Campaign history</p><h2>Recent newsletters</h2></div><button type="button" className="quiet-button" onClick={() => void loadCampaigns()}>Refresh</button></div>

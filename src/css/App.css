@@ -679,20 +679,24 @@
   }
   .mobile-admin-tabs button {
     position:relative;
-    display:block;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
     box-sizing:border-box;
     min-width:0;
-    min-height:0;
+    min-height:58px;
     height:58px;
     margin:0;
     align-self:stretch;
-    overflow:hidden;
+    overflow:visible;
     border:0;
     background:transparent;
     color:#d9ded8;
     font-size:clamp(7px, 2.2vw, 9px);
     line-height:1.1;
-    padding:0;
+    padding:4px 0;
     font-weight:500;
     vertical-align:middle;
     transform:none;
@@ -702,34 +706,30 @@
   }
   .mobile-admin-tabs button svg,
   .mobile-admin-tabs button i {
-    position:absolute;
-    top:11px;
-    left:50%;
+    position:static;
     display:block;
+    flex:0 0 16px;
     line-height:16px;
     width:16px;
     height:16px;
     color:inherit;
-    transform:translateX(-50%);
+    transform:none;
   }
   .mobile-admin-tabs button > .mobile-admin-tab-label,
   .mobile-admin-tabs button.active > .mobile-admin-tab-label {
-    position:absolute;
-    z-index:2;
-    right:2px;
-    bottom:8px;
-    left:2px;
+    position:static;
     display:block !important;
-    width:auto;
+    width:100%;
     min-width:0;
     margin:0;
-    height:10px;
+    height:auto;
+    flex:0 0 auto;
     line-height:10px;
     font-size:clamp(7px, 2.2vw, 9px) !important;
     text-align:center;
     max-width:100%;
     white-space:nowrap;
-    overflow:hidden;
+    overflow:visible;
     text-overflow:ellipsis;
     color:inherit !important;
     font-weight:500 !important;

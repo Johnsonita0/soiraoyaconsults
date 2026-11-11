@@ -161,7 +161,7 @@ export default function AdminPage({ content, setContent, goTo }) {
   const handleTabSelect = (label) => {
     setTab(label)
     setSidebarExpanded(false)
-    window.scrollTo({ top: 0, behavior: 'instant' })
+    window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'instant' }))
   }
 
   const handleLogout = async () => {
@@ -456,7 +456,6 @@ function NewsletterPanel() {
           </div>
         </div>
       </form>
-      <p className="newsletter-composer-note">On the Vercel Hobby plan, delivery runs at 00:00 UTC daily. Campaigns are sent in batches of 50; each additional batch waits for the next daily run. Scheduled campaigns are sent on the first run after their selected time. Newsletter links include a working unsubscribe action.</p>
     </section>
     <section className="panel newsletter-campaign-list">
       <div className="panel-head"><div><p className="eyebrow">Campaign history</p><h2>Recent newsletters</h2></div><button type="button" className="quiet-button" onClick={() => void loadCampaigns()}>Refresh</button></div>

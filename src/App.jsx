@@ -142,7 +142,11 @@ export default function App() {
     let focusedControl = null
     const isFormControl = (control) => control instanceof HTMLElement && control.matches('input, textarea, button.searchable-select-trigger')
     const centerFocusedControl = () => {
-      if (!focusedControl || !window.matchMedia('(max-width: 900px)').matches) return
+      if (!focusedControl || !focusedControl.isConnected || document.activeElement !== focusedControl) {
+        focusedControl = null
+        return
+      }
+      if (!window.matchMedia('(max-width: 900px)').matches) return
       focusedControl.scrollIntoView({ block: 'center', behavior: 'smooth' })
     }
     const bringFocusedControlIntoView = (event) => {
@@ -152,11 +156,16 @@ export default function App() {
       focusedControl = control
       window.setTimeout(centerFocusedControl, 250)
     }
+    const clearBlurredControl = (event) => {
+      if (event.target === focusedControl) focusedControl = null
+    }
 
     document.addEventListener('focusin', bringFocusedControlIntoView)
+    document.addEventListener('focusout', clearBlurredControl)
     window.visualViewport?.addEventListener('resize', centerFocusedControl)
     return () => {
       document.removeEventListener('focusin', bringFocusedControlIntoView)
+      document.removeEventListener('focusout', clearBlurredControl)
       window.visualViewport?.removeEventListener('resize', centerFocusedControl)
     }
   }, [])

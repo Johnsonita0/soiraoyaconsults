@@ -244,7 +244,7 @@ export default function AdminPage({ content, setContent, goTo }) {
     </main>
     <nav className="mobile-admin-tabs" aria-label="Admin navigation">{tabs.map(([label, Icon]) => {
       const mobileLabel = ({ Overview: 'Home', 'Consult requests': 'Requests', 'Landing page': 'Site', Testimonials: 'Reviews', Newsletter: 'News' })[label]
-      return <button aria-label={label} title={label} className={tab === label ? 'active' : ''} onClick={() => handleTabSelect(label)} key={label}>
+      return <button type="button" aria-label={label} title={label} aria-current={tab === label ? 'page' : undefined} onClick={() => handleTabSelect(label)} key={label}>
         <Icon size={16} />
         <span className="mobile-admin-tab-label">{mobileLabel}</span>
       </button>

@@ -17,7 +17,9 @@ export function emailLayout(title, content, preview = '', footerContent = '') {
 }
 
 export function resendFromEmail() {
-  return process.env.RESEND_FROM_EMAIL || defaultFromEmail
+  const configuredFrom = process.env.RESEND_FROM_EMAIL || defaultFromEmail
+  const address = configuredFrom.match(/<([^<>]+)>/)?.[1] || configuredFrom
+  return `S.O. Iraoya Consulting <${address.trim()}>`
 }
 
 export async function sendEmail({ to, subject, html, text, replyTo, headers }) {

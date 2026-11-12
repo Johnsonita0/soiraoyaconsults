@@ -400,7 +400,7 @@ function NewsletterPanel() {
   return <div className="admin-content newsletter-admin">
     <div className="admin-heading"><div><p className="eyebrow">Email marketing</p><h1>Newsletter</h1><p className="admin-subtitle">Write, schedule and manage updates for your opted-in audience.</p></div></div>
     <div className="newsletter-admin-stats">
-      <div className="panel"><span>Confirmed subscribers</span><strong>{subscriberCount}</strong><small>Only confirmed addresses receive campaigns.</small></div>
+      <div className="panel"><span>Opted-in subscribers</span><strong>{subscriberCount}</strong><small>Subscribers who consented to email updates.</small></div>
       <div className="panel"><span>Scheduled campaigns</span><strong>{campaigns.filter((item) => item.status === 'scheduled' || item.status === 'sending').length}</strong><small>Sent in batches by the scheduled delivery service.</small></div>
     </div>
     <section className="panel newsletter-composer">
@@ -521,7 +521,7 @@ function Overview({ setTab, requests, requestsLoading, markRequestContacted }) {
     <div className="stat-grid">
       <div><span>New requests</span><b>{requestsLoading ? '—' : newRequests}</b><small>Awaiting follow-up</small></div>
       <div><span>All requests</span><b>{requestsLoading ? '—' : requests.length}</b><small>Most recent 200</small></div>
-      <div><span>Confirmed subscribers</span><b>{subscriberCount === null ? '—' : subscriberCount}</b><small>Newsletter opt-ins</small></div>
+      <div><span>Opted-in subscribers</span><b>{subscriberCount === null ? '—' : subscriberCount}</b><small>Newsletter opt-ins</small></div>
     </div>
     <div className="dashboard-grid dashboard-grid-live"><div className="panel"><div className="panel-head"><div><p className="eyebrow">Inbox</p><h2>Recent consult requests</h2></div><button className="quiet-button" onClick={() => setTab('Consult requests')}>View all <ArrowUpRight size={14} /></button></div><RequestList requests={requests} loading={requestsLoading} markRequestContacted={markRequestContacted} limit={5} /></div></div>
   </div>

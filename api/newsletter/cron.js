@@ -31,7 +31,7 @@ export default async function handler(request, response) {
 
     const subscriberQuery = supabase.from('newsletter_subscribers')
       .select('id,email,unsubscribe_token')
-      .eq('status', 'active')
+      .in('status', ['active', 'pending'])
       .order('id', { ascending: true })
       .limit(batchSize + 1)
     const { data: subscribers, error: subscriberError } = campaign.last_subscriber_id

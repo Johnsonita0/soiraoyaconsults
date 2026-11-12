@@ -12,7 +12,7 @@ export default async function handler(request, response) {
   if (request.method === 'GET') {
     const [{ data: campaigns, error }, { count, error: countError }] = await Promise.all([
       supabase.from('newsletter_campaigns').select('id,subject,preview_text,body,image_url,status,scheduled_at,sent_at,sent_count,failed_count,created_at').order('created_at', { ascending: false }).limit(50),
-      supabase.from('newsletter_subscribers').select('id', { count: 'exact', head: true }).eq('status', 'active'),
+      supabase.from('newsletter_subscribers').select('id', { count: 'exact', head: true }).in('status', ['active', 'pending']),
     ])
     if (error || countError) {
       console.error('Could not load newsletter dashboard', error || countError)

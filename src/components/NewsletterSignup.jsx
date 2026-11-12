@@ -68,7 +68,7 @@ export default function NewsletterSignup() {
       })
       const result = await response.json()
       if (!response.ok || !result.ok) throw new Error(result.message || 'Could not process your subscription.')
-      setMessage(result.message || 'Please check your inbox to confirm your subscription.')
+      setMessage(result.message || "You're subscribed. Thank you for joining our newsletter.")
       setEmail('')
     } catch (submitError) {
       setError(submitError.message || 'Could not process your subscription. Please try again.')

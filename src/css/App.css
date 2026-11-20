@@ -1344,7 +1344,7 @@ input, textarea, button.searchable-select-trigger { scroll-margin-block:35vh; }
 .visitor-retention-badge { flex: 0 0 auto; color: var(--muted); font-size: 10px; }
 .visitor-load-more { display: flex; justify-content: center; width: 100%; margin-top: 18px; }
 .visitor-load-more:disabled { cursor: wait; opacity: .65; }
-.mobile-admin-more-menu { display: none; }
+@media (min-width:801px) { .mobile-admin-more-menu { display: none; } }
 @media (max-width: 800px) { .visitor-analytics-grid { grid-template-columns: 1fr; } }
 @media (max-width: 500px) { .visitor-stat-row { gap: 7px; }.visitor-stat-row > div { padding: 12px 9px; }.visitor-stat-row strong { font-size: 20px; }.visitor-stat-row span { font-size: 9px; } }
 @media (max-width: 600px) { .visitor-log-summary { align-items: flex-start; flex-direction: column; gap: 5px; }.visitor-log-details { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }.visitor-retention-badge { font-size: 9px; } }

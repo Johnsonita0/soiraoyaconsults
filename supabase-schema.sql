@@ -28,6 +28,9 @@ create table if not exists public.site_visit_logs (
   visited_at timestamptz not null default now()
 );
 
+alter table public.site_visit_logs
+  add column if not exists section text;
+
 create index if not exists site_visit_logs_visited_at_idx
   on public.site_visit_logs (visited_at desc);
 

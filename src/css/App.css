@@ -13,6 +13,10 @@
 .about-submenu li a::after,.services-submenu li button::after { display:none; }
 .about-submenu li a:hover,.services-submenu li button:hover { color:var(--red); background:var(--cream); }
 @media (min-width:901px) { .about-submenu,.services-submenu { top:100%; } }
+@media (min-width:901px) {
+  .services-submenu { width:270px; padding:10px 0; }
+  .services-submenu li button { padding:14px 20px; line-height:1.4; white-space:normal; }
+}
 .about-detail-section { max-width:1184px; margin:0 auto; padding:82px 24px 110px; display:grid; grid-template-columns:minmax(0, 1fr); gap:18px; }
 .leadership-section { width:100%; padding:52px 24px 0; background:#f4f2ee; }
 .leadership-banner { max-width:1180px; width:100%; margin:0 auto 30px; background:linear-gradient(180deg, var(--green) 0%, #0c1a3d 100%); color:#fff; padding:18px 18px 12px; border-radius:8px 8px 0 0; display:flex; align-items:center; justify-content:center; gap:18px; position:relative; }

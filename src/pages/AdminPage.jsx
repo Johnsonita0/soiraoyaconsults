@@ -8,7 +8,7 @@ import SearchableSelect from '../components/SearchableSelect'
 import { useToast } from '../components/ToastProvider'
 
 export default function AdminPage({ content, setContent, goTo }) {
-  const { showToast } = useToast()
+  const { showToast, isOnline, reportOffline } = useToast()
   const [tab, setTab] = useState('Overview')
   const [draft, setDraft] = useState(content)
   const [sidebarExpanded, setSidebarExpanded] = useState(true)
@@ -18,7 +18,7 @@ export default function AdminPage({ content, setContent, goTo }) {
   const [requestSearch, setRequestSearch] = useState('')
   const [confirmAction, setConfirmAction] = useState(null)
   const [requests, setRequests] = useState([])
-  const [requestsLoading, setRequestsLoading] = useState(true)
+  const [requestsLoading, setRequestsLoading] = useState(isOnline)
   const [notifications, setNotifications] = useState([])
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const [readNotificationIds, setReadNotificationIds] = useState(() => {
@@ -39,6 +39,8 @@ export default function AdminPage({ content, setContent, goTo }) {
   }, [content])
 
   const loadRequests = useCallback(async () => {
+    if (!isOnline || !navigator.onLine) return
+    setRequestsLoading(true)
     try {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session?.access_token) throw new Error('Your admin session has expired. Please sign in again.')
@@ -50,15 +52,23 @@ export default function AdminPage({ content, setContent, goTo }) {
       setRequests(result.requests || [])
     } catch (error) {
       console.error('Could not load consultation requests', error)
+      if (!navigator.onLine || error instanceof TypeError) {
+        reportOffline()
+        return
+      }
       showToast(error.message || 'Could not load consultation requests.', 'error')
     } finally {
       setRequestsLoading(false)
     }
-  }, [showToast])
+  }, [isOnline, reportOffline, showToast])
 
-  useEffect(() => { void loadRequests() }, [loadRequests])
+  useEffect(() => {
+    if (!isOnline) return
+    void loadRequests()
+  }, [isOnline, loadRequests])
 
   const loadNotifications = useCallback(async () => {
+    if (!isOnline || !navigator.onLine) return
     try {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session?.access_token) throw new Error('Your admin session has expired. Please sign in again.')
@@ -70,15 +80,20 @@ export default function AdminPage({ content, setContent, goTo }) {
       setNotifications(result.notifications || [])
     } catch (error) {
       console.error('Could not load dashboard notifications', error)
+      if (!navigator.onLine || error instanceof TypeError) {
+        reportOffline()
+        return
+      }
       showToast(error.message || 'Could not load dashboard notifications.', 'error')
     }
-  }, [showToast])
+  }, [isOnline, reportOffline, showToast])
 
   useEffect(() => {
+    if (!isOnline) return undefined
     void loadNotifications()
     const interval = window.setInterval(() => void loadNotifications(), 60000)
     return () => window.clearInterval(interval)
-  }, [loadNotifications])
+  }, [isOnline, loadNotifications])
 
   useEffect(() => {
     if (!notificationsOpen) return undefined
@@ -564,18 +579,21 @@ function Overview({ setTab, requests, requestsLoading, markRequestContacted }) {
 }
 
 function VisitorsPanel() {
-  const { showToast } = useToast()
+  const { showToast, isOnline, reportOffline } = useToast()
   const [visitorStats, setVisitorStats] = useState(null)
-  const [visitorStatsLoading, setVisitorStatsLoading] = useState(true)
+  const [visitorStatsLoading, setVisitorStatsLoading] = useState(isOnline)
   const [visitorStatsError, setVisitorStatsError] = useState('')
   const [visits, setVisits] = useState([])
   const [totalVisits, setTotalVisits] = useState(0)
-  const [visitsLoading, setVisitsLoading] = useState(true)
+  const [visitsLoading, setVisitsLoading] = useState(isOnline)
   const [visitsError, setVisitsError] = useState('')
   const [hasMoreVisits, setHasMoreVisits] = useState(false)
   const [expandedVisitId, setExpandedVisitId] = useState(null)
 
   const loadVisitorStats = useCallback(async () => {
+    if (!isOnline || !navigator.onLine) return
+    setVisitorStatsLoading(true)
+    setVisitorStatsError('')
     try {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session?.access_token) throw new Error('Your admin session has expired. Please sign in again.')
@@ -587,15 +605,22 @@ function VisitorsPanel() {
       setVisitorStats(result.stats)
     } catch (error) {
       console.error('Could not load visitor statistics', error)
+      if (!navigator.onLine || error instanceof TypeError) {
+        reportOffline()
+        return
+      }
       const message = error.message || 'Could not load visitor statistics.'
       setVisitorStatsError(message)
       showToast(message, 'error')
     } finally {
       setVisitorStatsLoading(false)
     }
-  }, [showToast])
+  }, [isOnline, reportOffline, showToast])
 
   const loadVisits = useCallback(async (offset = 0, append = false) => {
+    if (!isOnline || !navigator.onLine) return
+    setVisitsLoading(true)
+    setVisitsError('')
     try {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session?.access_token) throw new Error('Your admin session has expired. Please sign in again.')
@@ -610,37 +635,35 @@ function VisitorsPanel() {
       setVisitsError('')
     } catch (error) {
       console.error('Could not load visitor logs', error)
+      if (!navigator.onLine || error instanceof TypeError) {
+        reportOffline()
+        return
+      }
       const message = error.message || 'Could not load visitor logs.'
       setVisitsError(message)
       showToast(message, 'error')
     } finally {
       setVisitsLoading(false)
     }
-  }, [showToast])
+  }, [isOnline, reportOffline, showToast])
 
   useEffect(() => {
+    if (!isOnline || !navigator.onLine) {
+      if (isOnline) reportOffline()
+      return
+    }
     void loadVisitorStats()
     void loadVisits()
-  }, [loadVisitorStats, loadVisits])
-
-  const refreshVisitors = () => {
-    setVisitorStatsLoading(true)
-    setVisitorStatsError('')
-    setVisitsLoading(true)
-    setVisitsError('')
-    void loadVisitorStats()
-    void loadVisits()
-  }
+  }, [isOnline, loadVisitorStats, loadVisits, reportOffline])
 
   const loadMoreVisits = () => {
-    setVisitsLoading(true)
+    if (!isOnline || !navigator.onLine) return
     void loadVisits(visits.length, true)
   }
 
   return <div className="admin-content">
     <div className="admin-heading">
       <div><p className="eyebrow">Website traffic · Last 30 days</p><h1>Visitors</h1><p className="admin-subtitle">Each record is a page view, not a verified unique visitor. Detailed records are deleted after 30 days.</p></div>
-      <button type="button" className="quiet-button" onClick={refreshVisitors}>Refresh <ArrowUpRight size={15} /></button>
     </div>
     <section className="panel visitor-analytics">
       <div className="panel-head"><div><p className="eyebrow">Traffic summary</p><h2>Page views</h2></div></div>
@@ -652,8 +675,10 @@ function VisitorsPanel() {
       <div className="visitor-analytics-grid">
         <div className="visitor-daily">
           <h3>Daily page views · last 7 days</h3>
-          {visitorStatsError
-            ? <p className="empty-list-note">Visitor statistics are unavailable. Try refreshing.</p>
+          {!isOnline
+            ? <p className="empty-list-note">Visitor statistics will refresh when your connection returns.</p>
+            : visitorStatsError
+            ? <p className="empty-list-note">Visitor statistics are unavailable. Please try again later.</p>
             : visitorStatsLoading
               ? <p className="empty-list-note">Loading visitor statistics…</p>
               : <div className="visitor-bars">{(visitorStats?.dailyViews || []).map((day) => {
@@ -668,8 +693,10 @@ function VisitorsPanel() {
         </div>
         <div className="visitor-top-pages">
           <h3>Top pages · last 30 days</h3>
-          {visitorStatsError
-            ? <p className="empty-list-note">Visitor statistics are unavailable. Try refreshing.</p>
+          {!isOnline
+            ? <p className="empty-list-note">Visitor statistics will refresh when your connection returns.</p>
+            : visitorStatsError
+            ? <p className="empty-list-note">Visitor statistics are unavailable. Please try again later.</p>
             : visitorStatsLoading
               ? <p className="empty-list-note">Loading visitor statistics…</p>
               : (visitorStats?.topPages || []).length === 0
@@ -684,11 +711,12 @@ function VisitorsPanel() {
         <div><p className="eyebrow">Recent activity</p><h2>{totalVisits.toLocaleString()} page views</h2></div>
         <span className="visitor-retention-badge">30-day log</span>
       </div>
-      {visitsError && <p className="empty-list-note">Visitor records could not be loaded. Refresh to try again.</p>}
-      {visitsLoading && visits.length === 0
+      {!isOnline && visits.length === 0 && <p className="empty-list-note">Visitor records will refresh when your connection returns.</p>}
+      {isOnline && visitsError && <p className="empty-list-note">Visitor records could not be loaded. Try again later.</p>}
+      {isOnline && visitsLoading && visits.length === 0
         ? <p className="empty-list-note">Loading visitor records…</p>
         : visits.length === 0
-          ? !visitsError && <p className="empty-list-note">No page views have been recorded in the last 30 days.</p>
+          ? isOnline && !visitsError && <p className="empty-list-note">No page views have been recorded in the last 30 days.</p>
           : <div className="visitor-log-list">{visits.map((visit) => {
               const isExpanded = expandedVisitId === visit.id
               return <article className={`visitor-log-record ${isExpanded ? 'is-expanded' : ''}`} key={visit.id}>
@@ -707,7 +735,7 @@ function VisitorsPanel() {
                 </div>}
               </article>
             })}</div>}
-      {hasMoreVisits && <button type="button" className="button button-quiet visitor-load-more" disabled={visitsLoading} onClick={loadMoreVisits}>{visitsLoading ? 'Loading…' : 'Load more visits'}</button>}
+      {hasMoreVisits && <button type="button" className="button button-quiet visitor-load-more" disabled={visitsLoading || !isOnline} onClick={loadMoreVisits}>{visitsLoading ? 'Loading…' : 'Load more visits'}</button>}
       <p className="visitor-privacy-note">IP addresses and device categories are collected only for site-traffic reporting. IP addresses may represent a shared network, proxy or VPN.</p>
     </section>
   </div>

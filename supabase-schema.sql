@@ -1,7 +1,3 @@
--- Comprehensive Supabase schema for S.O. Iraoya
--- Exact admin-only access: admin@soiraoyaconsulting.com.ng
--- Exact user id: 8b4f5926-c6ec-43a0-aa34-7277a2732577
-
 create extension if not exists "uuid-ossp";
 
 create table if not exists public.site_settings (
@@ -10,6 +6,30 @@ create table if not exists public.site_settings (
   value jsonb not null,
   updated_at timestamptz not null default now()
 );
+
+create table if not exists public.site_visit_counts (
+  visit_date date not null default ((now() at time zone 'UTC')::date),
+  page_path text not null,
+  view_count bigint not null default 0 check (view_count >= 0),
+  primary key (visit_date, page_path)
+);
+
+create index if not exists site_visit_counts_path_date_idx
+  on public.site_visit_counts (page_path, visit_date desc);
+
+create table if not exists public.site_visit_logs (
+  id uuid primary key default uuid_generate_v4(),
+  page_path text not null,
+  section text,
+  ip_address inet,
+  device text not null,
+  browser text not null,
+  operating_system text not null,
+  visited_at timestamptz not null default now()
+);
+
+create index if not exists site_visit_logs_visited_at_idx
+  on public.site_visit_logs (visited_at desc);
 
 create table if not exists public.hero_slides (
   id uuid primary key default uuid_generate_v4(),
@@ -190,6 +210,118 @@ as $$
   select auth.uid() = '8b4f5926-c6ec-43a0-aa34-7277a2732577'::uuid
     and lower(auth.email()) = 'admin@soiraoyaconsulting.com.ng';
 $$;
+
+alter table public.site_visit_counts enable row level security;
+revoke all on table public.site_visit_counts from public, anon, authenticated;
+grant all on table public.site_visit_counts to service_role;
+
+alter table public.site_visit_logs enable row level security;
+revoke all on table public.site_visit_logs from public, anon, authenticated;
+grant all on table public.site_visit_logs to service_role;
+
+create or replace function public.record_site_visit(p_page_path text)
+returns void
+language sql
+security definer
+set search_path = public
+as $$
+  insert into public.site_visit_counts as stored (visit_date, page_path, view_count)
+  values ((now() at time zone 'UTC')::date, p_page_path, 1)
+  on conflict (visit_date, page_path)
+  do update set view_count = stored.view_count + 1;
+$$;
+
+revoke all on function public.record_site_visit(text) from public, anon, authenticated;
+grant execute on function public.record_site_visit(text) to service_role;
+
+create or replace function public.record_site_visit_detail(
+  p_page_path text,
+  p_section text,
+  p_ip_address inet,
+  p_device text,
+  p_browser text,
+  p_operating_system text
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  insert into public.site_visit_counts as stored (visit_date, page_path, view_count)
+  values ((now() at time zone 'UTC')::date, p_page_path, 1)
+  on conflict (visit_date, page_path)
+  do update set view_count = stored.view_count + 1;
+
+  insert into public.site_visit_logs (
+    page_path, section, ip_address, device, browser, operating_system
+  )
+  values (p_page_path, p_section, p_ip_address, p_device, p_browser, p_operating_system);
+end;
+$$;
+
+revoke all on function public.record_site_visit_detail(text, text, inet, text, text, text) from public, anon, authenticated;
+grant execute on function public.record_site_visit_detail(text, text, inet, text, text, text) to service_role;
+
+create or replace function public.get_site_visit_stats()
+returns jsonb
+language sql
+security definer
+set search_path = public
+as $$
+  with bounds as (
+    select (now() at time zone 'UTC')::date as today
+  ),
+  daily as (
+    select dates.day, coalesce(sum(counts.view_count), 0)::bigint as views
+    from bounds
+    cross join lateral generate_series(
+      (bounds.today - 6)::timestamp,
+      bounds.today::timestamp,
+      interval '1 day'
+    ) as dates(day)
+    left join public.site_visit_counts as counts
+      on counts.visit_date = dates.day::date
+    group by dates.day
+  )
+  select jsonb_build_object(
+    'totalViews', (select coalesce(sum(view_count), 0)::bigint from public.site_visit_counts),
+    'todayViews', (
+      select coalesce(sum(view_count), 0)::bigint
+      from public.site_visit_counts, bounds
+      where visit_date = bounds.today
+    ),
+    'weekViews', (
+      select coalesce(sum(view_count), 0)::bigint
+      from public.site_visit_counts, bounds
+      where visit_date between bounds.today - 6 and bounds.today
+    ),
+    'dailyViews', (
+      select coalesce(jsonb_agg(
+        jsonb_build_object('date', to_char(day, 'YYYY-MM-DD'), 'views', views)
+        order by day
+      ), '[]'::jsonb)
+      from daily
+    ),
+    'topPages', (
+      select coalesce(jsonb_agg(
+        jsonb_build_object('path', page_path, 'views', views)
+        order by views desc, page_path
+      ), '[]'::jsonb)
+      from (
+        select page_path, sum(view_count)::bigint as views
+        from public.site_visit_counts, bounds
+        where visit_date between bounds.today - 29 and bounds.today
+        group by page_path
+        order by views desc, page_path
+        limit 5
+      ) as popular_pages
+    )
+  );
+$$;
+
+revoke all on function public.get_site_visit_stats() from public, anon, authenticated;
+grant execute on function public.get_site_visit_stats() to service_role;
 
 drop policy if exists "Admins can manage newsletter subscribers" on public.newsletter_subscribers;
 drop policy if exists "Admins can manage newsletter campaigns" on public.newsletter_campaigns;

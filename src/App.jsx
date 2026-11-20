@@ -209,6 +209,33 @@ export default function App() {
   const servicePath = route.startsWith('/services/') ? route.slice('/services/'.length) : ''
   const service = content.services?.find((item) => serviceSlug(item.title) === servicePath)
   const routePath = route.split('?')[0]
+
+  useEffect(() => {
+    if (['/login', '/dashboard', '/admin'].includes(routePath)) return
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') return
+    if (window.navigator.doNotTrack === '1') return
+
+    const pagePath = routePath.replace(/\/+$/, '') || '/'
+    const recordPageView = () => {
+      const section = window.location.hash.slice(1)
+      const visit = { pagePath }
+      if (/^[a-z0-9-]{1,100}$/.test(section)) visit.section = section
+      fetch('/api/track-visit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(visit),
+      }).then((response) => {
+        if (!response.ok) console.error('Could not record site visit', response.status)
+      }).catch((error) => {
+        console.error('Could not record site visit', error)
+      })
+    }
+
+    recordPageView()
+    window.addEventListener('hashchange', recordPageView)
+    return () => window.removeEventListener('hashchange', recordPageView)
+  }, [routePath])
+
   useEffect(() => {
     updateSeoMetadata({ routePath, content, service })
   }, [routePath, content, service])

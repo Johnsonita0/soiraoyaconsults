@@ -14,6 +14,8 @@ The canonical domain is configured as `https://soiraoyaconsulting.org` in `index
 - npm run dev
 - npm run build
 
+`npm run dev` runs Vercel's local server on port 4173 so `/api` functions work during development. The Vite-only server is available as `npm run dev:vite` on port 4174 and does not run API functions.
+
 ## Email and newsletter setup
 
 Configure these server-side environment variables in Vercel (never expose the service-role key or Resend key as `VITE_` variables):
@@ -21,6 +23,6 @@ Configure these server-side environment variables in Vercel (never expose the se
 - `RESEND_API_KEY` for Resend sending. The verified `soiraoyaconsulting.org` domain uses `notifications@soiraoyaconsulting.org` as the default `RESEND_FROM_EMAIL`; outbound email always displays `S.O. Iraoya Consulting` as the sender name.
 - `RESEND_TO_EMAIL` for website enquiry notifications (defaults to `soiraoyaconsults@gmail.com`).
 - `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` for the existing browser client, plus `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` for protected API operations. The service-role key must remain server-only.
-- `CRON_SECRET` for scheduled campaign delivery and `SITE_URL` for unsubscribe links.
+- `CRON_SECRET` for scheduled campaign delivery and visitor-log cleanup, and `SITE_URL` for unsubscribe links.
 
-Run the latest `supabase-schema.sql` in the Supabase SQL editor to create or update the request, subscriber, campaign, and delivery tables and the campaign-claim function. This migration adds the consultation-request details and contact status used by the admin inbox, and image URLs used by newsletter campaigns. Public newsletter signups become active immediately after explicit consent, without a confirmation email; existing subscribers from the previous confirmation-based flow remain eligible for campaigns. Subscribers can unsubscribe from any campaign. The admin Newsletter panel saves drafts, schedules campaigns, uploads newsletter images, and queues sends. On Vercel Hobby, the cron checks the queue once daily at 00:00 UTC and sends batches of up to 50 subscribers per run; additional batches wait until the following daily run. Scheduled sends occur on the first run after the selected time. A Vercel plan supporting more frequent cron runs is needed for closer-to-scheduled delivery.
+Run the latest `supabase-schema.sql` in the Supabase SQL editor to create or update the request, subscriber, campaign, delivery, and visitor-log tables and related functions. Detailed visitor records include the request IP address, detected device/browser category, page and timestamp; they are deleted after 30 days. The admin Visitors panel displays these records, while aggregate traffic totals are kept separately. Public newsletter signups become active immediately after explicit consent, without a confirmation email; existing subscribers from the previous confirmation-based flow remain eligible for campaigns. Subscribers can unsubscribe from any campaign. The admin Newsletter panel saves drafts, schedules campaigns, uploads newsletter images, and queues sends. On Vercel Hobby, the newsletter cron checks the queue once daily at 00:00 UTC and sends batches of up to 50 subscribers per run; additional batches wait until the following daily run. Scheduled sends occur on the first run after the selected time. Visitor-log cleanup runs daily at 00:10 UTC. A Vercel plan supporting more frequent newsletter cron runs is needed for closer-to-scheduled delivery.

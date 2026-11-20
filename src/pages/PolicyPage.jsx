@@ -16,6 +16,7 @@ const privacySections = [
       'When you send an enquiry, the details you choose to provide may include your name, email address, organisation, phone number, location, service of interest, property details and message.',
       'When you subscribe to the newsletter, your email address and subscription status are recorded, along with relevant confirmation, signup and unsubscribe dates. A confirmation link verifies your address; a private token makes it possible to unsubscribe.',
       'Website hosting and service providers may process technical information needed to operate and protect the website, such as request details and security logs. Browser storage keeps website content available and remembers, for the current session, whether the newsletter invitation has already appeared.',
+      'With your browser’s Do Not Track setting off, the site records each public page view with the IP address supplied by the hosting platform, page path and section (when available), timestamp, and broad device, browser and operating-system categories inferred from the browser request. These detailed records are retained for 30 days and then deleted. Admin pages and local development visits are excluded. Aggregate page totals are retained separately without IP addresses or device details.',
     ],
   },
   {
@@ -29,7 +30,7 @@ const privacySections = [
   {
     title: '4. Lawful grounds',
     paragraphs: [
-      'Where applicable under the Nigeria Data Protection Act 2023 and other relevant law, personal information is handled on a lawful basis appropriate to its purpose. This may include your consent (for example, for newsletter email), taking steps at your request or providing a service, legitimate interests in responding to business enquiries and securing the website, or compliance with a legal obligation.',
+      'Where applicable under the Nigeria Data Protection Act 2023 and other relevant law, personal information is handled on a lawful basis appropriate to its purpose. This may include your consent (for example, for newsletter email), taking steps at your request or providing a service, legitimate interests in responding to business enquiries, understanding website traffic and securing the website, or compliance with a legal obligation.',
       'If a particular use relies on your consent, you can withdraw that consent at any time. Withdrawal does not affect earlier processing or processing supported by another lawful basis.',
     ],
   },
@@ -78,6 +79,7 @@ const usageSections = [
     rows: [
       ['Website enquiry details', 'Name, email, organisation, phone, location, service requested and property or message details that you choose to provide.', 'Respond to your enquiry, understand the requested service, arrange follow-up and keep appropriate business records. The enquiry is sent to the business inbox through an email provider.'],
       ['Newsletter details', 'Email address, confirmation and subscription status, and signup or unsubscribe dates.', 'Confirm that you control the address, send requested newsletters, manage subscriptions and prevent further campaigns after unsubscribe.'],
+      ['Visitor page views', 'IP address, page path and section, timestamp, and broad device, browser and operating-system categories. No cookies or raw browser fingerprint are stored.', 'Understand page traffic. Detailed records are deleted after 30 days; aggregated page totals are retained separately. Local development visits, admin pages and visits when Do Not Track is enabled are excluded.'],
     ],
   },
   {
@@ -128,7 +130,7 @@ export default function PolicyPage({ routePath, goTo }) {
         <p className="eyebrow">S.O. Iraoya Consulting · Privacy &amp; data</p>
         <h1>{title}</h1>
         <p>{description}</p>
-        <small>Last updated: 11 November 2026</small>
+        <small>Last updated: 20 November 2026</small>
       </div>
       <nav className="policy-switcher" aria-label="Privacy and data policies">
         <button type="button" className={isPrivacy ? 'active' : ''} onClick={() => goTo('/privacy-policy')}>Privacy Policy</button>

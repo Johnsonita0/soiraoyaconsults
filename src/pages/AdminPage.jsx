@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Brand from '../components/Brand'
-import { ArrowUp, ArrowUpRight, BarChart3, Bell, Building2, Check, ChevronDown, ChevronLeft, ChevronRight, ClipboardList, FileText, Home, Leaf, LogOut, Mail, MessageSquareQuote, Search, Upload, Users } from '../components/icons'
+import { ArrowUp, ArrowUpRight, BarChart3, Bell, Building2, Check, ChevronDown, ChevronLeft, ChevronRight, ClipboardList, FileText, Home, Leaf, LogOut, Mail, Menu, MessageSquareQuote, Search, Upload, Users } from '../components/icons'
 import { seedContent } from '../data/content'
+import { readApiJson } from '../lib/api'
 import { supabase } from '../lib/supabase'
 import SearchableSelect from '../components/SearchableSelect'
 import { useToast } from '../components/ToastProvider'
@@ -12,6 +13,7 @@ export default function AdminPage({ content, setContent, goTo }) {
   const [draft, setDraft] = useState(content)
   const [sidebarExpanded, setSidebarExpanded] = useState(true)
   const [mobileProfileMenuOpen, setMobileProfileMenuOpen] = useState(false)
+  const [moreMenuOpen, setMoreMenuOpen] = useState(false)
   const [testimonialTab, setTestimonialTab] = useState('add')
   const [requestSearch, setRequestSearch] = useState('')
   const [confirmAction, setConfirmAction] = useState(null)
@@ -29,6 +31,8 @@ export default function AdminPage({ content, setContent, goTo }) {
     }
   })
   const notificationsRef = useRef(null)
+  const mobileMoreMenuRef = useRef(null)
+  const mobileMoreButtonRef = useRef(null)
 
   useEffect(() => {
     setDraft(content)
@@ -41,7 +45,7 @@ export default function AdminPage({ content, setContent, goTo }) {
       const response = await fetch('/api/admin/requests', {
         headers: { Authorization: `Bearer ${session.access_token}` },
       })
-      const result = await response.json()
+      const result = await readApiJson(response)
       if (!response.ok || !result.ok) throw new Error(result.message || 'Could not load consultation requests.')
       setRequests(result.requests || [])
     } catch (error) {
@@ -61,7 +65,7 @@ export default function AdminPage({ content, setContent, goTo }) {
       const response = await fetch('/api/admin/notifications', {
         headers: { Authorization: 'Bearer ' + session.access_token },
       })
-      const result = await response.json()
+      const result = await readApiJson(response)
       if (!response.ok || !result.ok) throw new Error(result.message || 'Could not load dashboard notifications.')
       setNotifications(result.notifications || [])
     } catch (error) {
@@ -91,6 +95,24 @@ export default function AdminPage({ content, setContent, goTo }) {
       window.removeEventListener('keydown', closeOnEscape)
     }
   }, [notificationsOpen])
+
+  useEffect(() => {
+    if (!moreMenuOpen) return undefined
+    const closeOnOutsideClick = (event) => {
+      if (!mobileMoreMenuRef.current?.contains(event.target) && !mobileMoreButtonRef.current?.contains(event.target)) {
+        setMoreMenuOpen(false)
+      }
+    }
+    const closeOnEscape = (event) => {
+      if (event.key === 'Escape') setMoreMenuOpen(false)
+    }
+    document.addEventListener('pointerdown', closeOnOutsideClick)
+    window.addEventListener('keydown', closeOnEscape)
+    return () => {
+      document.removeEventListener('pointerdown', closeOnOutsideClick)
+      window.removeEventListener('keydown', closeOnEscape)
+    }
+  }, [moreMenuOpen])
 
   const unreadNotifications = notifications.filter((item) => !readNotificationIds.includes(item.id))
 
@@ -122,7 +144,7 @@ export default function AdminPage({ content, setContent, goTo }) {
         headers: { Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ requestId, status: 'contacted' }),
       })
-      const result = await response.json()
+      const result = await readApiJson(response)
       if (!response.ok || !result.ok) throw new Error(result.message || 'Could not update this request.')
       setRequests((current) => current.map((item) => item.id === requestId ? result.request : item))
       void loadNotifications()
@@ -160,6 +182,7 @@ export default function AdminPage({ content, setContent, goTo }) {
   const save = () => { persistDraft(draft); setTab('Overview') }
   const handleTabSelect = (label) => {
     setTab(label)
+    setMoreMenuOpen(false)
     setSidebarExpanded(false)
     window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'instant' }))
   }
@@ -175,7 +198,11 @@ export default function AdminPage({ content, setContent, goTo }) {
     }
   }
 
-  const tabs = [['Overview', ClipboardList], ['Consult requests', MessageSquareQuote], ['Landing page', FileText], ['Testimonials', Users], ['Newsletter', Mail]]
+  const tabs = [['Overview', ClipboardList], ['Visitors', BarChart3], ['Consult requests', MessageSquareQuote], ['Landing page', FileText], ['Testimonials', Users], ['Newsletter', Mail]]
+  const mobilePrimaryLabels = ['Overview', 'Visitors', 'Consult requests']
+  const mobilePrimaryTabs = tabs.filter(([label]) => mobilePrimaryLabels.includes(label))
+  const mobileMoreTabs = tabs.filter(([label]) => !mobilePrimaryLabels.includes(label))
+  const moreMenuActive = mobileMoreTabs.some(([label]) => tab === label)
   const openConfirm = (action) => setConfirmAction(action)
   const closeConfirm = () => setConfirmAction(null)
   const completeConfirm = () => {
@@ -238,18 +265,27 @@ export default function AdminPage({ content, setContent, goTo }) {
         </div>
       </header>
       {tab === 'Overview' && <Overview setTab={setTab} requests={requests} requestsLoading={requestsLoading} markRequestContacted={markRequestContacted} />}
+      {tab === 'Visitors' && <VisitorsPanel />}
       {tab === 'Consult requests' && <Requests requests={requests} requestsLoading={requestsLoading} requestSearch={requestSearch} setRequestSearch={setRequestSearch} markRequestContacted={markRequestContacted} refreshRequests={loadRequests} />}
       {tab === 'Landing page' && <LandingEditor draft={draft} setDraft={setDraft} save={save} persistDraft={persistDraft} openConfirm={openConfirm} />}
       {tab === 'Testimonials' && <Testimonials key={testimonialTab} draft={draft} persistDraft={persistDraft} openConfirm={openConfirm} initialTab={testimonialTab} />}
       {tab === 'Newsletter' && <NewsletterPanel />}
     </main>
-    <nav className="mobile-admin-tabs" aria-label="Admin navigation">{tabs.map(([label, Icon]) => {
-      const mobileLabel = ({ Overview: 'Home', 'Consult requests': 'Requests', 'Landing page': 'Site', Testimonials: 'Reviews', Newsletter: 'News' })[label]
+    <nav className="mobile-admin-tabs" aria-label="Admin navigation">{mobilePrimaryTabs.map(([label, Icon]) => {
+      const mobileLabel = ({ Overview: 'Home', Visitors: 'Visitors', 'Consult requests': 'Requests', 'Landing page': 'Site', Testimonials: 'Reviews', Newsletter: 'News' })[label]
       return <button type="button" aria-label={label} title={label} aria-current={tab === label ? 'page' : undefined} onClick={() => handleTabSelect(label)} key={label}>
         <Icon size={16} />
         <span className="mobile-admin-tab-label">{mobileLabel}</span>
       </button>
-    })}</nav>
+    })}<button ref={mobileMoreButtonRef} type="button" className={moreMenuActive ? 'is-active' : ''} aria-label="More admin sections" aria-expanded={moreMenuOpen} aria-current={moreMenuActive ? 'page' : undefined} aria-controls="mobile-admin-more-menu" onClick={() => setMoreMenuOpen((current) => !current)}>
+      <Menu size={16} />
+      <span className="mobile-admin-tab-label">More</span>
+    </button></nav>
+    {moreMenuOpen && <div id="mobile-admin-more-menu" className="mobile-admin-more-menu" role="menu" aria-label="More admin sections" ref={mobileMoreMenuRef}>
+      {mobileMoreTabs.map(([label, Icon]) => <button type="button" role="menuitem" aria-current={tab === label ? 'page' : undefined} onClick={() => handleTabSelect(label)} key={label}>
+        <Icon size={16} /><span>{label}</span>
+      </button>)}
+    </div>}
     <ConfirmDialog action={confirmAction} onCancel={closeConfirm} onConfirm={completeConfirm} />
   </div>
 }
@@ -285,7 +321,7 @@ function NewsletterPanel() {
       const response = await fetch('/api/newsletter/campaigns', {
         headers: { Authorization: `Bearer ${session.access_token}` },
       })
-      const result = await response.json()
+      const result = await readApiJson(response)
       if (!response.ok || !result.ok) throw new Error(result.message || 'Could not load newsletter campaigns.')
       setCampaigns(result.campaigns)
       setSubscriberCount(result.subscriberCount)
@@ -318,7 +354,7 @@ function NewsletterPanel() {
           scheduledAt: campaign.scheduledAt ? new Date(campaign.scheduledAt).toISOString() : '',
         }),
       })
-      const result = await response.json()
+      const result = await readApiJson(response)
       if (!response.ok || !result.ok) throw new Error(result.message || 'Could not save this campaign.')
       showToast(action === 'save' ? 'Newsletter draft saved.' : action === 'send-now' ? 'Newsletter queued for the next daily delivery run.' : 'Newsletter scheduled.', 'success')
       setCampaign(blankCampaign())
@@ -342,7 +378,7 @@ function NewsletterPanel() {
         headers: { Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'cancel', campaignId }),
       })
-      const result = await response.json()
+      const result = await readApiJson(response)
       if (!response.ok || !result.ok) throw new Error(result.message || 'Could not cancel this campaign.')
       showToast('Newsletter campaign cancelled.', 'success')
       await loadCampaigns()
@@ -526,6 +562,157 @@ function Overview({ setTab, requests, requestsLoading, markRequestContacted }) {
     <div className="dashboard-grid dashboard-grid-live"><div className="panel"><div className="panel-head"><div><p className="eyebrow">Inbox</p><h2>Recent consult requests</h2></div><button className="quiet-button" onClick={() => setTab('Consult requests')}>View all <ArrowUpRight size={14} /></button></div><RequestList requests={requests} loading={requestsLoading} markRequestContacted={markRequestContacted} limit={5} /></div></div>
   </div>
 }
+
+function VisitorsPanel() {
+  const { showToast } = useToast()
+  const [visitorStats, setVisitorStats] = useState(null)
+  const [visitorStatsLoading, setVisitorStatsLoading] = useState(true)
+  const [visitorStatsError, setVisitorStatsError] = useState('')
+  const [visits, setVisits] = useState([])
+  const [totalVisits, setTotalVisits] = useState(0)
+  const [visitsLoading, setVisitsLoading] = useState(true)
+  const [visitsError, setVisitsError] = useState('')
+  const [hasMoreVisits, setHasMoreVisits] = useState(false)
+  const [expandedVisitId, setExpandedVisitId] = useState(null)
+
+  const loadVisitorStats = useCallback(async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) throw new Error('Your admin session has expired. Please sign in again.')
+      const response = await fetch('/api/admin/visitors', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      const result = await readApiJson(response)
+      if (!response.ok || !result.ok) throw new Error(result.message || 'Could not load visitor statistics.')
+      setVisitorStats(result.stats)
+    } catch (error) {
+      console.error('Could not load visitor statistics', error)
+      const message = error.message || 'Could not load visitor statistics.'
+      setVisitorStatsError(message)
+      showToast(message, 'error')
+    } finally {
+      setVisitorStatsLoading(false)
+    }
+  }, [showToast])
+
+  const loadVisits = useCallback(async (offset = 0, append = false) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) throw new Error('Your admin session has expired. Please sign in again.')
+      const response = await fetch(`/api/admin/visitor-logs?offset=${offset}`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      const result = await readApiJson(response)
+      if (!response.ok || !result.ok) throw new Error(result.message || 'Could not load visitor logs.')
+      setVisits((current) => append ? [...current, ...result.visits] : result.visits)
+      setTotalVisits(result.total)
+      setHasMoreVisits(offset + result.visits.length < result.total)
+      setVisitsError('')
+    } catch (error) {
+      console.error('Could not load visitor logs', error)
+      const message = error.message || 'Could not load visitor logs.'
+      setVisitsError(message)
+      showToast(message, 'error')
+    } finally {
+      setVisitsLoading(false)
+    }
+  }, [showToast])
+
+  useEffect(() => {
+    void loadVisitorStats()
+    void loadVisits()
+  }, [loadVisitorStats, loadVisits])
+
+  const refreshVisitors = () => {
+    setVisitorStatsLoading(true)
+    setVisitorStatsError('')
+    setVisitsLoading(true)
+    setVisitsError('')
+    void loadVisitorStats()
+    void loadVisits()
+  }
+
+  const loadMoreVisits = () => {
+    setVisitsLoading(true)
+    void loadVisits(visits.length, true)
+  }
+
+  return <div className="admin-content">
+    <div className="admin-heading">
+      <div><p className="eyebrow">Website traffic · Last 30 days</p><h1>Visitors</h1><p className="admin-subtitle">Each record is a page view, not a verified unique visitor. Detailed records are deleted after 30 days.</p></div>
+      <button type="button" className="quiet-button" onClick={refreshVisitors}>Refresh <ArrowUpRight size={15} /></button>
+    </div>
+    <section className="panel visitor-analytics">
+      <div className="panel-head"><div><p className="eyebrow">Traffic summary</p><h2>Page views</h2></div></div>
+      <div className="visitor-stat-row">
+        <div><span>Today</span><strong>{visitorStatsLoading || visitorStatsError ? '—' : (visitorStats?.todayViews ?? 0).toLocaleString()}</strong></div>
+        <div><span>Last 7 days</span><strong>{visitorStatsLoading || visitorStatsError ? '—' : (visitorStats?.weekViews ?? 0).toLocaleString()}</strong></div>
+        <div><span>All-time page views</span><strong>{visitorStatsLoading || visitorStatsError ? '—' : (visitorStats?.totalViews ?? 0).toLocaleString()}</strong></div>
+      </div>
+      <div className="visitor-analytics-grid">
+        <div className="visitor-daily">
+          <h3>Daily page views · last 7 days</h3>
+          {visitorStatsError
+            ? <p className="empty-list-note">Visitor statistics are unavailable. Try refreshing.</p>
+            : visitorStatsLoading
+              ? <p className="empty-list-note">Loading visitor statistics…</p>
+              : <div className="visitor-bars">{(visitorStats?.dailyViews || []).map((day) => {
+                const maxViews = Math.max(1, ...(visitorStats?.dailyViews || []).map((item) => item.views))
+                const height = Math.max(4, Math.round(day.views / maxViews * 100))
+                return <div className="visitor-bar-column" key={day.date} title={`${day.views.toLocaleString()} page views`}>
+                  <strong>{day.views.toLocaleString()}</strong>
+                  <span className="visitor-bar-track"><i style={{ height: `${height}%` }} /></span>
+                  <small>{new Date(`${day.date}T12:00:00Z`).toLocaleDateString(undefined, { weekday: 'short' })}</small>
+                </div>
+              })}</div>}
+        </div>
+        <div className="visitor-top-pages">
+          <h3>Top pages · last 30 days</h3>
+          {visitorStatsError
+            ? <p className="empty-list-note">Visitor statistics are unavailable. Try refreshing.</p>
+            : visitorStatsLoading
+              ? <p className="empty-list-note">Loading visitor statistics…</p>
+              : (visitorStats?.topPages || []).length === 0
+                ? <p className="empty-list-note">No page views recorded yet.</p>
+                : <ul>{visitorStats.topPages.map((page) => <li key={page.path}><span>{page.path}</span><strong>{page.views.toLocaleString()}</strong></li>)}</ul>}
+        </div>
+      </div>
+      <p className="visitor-privacy-note">Detailed IP and device records are retained for 30 days; aggregate totals contain no personal identifiers.</p>
+    </section>
+    <section className="panel visitor-log-panel">
+      <div className="panel-head">
+        <div><p className="eyebrow">Recent activity</p><h2>{totalVisits.toLocaleString()} page views</h2></div>
+        <span className="visitor-retention-badge">30-day log</span>
+      </div>
+      {visitsError && <p className="empty-list-note">Visitor records could not be loaded. Refresh to try again.</p>}
+      {visitsLoading && visits.length === 0
+        ? <p className="empty-list-note">Loading visitor records…</p>
+        : visits.length === 0
+          ? !visitsError && <p className="empty-list-note">No page views have been recorded in the last 30 days.</p>
+          : <div className="visitor-log-list">{visits.map((visit) => {
+              const isExpanded = expandedVisitId === visit.id
+              return <article className={`visitor-log-record ${isExpanded ? 'is-expanded' : ''}`} key={visit.id}>
+                <button type="button" className="visitor-log-trigger" aria-expanded={isExpanded} onClick={() => setExpandedVisitId(isExpanded ? null : visit.id)}>
+                  <span className="visitor-log-summary"><strong>{visit.page_path}{visit.section ? `#${visit.section}` : ''}</strong><time dateTime={visit.visited_at}>{formatNotificationDate(visit.visited_at)}</time></span>
+                  <ChevronDown size={16} />
+                </button>
+                {isExpanded && <div className="visitor-log-details">
+                  <div><span>IP address</span><strong>{visit.ip_address || 'Unavailable'}</strong></div>
+                  <div><span>Device</span><strong>{visit.device}</strong></div>
+                  <div><span>Browser</span><strong>{visit.browser}</strong></div>
+                  <div><span>Operating system</span><strong>{visit.operating_system}</strong></div>
+                  <div><span>Page</span><strong>{visit.page_path}</strong></div>
+                  <div><span>Section</span><strong>{visit.section ? `#${visit.section}` : 'Page load'}</strong></div>
+                  <div><span>Visited at</span><strong>{formatNotificationDate(visit.visited_at)}</strong></div>
+                </div>}
+              </article>
+            })}</div>}
+      {hasMoreVisits && <button type="button" className="button button-quiet visitor-load-more" disabled={visitsLoading} onClick={loadMoreVisits}>{visitsLoading ? 'Loading…' : 'Load more visits'}</button>}
+      <p className="visitor-privacy-note">IP addresses and device categories are collected only for site-traffic reporting. IP addresses may represent a shared network, proxy or VPN.</p>
+    </section>
+  </div>
+}
+
 function defaultWhatsAppMessage(request) {
   const name = request.name?.trim().split(/\s+/)[0] || 'there'
   return `Hello ${name}, this is S.O. Iraoya Consulting. Thank you for your enquiry about ${request.request || 'our services'}${request.property_location ? ` for your property in ${request.property_location}` : ''}. We would be happy to discuss how we can help. Please let us know a convenient time to speak.`

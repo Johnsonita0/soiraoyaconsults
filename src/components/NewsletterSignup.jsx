@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { ArrowUpRight, Mail } from './icons'
+import { readApiJson } from '../lib/api'
 import './NewsletterSignup.css'
 
 const openEventName = 'soiraoya:open-newsletter'
@@ -66,7 +67,7 @@ export default function NewsletterSignup() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, website, consent: true }),
       })
-      const result = await response.json()
+      const result = await readApiJson(response)
       if (!response.ok || !result.ok) throw new Error(result.message || 'Could not process your subscription.')
       setMessage(result.message || "You're subscribed. Thank you for joining our newsletter.")
       setEmail('')

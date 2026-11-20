@@ -11,6 +11,7 @@ import TestimonialsSection from '../components/TestimonialsSection'
 import LegalFooterLinks from '../components/LegalFooterLinks'
 import { slug as serviceSlug } from './ServicePage'
 import { ArrowUp, ArrowUpRight, BarChart3, Building2, Check, ChevronDown, Facebook, Home, Instagram, Leaf, Linkedin, Mail, MapPin, Phone, Whatsapp, Youtube } from '../components/icons'
+import { readApiJson } from '../lib/api'
 import { openWhatsAppConversation, whatsappUrl } from '../lib/whatsapp'
 import './ConsultancyHome.css'
 
@@ -171,7 +172,7 @@ export default function LandingPage({ content, goTo, showSplashOnEntry, onSplash
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       })
-      const result = await response.json()
+      const result = await readApiJson(response)
       if (!response.ok || !result.ok) throw new Error(result.message || 'Email notification failed.')
       if (result.notificationSent === false) setSubmitError(result.message || 'Your request was saved, but our email notification could not be sent.')
       setSent(true)

@@ -1,4 +1,9 @@
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /login
+Disallow: /properties/search
+Disallow: /api/
 
 Sitemap: https://soiraoyaconsulting.org/sitemap.xml

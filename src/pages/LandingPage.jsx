@@ -10,7 +10,7 @@ import SiteHeader from '../components/SiteHeader'
 import TestimonialsSection from '../components/TestimonialsSection'
 import LegalFooterLinks from '../components/LegalFooterLinks'
 import { slug as serviceSlug } from './ServicePage'
-import { ArrowUp, ArrowUpRight, BarChart3, Building2, Check, ChevronDown, Facebook, Home, Instagram, Leaf, Linkedin, Mail, MapPin, Phone, Whatsapp, Youtube } from '../components/icons'
+import { ArrowUp, ArrowUpRight, BarChart3, Building2, Check, ChevronDown, Home, Leaf, Linkedin, Mail, MapPin, Phone, Whatsapp } from '../components/icons'
 import { readApiJson } from '../lib/api'
 import { openWhatsAppConversation, whatsappUrl } from '../lib/whatsapp'
 import './ConsultancyHome.css'
@@ -396,7 +396,7 @@ export default function LandingPage({ content, goTo, showSplashOnEntry, onSplash
         <div className="footer-brand"><Brand light goTo={goTo} /><p>Professional real estate management and informed investment advice for lasting asset performance.</p></div>
         <div className="footer-column"><p className="footer-label">Explore</p><a href="#approach">About us</a><a href="#services">Our services</a><a href="#who-we-serve">Who we serve</a><a href="/portfolio-management" onClick={(event) => { event.preventDefault(); goTo('/portfolio-management') }}>Portfolio management</a><a href="/properties" onClick={(event) => { event.preventDefault(); goTo('/properties') }}>Properties</a><a href="#faq">FAQ</a></div>
         <div className="footer-column"><p className="footer-label">Contact</p><a href={`mailto:${content.contact?.email || 'soiraoyaconsults@gmail.com'}`}>{content.contact?.email || 'soiraoyaconsults@gmail.com'}</a><a href={`tel:${content.contact?.phone || '+2349074091408'}`}>{content.contact?.phone || '0907 409 1408'}</a><span><OfficeLocations location={content.contact?.location} /></span></div>
-        <div className="footer-column footer-socials"><p className="footer-label">Follow our work</p><div className="social-links"><a href="https://www.facebook.com" target="_blank" rel="noreferrer" aria-label="Facebook"><Facebook size={17} /></a><a href="https://www.instagram.com" target="_blank" rel="noreferrer" aria-label="Instagram"><Instagram size={17} /></a><a href="https://www.linkedin.com/in/soiraoya-consulting-983372445/" target="_blank" rel="noreferrer" aria-label="LinkedIn"><Linkedin size={17} /></a><a href="https://www.youtube.com" target="_blank" rel="noreferrer" aria-label="YouTube"><Youtube size={17} /></a></div><p className="footer-label newsletter-footer-heading">Stay informed</p><button className="newsletter-footer-link" type="button" onClick={() => window.dispatchEvent(new Event('soiraoya:open-newsletter'))}>Subscribe to our newsletter</button></div>
+        <div className="footer-column footer-socials"><p className="footer-label">Follow our work</p><div className="social-links"><a href="https://www.linkedin.com/in/soiraoya-consulting-983372445/" target="_blank" rel="noreferrer" aria-label="LinkedIn"><Linkedin size={17} /></a></div><p className="footer-label newsletter-footer-heading">Stay informed</p><button className="newsletter-footer-link" type="button" onClick={() => window.dispatchEvent(new Event('soiraoya:open-newsletter'))}>Subscribe to our newsletter</button></div>
         <LegalFooterLinks goTo={goTo} />
       </div>
       <div className="footer-bottom"><span>© S.O. Iraoya Consulting. All rights reserved.</span><span>Registered with CAC · Licensed by ESVARBON</span></div>

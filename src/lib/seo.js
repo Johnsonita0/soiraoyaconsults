@@ -1,6 +1,6 @@
 const SITE_ORIGIN = 'https://soiraoyaconsulting.org'
 const SITE_NAME = 'S.O. Iraoya Consulting'
-const DEFAULT_IMAGE = `${SITE_ORIGIN}/image/hero/hero-1.jpg`
+const DEFAULT_IMAGE = `${SITE_ORIGIN}/image/hero/hero-1.webp`
 
 const serviceTitles = {
   'Property Management': 'Property Management in Lagos | S.O. Iraoya',
@@ -12,8 +12,8 @@ const serviceTitles = {
 
 const pageMetadata = {
   '/': {
-    title: 'Real Estate Advisory in Lagos | S.O. Iraoya Consulting',
-    description: 'S.O. Iraoya Consulting provides real estate advisory, property management and investment analysis in Lagos, Nigeria.',
+    title: 'Property Management & Real Estate Advisory in Lagos',
+    description: 'S.O. Iraoya Consulting provides property management, facilities management, portfolio oversight, valuation and real estate investment analysis in Lagos, Nigeria.',
   },
   '/portfolio-management': {
     title: 'Real Estate Portfolio Management in Nigeria | S.O. Iraoya',
@@ -66,7 +66,7 @@ const setCanonical = (url) => {
 export function updateSeoMetadata({ routePath, content, service }) {
   const isPrivatePage = ['/login', '/dashboard', '/admin'].includes(routePath)
   const isSearchPage = routePath === '/properties/search'
-  const canonicalPath = isSearchPage ? '/properties' : routePath
+  const canonicalPath = isSearchPage ? '/properties' : (routePath.replace(/\/+$/, '') || '/')
   const canonicalUrl = `${SITE_ORIGIN}${canonicalPath === '/' ? '/' : canonicalPath}`
   let metadata = pageMetadata[routePath] || pageMetadata['/']
 
@@ -89,18 +89,39 @@ export function updateSeoMetadata({ routePath, content, service }) {
   setMeta('meta[property="og:description"]', ['property', 'og:description'], metadata.description)
   setMeta('meta[property="og:url"]', ['property', 'og:url'], canonicalUrl)
   setMeta('meta[property="og:image"]', ['property', 'og:image'], DEFAULT_IMAGE)
+  setMeta('meta[property="og:type"]', ['property', 'og:type'], 'website')
+  setMeta('meta[property="og:locale"]', ['property', 'og:locale'], 'en_NG')
+  setMeta('meta[property="og:site_name"]', ['property', 'og:site_name'], SITE_NAME)
+  setMeta('meta[name="twitter:card"]', ['name', 'twitter:card'], 'summary_large_image')
   setMeta('meta[name="twitter:title"]', ['name', 'twitter:title'], metadata.title)
   setMeta('meta[name="twitter:description"]', ['name', 'twitter:description'], metadata.description)
   setMeta('meta[name="twitter:image"]', ['name', 'twitter:image'], DEFAULT_IMAGE)
+  setMeta('meta[property="og:image:alt"]', ['property', 'og:image:alt'], 'S.O. Iraoya Consulting real estate advisory and property management')
 
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'ProfessionalService',
+    '@id': `${SITE_ORIGIN}/#organization`,
     name: SITE_NAME,
     url: SITE_ORIGIN,
     description: pageMetadata['/'].description,
     email: content?.contact?.email || 'soiraoyaconsults@gmail.com',
     telephone: '+2349074091408',
+    logo: `${SITE_ORIGIN}/image/logo11.png`,
+    sameAs: ['https://www.linkedin.com/in/soiraoya-consulting-983372445/'],
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: 'Suite 30, Dolphin Plaza, Ikoyi',
+      addressLocality: 'Lagos',
+      addressRegion: 'Lagos',
+      addressCountry: 'NG',
+    },
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: 6.4510,
+      longitude: 3.4354,
+    },
+    hasMap: 'https://www.google.com/maps/search/?api=1&query=Suite+30+Dolphin+Plaza+Ikoyi+Lagos',
     areaServed: [
       { '@type': 'City', name: 'Lagos' },
       { '@type': 'Country', name: 'Nigeria' },
@@ -115,4 +136,27 @@ export function updateSeoMetadata({ routePath, content, service }) {
     document.head.appendChild(script)
   }
   script.textContent = JSON.stringify(structuredData)
+
+  let faqScript = document.head.querySelector('#faq-structured-data')
+  if (!faqScript) {
+    faqScript = document.createElement('script')
+    faqScript.id = 'faq-structured-data'
+    faqScript.type = 'application/ld+json'
+    document.head.appendChild(faqScript)
+  }
+
+  faqScript.textContent = routePath === '/'
+    ? JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: (content?.faqs || []).slice(0, 8).map((faq) => ({
+          '@type': 'Question',
+          name: faq.question,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: faq.answer,
+          },
+        })),
+      })
+    : ''
 }

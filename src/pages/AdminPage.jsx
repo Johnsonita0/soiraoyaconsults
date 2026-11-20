@@ -496,10 +496,7 @@ function NewsletterPanel() {
               Suite H272, Ikota Shopping Complex, Lagos, Nigeria
               <p><a className="newsletter-preview-whatsapp" href="https://wa.me/2349074091408">Chat with us on WhatsApp</a></p>
               <div className="newsletter-email-preview-socials" aria-label="Social media links">
-                <a href="https://www.facebook.com" aria-label="Facebook">f</a>
-                <a href="https://www.instagram.com" aria-label="Instagram">◎</a>
                 <a href="https://www.linkedin.com/in/soiraoya-consulting-983372445/" aria-label="LinkedIn">in</a>
-                <a href="https://www.youtube.com" aria-label="YouTube">▶</a>
               </div>
               <span className="newsletter-preview-unsubscribe">Unsubscribe from this newsletter</span><br />
               <a href="https://soiraoyaconsulting.org/privacy-policy">Privacy policy</a> · <a href="https://soiraoyaconsulting.org/data-usage-policy">Data usage policy</a>
@@ -941,7 +938,7 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
     event.preventDefault()
     const title = heroDraft.title.trim() || draft.heroTitle || 'New hero message'
     const tagline = heroDraft.tagline.trim() || 'Perspective changes everything.'
-    const image = heroDraft.image || '/image/hero/hero-1.jpg'
+    const image = heroDraft.image || '/image/hero/hero-1.webp'
     const newSlide = { title, tagline, image, fallback: image, active: heroDraft.active !== false }
     if (editingItem?.type === 'heroSlides') {
       saveCollectionItem('heroSlides', newSlide, () => setHeroDraft({ title: '', tagline: '', image: '', active: true }))
@@ -980,7 +977,7 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
   const handleGallerySubmit = (event) => {
     event.preventDefault()
     if (!galleryDraft.title.trim()) return
-    const prepared = { ...galleryDraft, image: galleryDraft.image || '/image/hero/hero-1.jpg' }
+    const prepared = { ...galleryDraft, image: galleryDraft.image || '/image/hero/hero-1.webp' }
     saveCollectionItem('gallery', prepared, () => setGalleryDraft(emptyGalleryItem()))
   }
 
@@ -1014,7 +1011,7 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
       label: aboutDraft.label || 'About us',
       title: aboutDraft.title.trim(),
       text: aboutDraft.text.trim() || 'A clear perspective on what comes next.',
-      image: aboutDraft.image || '/image/hero/hero-2.jpg',
+      image: aboutDraft.image || '/image/hero/hero-2.webp',
       points: (aboutDraft.points || '')
         .split(',')
         .map((point) => point.trim())
@@ -1075,7 +1072,7 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
     const prepared = {
       title: investDraft.title.trim(),
       text: investDraft.text.trim() || 'A compelling opportunity with clear fundamentals and a customer-first approach.',
-      image: investDraft.image || '/image/hero/hero-6.jpg',
+      image: investDraft.image || '/image/hero/hero-6.webp',
       focus: (investDraft.focus || '')
         .split(',')
         .map((point) => point.trim())
@@ -1491,7 +1488,7 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
             <div className="hero-slide-list">
               {(draft.heroSlides || []).length === 0 ? <p className="empty-list-note">No published hero content yet.</p> : (draft.heroSlides || []).map((slide, index) => (
                 <div className={`hero-slide-row ${slide.active === false ? 'inactive' : ''}`} key={`${slide.title || 'hero'}-${index}`}>
-                  <div className="hero-slide-thumb" style={{ backgroundImage: `url(${slide.image || '/image/hero/hero-1.jpg'})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+                  <div className="hero-slide-thumb" style={{ backgroundImage: `url(${slide.image || '/image/hero/hero-1.webp'})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
                   <div className="hero-slide-meta">
                     <b>{slide.title || 'Untitled hero slide'}</b>
                     <small>{slide.tagline || 'No tagline yet'}</small>
@@ -1519,7 +1516,7 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
             <div className="hero-slide-list">
               {((draft.gallery || []).length === 0) ? <p className="empty-list-note">No published gallery items yet.</p> : (draft.gallery || []).map((item, index) => (
                 <div className="hero-slide-row" key={`${item.title || 'gallery'}-${index}`}>
-                  <div className="hero-slide-thumb" style={{ backgroundImage: `url(${item.image || '/image/hero/hero-1.jpg'})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+                  <div className="hero-slide-thumb" style={{ backgroundImage: `url(${item.image || '/image/hero/hero-1.webp'})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
                   <div className="hero-slide-meta">
                     <b>{item.title || 'Untitled property'}</b>
                     <small>{item.location || 'Location not set'} · {item.type || 'Property'}</small>
@@ -1600,7 +1597,7 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
             <div className="hero-slide-list">
               {((draft.aboutSlides || []).length === 0) ? <p className="empty-list-note">No published about slides yet.</p> : (draft.aboutSlides || []).map((slide, index) => (
                 <div className="hero-slide-row" key={`${slide.title || 'about'}-${index}`}>
-                  <div className="hero-slide-thumb" style={{ backgroundImage: `url(${slide.image || '/image/hero/hero-2.jpg'})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+                  <div className="hero-slide-thumb" style={{ backgroundImage: `url(${slide.image || '/image/hero/hero-2.webp'})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
                   <div className="hero-slide-meta">
                     <b>{slide.title || 'Untitled about slide'}</b>
                     <small>{slide.text || 'No summary yet.'}</small>
@@ -1627,7 +1624,7 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
             <div className="hero-slide-list">
               {((draft.investOpportunities || []).length === 0) ? <p className="empty-list-note">No published investment opportunities yet.</p> : (draft.investOpportunities || []).map((item, index) => (
                 <div className="hero-slide-row" key={`${item.title || 'invest'}-${index}`}>
-                  <div className="hero-slide-thumb" style={{ backgroundImage: `url(${item.image || '/image/hero/hero-6.jpg'})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+                  <div className="hero-slide-thumb" style={{ backgroundImage: `url(${item.image || '/image/hero/hero-6.webp'})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
                   <div className="hero-slide-meta">
                     <b>{item.title || 'Untitled opportunity'}</b>
                     <small>{item.text || 'No summary yet.'}</small>
@@ -1702,7 +1699,7 @@ function LandingEditor({ draft, setDraft, save, persistDraft, openConfirm }) {
             <p className="eyebrow">Independent real-estate advisory <span>Since 2002</span></p>
             <h3>{draft.heroTitle || 'A better next step starts here'}</h3>
             <p>{draft.heroText || 'Perspective changes everything.'}</p>
-            <div className="mini-image" style={{ backgroundImage: `url(${(draft.heroSlides && draft.heroSlides[0]?.image) || '/image/hero/hero-1.jpg'})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+            <div className="mini-image" style={{ backgroundImage: `url(${(draft.heroSlides && draft.heroSlides[0]?.image) || '/image/hero/hero-1.webp'})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
           </div>
         </div>
       )}

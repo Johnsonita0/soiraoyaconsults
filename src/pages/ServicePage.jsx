@@ -11,12 +11,12 @@ import { openWhatsAppConversation, whatsappUrl } from '../lib/whatsapp'
 export const slug = (title) => title.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
 
 const serviceImages = {
-  'Property Management': '/image/hero/hero-2.jpg',
-  'Real Estate Portfolio Management': '/image/hero/hero-7.jpg',
-  'Facilities Management': '/image/hero/hero-4.jpg',
-  'Real Estate Investment Analysis': '/image/hero/hero-3.jpg',
-  'Feasibility Studies & Development Advisory': '/image/hero/hero-6.jpg',
-  'Valuation & Due Diligence': '/image/hero/hero-1.jpg',
+  'Property Management': '/image/hero/hero-2.webp',
+  'Real Estate Portfolio Management': '/image/hero/hero-7.webp',
+  'Facilities Management': '/image/hero/hero-4.webp',
+  'Real Estate Investment Analysis': '/image/hero/hero-3.webp',
+  'Feasibility Studies & Development Advisory': '/image/hero/hero-6.webp',
+  'Valuation & Due Diligence': '/image/hero/hero-1.webp',
 }
 const heroImages = Object.values(serviceImages)
 const serviceTagline = 'Strategic real-estate advisory for decisions that create lasting value.'

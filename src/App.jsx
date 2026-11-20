@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import AOS from 'aos'
 import LandingPage from './pages/LandingPage'
 import DiasporaPage from './pages/DiasporaPage'
 import ServicePage from './pages/ServicePage'
@@ -15,7 +14,6 @@ import { supabase } from './lib/supabase'
 import { updateSeoMetadata } from './lib/seo'
 import { ToastProvider } from './components/ToastProvider'
 import './css/App.css'
-import 'aos/dist/aos.css'
 
 const isAuthenticatedUser = (user) => Boolean(user)
 const serviceSlug = (title) => title.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
@@ -180,17 +178,31 @@ export default function App() {
         effectIndex += 1
       })
 
-    if (!aosInitializedRef.current) {
-      AOS.init({
-        duration: 350,
-        easing: 'ease-out-cubic',
-        once: true,
-        offset: 10,
-        disable: () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false,
-      })
-      aosInitializedRef.current = true
-    } else {
-      AOS.refreshHard()
+    const initializeAos = async () => {
+      const [{ default: AOS }] = await Promise.all([
+        import('aos'),
+        import('aos/dist/aos.css'),
+      ])
+      if (!aosInitializedRef.current) {
+        AOS.init({
+          duration: 350,
+          easing: 'ease-out-cubic',
+          once: true,
+          offset: 10,
+          disable: () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false,
+        })
+        aosInitializedRef.current = true
+      } else {
+        AOS.refreshHard()
+      }
+    }
+    const usesIdleCallback = typeof window.requestIdleCallback === 'function'
+    const idleId = usesIdleCallback
+      ? window.requestIdleCallback(() => void initializeAos())
+      : window.setTimeout(() => void initializeAos(), 250)
+    return () => {
+      if (usesIdleCallback) window.cancelIdleCallback(idleId)
+      else window.clearTimeout(idleId)
     }
   }, [route, content])
 

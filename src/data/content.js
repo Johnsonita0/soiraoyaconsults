@@ -4,13 +4,13 @@ export const seedContent = {
   heroTitle: 'Own with confidence. Invest with insight. Manage for performance.',
   heroText: 'Rent collected promptly. Remittances made without delay. Tenants managed professionally. Repairs carried out. Monthly reports sent to landlords and investors.',
   heroSlides: [
-    { image: '/image/hero/hero-1.jpg', fallback: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1600&q=88', title: 'Own with confidence. Invest with insight. Manage for performance.', tagline: 'Professional real estate management and investment advisory.', active: true },
-    { image: '/image/hero/hero-2.jpg', fallback: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=1600&q=88', title: 'Your property is an investment. Protect its value.', tagline: 'A considered approach to property operations and oversight.', active: true },
-    { image: '/image/hero/hero-3.jpg', fallback: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1600&q=88', title: 'Make informed decisions about every asset.', tagline: 'Clearer information for complex real estate decisions.', active: true },
-    { image: '/image/hero/hero-4.jpg', fallback: 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1600&q=88', title: 'See the opportunity behind the property.', tagline: 'Independent advice for every stage of the property lifecycle.', active: true },
-    { image: '/image/hero/hero-5.jpg', fallback: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1600&q=88', title: 'Plan with evidence. Move with clarity.', tagline: 'Investment analysis and feasibility grounded in the fundamentals.', active: true },
-    { image: '/image/hero/hero-6.jpg', fallback: 'https://images.unsplash.com/photo-1554469384-e58fac16e23a?auto=format&fit=crop&w=1600&q=88', title: 'A better next step starts with a clearer view.', tagline: 'Practical guidance for owners, investors and institutions.', active: true },
-    { image: '/image/hero/hero-7.jpg', fallback: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=1600&q=88', title: 'Bring your property and investment goals into focus.', tagline: 'Protecting assets through professional oversight.', active: true },
+    { image: '/image/hero/hero-1.webp', fallback: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1600&q=88', title: 'Own with confidence. Invest with insight. Manage for performance.', tagline: 'Professional real estate management and investment advisory.', active: true },
+    { image: '/image/hero/hero-2.webp', fallback: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=1600&q=88', title: 'Your property is an investment. Protect its value.', tagline: 'A considered approach to property operations and oversight.', active: true },
+    { image: '/image/hero/hero-3.webp', fallback: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1600&q=88', title: 'Make informed decisions about every asset.', tagline: 'Clearer information for complex real estate decisions.', active: true },
+    { image: '/image/hero/hero-4.webp', fallback: 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1600&q=88', title: 'See the opportunity behind the property.', tagline: 'Independent advice for every stage of the property lifecycle.', active: true },
+    { image: '/image/hero/hero-5.webp', fallback: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1600&q=88', title: 'Plan with evidence. Move with clarity.', tagline: 'Investment analysis and feasibility grounded in the fundamentals.', active: true },
+    { image: '/image/hero/hero-6.webp', fallback: 'https://images.unsplash.com/photo-1554469384-e58fac16e23a?auto=format&fit=crop&w=1600&q=88', title: 'A better next step starts with a clearer view.', tagline: 'Practical guidance for owners, investors and institutions.', active: true },
+    { image: '/image/hero/hero-7.webp', fallback: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=1600&q=88', title: 'Bring your property and investment goals into focus.', tagline: 'Protecting assets through professional oversight.', active: true },
   ],
   servicesVersion: 3,
   services: [
@@ -22,14 +22,14 @@ export const seedContent = {
     { title: 'Valuation & Due Diligence', text: 'Property evidence and risk reviews to support acquisition, disposal, financing and asset decisions.', icon: Leaf },
   ],
   gallery: [
-    { title: 'Ikoyi Residential Properties', location: 'Ikoyi, Lagos', type: 'Residential', price: '₦520m', description: 'A considered family residence with generous light, mature landscaping, and quiet access to the city.', image: '/image/hero/hero-1.jpg' },
-    { title: 'Victoria Island Offices', location: 'Victoria Island, Lagos', type: 'Commercial', price: '₦420m', description: 'A flexible office asset positioned for businesses looking for a central Lagos address.', image: '/image/hero/hero-4.jpg' },
-    { title: 'Lekki Axis', location: 'Lekki Phase 1, Lagos', type: 'Residential', price: '₦265m', description: 'Contemporary waterfront living with adaptable spaces for family life and entertaining.', image: '/image/hero/hero-2.jpg' },
+    { title: 'Ikoyi Residential Properties', location: 'Ikoyi, Lagos', type: 'Residential', price: '₦520m', description: 'A considered family residence with generous light, mature landscaping, and quiet access to the city.', image: '/image/hero/hero-1.webp' },
+    { title: 'Victoria Island Offices', location: 'Victoria Island, Lagos', type: 'Commercial', price: '₦420m', description: 'A flexible office asset positioned for businesses looking for a central Lagos address.', image: '/image/hero/hero-4.webp' },
+    { title: 'Lekki Axis', location: 'Lekki Phase 1, Lagos', type: 'Residential', price: '₦265m', description: 'Contemporary waterfront living with adaptable spaces for family life and entertaining.', image: '/image/hero/hero-2.webp' },
   ],
   rentalProperties: [
-    { title: 'Ikoyi Garden Apartment', location: 'Ikoyi, Lagos', type: 'Residential', price: '₦8.5m', description: 'A bright, well-appointed apartment with secure parking and convenient access to Ikoyi amenities.', image: '/image/hero/hero-1.jpg', listingType: 'For Rent' },
-    { title: 'Lekki Waterside Home', location: 'Lekki Phase 1, Lagos', type: 'Residential', price: '₦12m', description: 'A spacious contemporary home near the waterfront, suited to comfortable family living.', image: '/image/hero/hero-2.jpg', listingType: 'For Rent' },
-    { title: 'Victoria Island Executive Suite', location: 'Victoria Island, Lagos', type: 'Residential', price: '₦10m', description: 'A polished city residence with excellent access to business, dining, and coastal neighbourhoods.', image: '/image/hero/hero-3.jpg', listingType: 'For Rent' },
+    { title: 'Ikoyi Garden Apartment', location: 'Ikoyi, Lagos', type: 'Residential', price: '₦8.5m', description: 'A bright, well-appointed apartment with secure parking and convenient access to Ikoyi amenities.', image: '/image/hero/hero-1.webp', listingType: 'For Rent' },
+    { title: 'Lekki Waterside Home', location: 'Lekki Phase 1, Lagos', type: 'Residential', price: '₦12m', description: 'A spacious contemporary home near the waterfront, suited to comfortable family living.', image: '/image/hero/hero-2.webp', listingType: 'For Rent' },
+    { title: 'Victoria Island Executive Suite', location: 'Victoria Island, Lagos', type: 'Residential', price: '₦10m', description: 'A polished city residence with excellent access to business, dining, and coastal neighbourhoods.', image: '/image/hero/hero-3.webp', listingType: 'For Rent' },
   ],
   aboutSlides: [
     {
@@ -46,10 +46,10 @@ export const seedContent = {
     },
   ],
   investOpportunities: [
-    { title: 'Build with a clearer view.', text: 'Development opportunities assessed with market intelligence, practical assumptions, and a long-term view of value.', image: '/image/hero/hero-6.jpg', focus: ['Development appraisal', 'Market positioning', 'Risk assessment'] },
-    { title: 'Invest where momentum is building.', text: 'Identify well-positioned residential and commercial opportunities before the market catches up.', image: '/image/hero/hero-2.jpg', focus: ['Location intelligence', 'Cash-flow analysis', 'Investment planning'] },
-    { title: 'Turn land into potential.', text: 'Understand the development story behind a site and the steps required to unlock it responsibly.', image: '/image/hero/hero-5.jpg', focus: ['Site due diligence', 'Feasibility studies', 'Development strategy'] },
-    { title: 'Make the long view work.', text: 'Build a property portfolio around sound decisions, resilient assets, and sustainable value creation.', image: '/image/hero/hero-7.jpg', focus: ['Portfolio analysis', 'Return modelling', 'Advisory support'] },
+    { title: 'Build with a clearer view.', text: 'Development opportunities assessed with market intelligence, practical assumptions, and a long-term view of value.', image: '/image/hero/hero-6.webp', focus: ['Development appraisal', 'Market positioning', 'Risk assessment'] },
+    { title: 'Invest where momentum is building.', text: 'Identify well-positioned residential and commercial opportunities before the market catches up.', image: '/image/hero/hero-2.webp', focus: ['Location intelligence', 'Cash-flow analysis', 'Investment planning'] },
+    { title: 'Turn land into potential.', text: 'Understand the development story behind a site and the steps required to unlock it responsibly.', image: '/image/hero/hero-5.webp', focus: ['Site due diligence', 'Feasibility studies', 'Development strategy'] },
+    { title: 'Make the long view work.', text: 'Build a property portfolio around sound decisions, resilient assets, and sustainable value creation.', image: '/image/hero/hero-7.webp', focus: ['Portfolio analysis', 'Return modelling', 'Advisory support'] },
   ],
   testimonials: [
     { quote: 'S.O.Iraoya gave us the clarity to move forward with confidence. Their advice was practical, measured, and easy to act on.', name: 'Mariam Bello', role: 'Private investor', rating: 5 },

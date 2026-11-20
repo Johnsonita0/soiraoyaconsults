@@ -22,15 +22,17 @@ export default function HeroSlider({ slides, onContact }) {
       key={`${slide.image}-${index}`}
       className={`hero-background${index === activeIndex ? ' is-active' : ''}`}
       src={slide.image}
-      alt=""
-      aria-hidden="true"
+      alt={slide.tagline || slide.title || 'S.O. Iraoya Consulting real estate management in Lagos'}
       loading={index === activeIndex ? 'eager' : 'lazy'}
-    />) : <img className="hero-background is-active" src="/image/hero/hero-1.jpg" alt="" aria-hidden="true" />}
+      width="1600"
+      height={index === 1 ? '1201' : '1067'}
+      fetchPriority={index === activeIndex ? 'high' : 'auto'}
+    />) : <img className="hero-background is-active" src="/image/hero/hero-1.webp" alt="S.O. Iraoya Consulting property management and real estate advisory in Lagos" width="1600" height="1067" fetchPriority="high" />}
     <div className="hero-overlay" />
     <div className="hero-content-row">
       <div className="hero-copy">
         <p className="eyebrow">Real estate management <span>Lagos · Residential and Commercial</span></p>
-        <h1>Own with confidence.<br /><em>We manage professionally.</em></h1>
+        <h1>Property management in Lagos.<br /><em>Own with confidence.</em></h1>
         <p className="hero-lede">Rent collected promptly. Remittances made without delay. Tenants managed professionally. Repairs carried out. Monthly reports sent to landlords and investors.</p>
         <div className="hero-actions">
           <button className="button button-light" onClick={onContact}>Request a consultation <ArrowUpRight size={17} /></button>

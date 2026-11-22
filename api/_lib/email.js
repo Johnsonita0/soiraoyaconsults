@@ -22,7 +22,35 @@ export function resendFromEmail() {
   return `S.O. Iraoya Consulting <${address.trim()}>`
 }
 
-export async function sendEmail({ to, subject, html, text, replyTo, headers }) {
+export function adminNotificationEmail() {
+  return (process.env.ADMIN_NOTIFICATION_EMAIL || 'admin@soiraoyaconsulting.com.ng').trim()
+}
+
+export function adminNotificationCopyEmail() {
+  return (process.env.ADMIN_NOTIFICATION_COPY_EMAIL || 'soiraoyaconsults@gmail.com').trim()
+}
+
+export function adminEmailCopiesFor(to) {
+  const primary = adminNotificationEmail().toLowerCase()
+  const copy = adminNotificationCopyEmail().toLowerCase()
+  const recipient = String(to).trim().toLowerCase()
+  return [...new Set([primary, copy])].filter((email) => email !== recipient)
+}
+
+export async function sendAdminNotification({ subject, details }) {
+  const fields = Object.entries(details).filter(([, value]) => value !== null && value !== undefined && String(value).trim())
+  const html = fields.map(([label, value]) => `<p><strong>${escapeHtml(label)}:</strong><br>${escapeHtml(value).replace(/\r?\n/g, '<br>')}</p>`).join('')
+  const text = fields.map(([label, value]) => `${label}: ${value}`).join('\n\n')
+  return sendEmail({
+    to: adminNotificationEmail(),
+    bcc: adminEmailCopiesFor(adminNotificationEmail()),
+    subject,
+    html: emailLayout(subject, html, subject),
+    text,
+  })
+}
+
+export async function sendEmail({ to, subject, html, text, replyTo, headers, bcc }) {
   const apiKey = process.env.RESEND_API_KEY
   const from = resendFromEmail()
   if (!apiKey) throw new Error('Missing Resend configuration. Set RESEND_API_KEY.')
@@ -36,6 +64,7 @@ export async function sendEmail({ to, subject, html, text, replyTo, headers }) {
     body: JSON.stringify({
       from,
       to: [to],
+      ...(bcc && (!Array.isArray(bcc) || bcc.length) ? { bcc: Array.isArray(bcc) ? bcc : [bcc] } : {}),
       reply_to: replyTo || process.env.RESEND_REPLY_TO_EMAIL || process.env.RESEND_TO_EMAIL || 'soiraoyaconsults@gmail.com',
       subject,
       html,

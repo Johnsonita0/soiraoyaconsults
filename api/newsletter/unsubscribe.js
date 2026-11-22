@@ -1,4 +1,4 @@
-import { emailLayout, htmlResponse } from '../_lib/email.js'
+import { emailLayout, htmlResponse, sendAdminNotification } from '../_lib/email.js'
 import { getServiceClient } from '../_lib/admin.js'
 
 function unsubscribePage(token, done = false, invalid = false) {
@@ -18,13 +18,21 @@ export default async function handler(request, response) {
   try {
     const supabase = getServiceClient()
     const { data: subscriber, error: lookupError } = await supabase.from('newsletter_subscribers')
-      .select('id').eq('unsubscribe_token', token).eq('status', 'active').maybeSingle()
+      .select('id,email').eq('unsubscribe_token', token).eq('status', 'active').maybeSingle()
     if (lookupError) throw lookupError
     if (subscriber) {
       const { error } = await supabase.from('newsletter_subscribers')
         .update({ status: 'unsubscribed', unsubscribed_at: new Date().toISOString() })
         .eq('id', subscriber.id)
       if (error) throw error
+      try {
+        await sendAdminNotification({
+          subject: 'Newsletter subscriber unsubscribed',
+          details: { Subscriber: subscriber.email, Unsubscribed: new Date().toISOString() },
+        })
+      } catch (notificationError) {
+        console.error('Unsubscribe admin notification failed', notificationError)
+      }
     }
     return htmlResponse(response, unsubscribePage('', true))
   } catch (error) {

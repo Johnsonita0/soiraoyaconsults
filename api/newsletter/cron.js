@@ -1,5 +1,5 @@
 import { getServiceClient } from '../_lib/admin.js'
-import { emailLayout, escapeHtml, newsletterUnsubscribeButton, resendFromEmail, siteUrl } from '../_lib/email.js'
+import { emailLayout, escapeHtml, newsletterUnsubscribeButton, resendFromEmail, sendAdminNotification, siteUrl } from '../_lib/email.js'
 
 const batchSize = 100
 
@@ -44,6 +44,14 @@ export default async function handler(request, response) {
         .update({ status: 'sent', sent_at: new Date().toISOString(), claimed_at: null })
         .eq('id', campaign.id)
       if (error) throw error
+      try {
+        await sendAdminNotification({
+          subject: 'Newsletter campaign completed',
+          details: { Subject: campaign.subject, Sent: String(campaign.sent_count), Failed: String(campaign.failed_count) },
+        })
+      } catch (notificationError) {
+        console.error('Newsletter completion admin notification failed', notificationError)
+      }
       return response.status(200).json({ ok: true, campaignId: campaign.id, sent: 0 })
     }
 
@@ -98,6 +106,37 @@ export default async function handler(request, response) {
     }).eq('id', campaign.id)
     if (updateError) throw updateError
 
+    if (!deliverySucceeded) {
+      try {
+        await sendAdminNotification({
+          subject: 'Newsletter batch delivery failed',
+          details: {
+            Subject: campaign.subject,
+            Recipients: String(batch.length),
+            Error: deliveryMessage,
+          },
+        })
+      } catch (notificationError) {
+        console.error('Newsletter batch failure admin notification failed', notificationError)
+      }
+    }
+
+    if (!hasMore) {
+      try {
+        await sendAdminNotification({
+          subject: failedCount > 0 ? 'Newsletter delivery needs attention' : 'Newsletter campaign sent',
+          details: {
+            Subject: campaign.subject,
+            Sent: String(sentCount),
+            Failed: String(failedCount),
+            Completed: new Date().toISOString(),
+          },
+        })
+      } catch (notificationError) {
+        console.error('Newsletter completion admin notification failed', notificationError)
+      }
+    }
+
     return response.status(200).json({
       ok: deliverySucceeded,
       campaignId: campaign.id,
@@ -107,6 +146,14 @@ export default async function handler(request, response) {
     })
   } catch (error) {
     console.error('Scheduled newsletter run failed', error)
+    try {
+      await sendAdminNotification({
+        subject: 'Newsletter delivery job failed',
+        details: { Error: error.message || 'Scheduled newsletter delivery failed.', Occurred: new Date().toISOString() },
+      })
+    } catch (notificationError) {
+      console.error('Newsletter job failure admin notification failed', notificationError)
+    }
     return response.status(500).json({ ok: false, message: error.message || 'Scheduled newsletter delivery failed.' })
   }
 }

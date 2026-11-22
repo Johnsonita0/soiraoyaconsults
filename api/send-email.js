@@ -1,4 +1,4 @@
-import { emailLayout, escapeHtml, sendEmail } from './_lib/email.js'
+import { adminEmailCopiesFor, emailLayout, escapeHtml, sendEmail } from './_lib/email.js'
 import { getServiceClient } from './_lib/admin.js'
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -76,8 +76,10 @@ export default async function handler(request, response) {
   const html = fields.map(([label, value]) => `<p><strong>${escapeHtml(label)}:</strong><br>${escapeHtml(value).replace(/\r?\n/g, '<br>')}</p>`).join('')
   const text = fields.map(([label, value]) => `${label}: ${value}`).join('\n\n')
   try {
+    const recipient = process.env.RESEND_TO_EMAIL || 'soiraoyaconsults@gmail.com'
     await sendEmail({
-      to: process.env.RESEND_TO_EMAIL || 'soiraoyaconsults@gmail.com',
+      to: recipient,
+      bcc: adminEmailCopiesFor(recipient),
       replyTo: email,
       subject: 'New website enquiry',
       html: emailLayout('New website enquiry', html, `New enquiry from ${name}.`),

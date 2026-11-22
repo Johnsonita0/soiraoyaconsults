@@ -1213,6 +1213,7 @@ section[id],
 .testimonial-author span { color:rgba(255,255,255,.68); font-size:11px; }
 .testimonial-empty { color:rgba(255,255,255,.74); font:italic 20px var(--serif); }
 .testimonial-form-panel { padding:30px 0 0 28px; border-left:1px solid var(--line); }
+.testimonial-honeypot { position:absolute !important; left:-10000px !important; width:1px !important; height:1px !important; overflow:hidden !important; }
 .testimonial-form-panel h3 { margin:0 0 26px; color:var(--ink); font:500 27px var(--serif); }
 .testimonial-form-panel form { display:grid; gap:16px; }
 .testimonial-form-panel label { display:grid; gap:7px; color:var(--muted); font-size:11px; }

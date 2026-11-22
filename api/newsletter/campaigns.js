@@ -1,4 +1,5 @@
 import { getAdminClient } from '../_lib/admin.js'
+import { sendAdminNotification } from '../_lib/email.js'
 
 const maximumLength = 20000
 
@@ -84,5 +85,18 @@ export default async function handler(request, response) {
     return response.status(500).json({ ok: false, message: 'Could not save this campaign.' })
   }
   if (!data) return response.status(409).json({ ok: false, message: 'This campaign can no longer be edited.' })
+  if (action !== 'save') {
+    try {
+      await sendAdminNotification({
+        subject: action === 'schedule' ? 'Newsletter campaign scheduled' : 'Newsletter campaign queued',
+        details: {
+          Subject: subject.trim(),
+          'Scheduled for': scheduledFor instanceof Date ? scheduledFor.toISOString() : scheduledFor,
+        },
+      })
+    } catch (notificationError) {
+      console.error('Newsletter schedule admin notification failed', notificationError)
+    }
+  }
   return response.status(200).json({ ok: true, campaignId: data.id })
 }

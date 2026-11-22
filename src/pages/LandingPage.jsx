@@ -342,7 +342,7 @@ export default function LandingPage({ content, goTo, showSplashOnEntry, onSplash
         </div>
       </section>
 
-      <div data-aos="fade-up"><TestimonialsSection testimonials={content.testimonials || []} contactEmail={content.contact?.email} /></div>
+      <div data-aos="fade-up"><TestimonialsSection testimonials={content.testimonials || []} /></div>
 
       <section className="consultancy-contact" id="contact" aria-labelledby="contact-title">
         <div className="consultancy-contact-intro">

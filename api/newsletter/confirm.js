@@ -1,4 +1,4 @@
-import { emailLayout, htmlResponse, newsletterUnsubscribeButton, sendEmail, siteUrl } from '../_lib/email.js'
+import { emailLayout, htmlResponse, newsletterUnsubscribeButton, sendAdminNotification, sendEmail, siteUrl } from '../_lib/email.js'
 import { getServiceClient } from '../_lib/admin.js'
 
 function confirmationPage(message, success = false) {
@@ -49,6 +49,14 @@ export default async function handler(request, response) {
       })
     } catch (emailError) {
       console.error('Newsletter welcome email failed', emailError)
+    }
+    try {
+      await sendAdminNotification({
+        subject: 'Newsletter subscriber confirmed',
+        details: { Email: subscriber.email, Confirmed: new Date().toISOString() },
+      })
+    } catch (notificationError) {
+      console.error('Confirmed subscriber admin notification failed', notificationError)
     }
     return htmlResponse(response, confirmationPage('Your subscription is confirmed. Thank you for joining our newsletter.', true))
   } catch (error) {

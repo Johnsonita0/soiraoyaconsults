@@ -1,5 +1,5 @@
 import { getServiceClient } from '../_lib/admin.js'
-import { emailLayout, newsletterUnsubscribeButton, sendEmail, siteUrl } from '../_lib/email.js'
+import { emailLayout, newsletterUnsubscribeButton, sendAdminNotification, sendEmail, siteUrl } from '../_lib/email.js'
 
 const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const subscribedMessage = "You're subscribed. A confirmation email is on its way."
@@ -35,6 +35,7 @@ export default async function handler(request, response) {
     if (error) throw error
 
     const unsubscribeUrl = `${siteUrl()}/api/newsletter/unsubscribe?token=${encodeURIComponent(subscriber.unsubscribe_token)}`
+    let subscriberEmailSent = true
     try {
       await sendEmail({
         to: email,
@@ -53,14 +54,25 @@ export default async function handler(request, response) {
       })
     } catch (emailError) {
       console.error('Newsletter subscription confirmation email failed', emailError)
-      return response.status(200).json({
-        ok: true,
-        notificationSent: false,
-        message: "You're subscribed, but we couldn't send the confirmation email. Please contact us if you need help.",
-      })
+      subscriberEmailSent = false
     }
 
-    return response.status(200).json({ ok: true, message: subscribedMessage })
+    try {
+      await sendAdminNotification({
+        subject: 'New newsletter subscriber',
+        details: { Email: email, Subscribed: new Date().toISOString() },
+      })
+    } catch (notificationError) {
+      console.error('New subscriber admin notification failed', notificationError)
+    }
+
+    return response.status(200).json({
+      ok: true,
+      notificationSent: subscriberEmailSent,
+      message: subscriberEmailSent
+        ? subscribedMessage
+        : "You're subscribed, but we couldn't send the confirmation email. Please contact us if you need help.",
+    })
   } catch (error) {
     console.error('Newsletter subscription failed', error)
     return response.status(502).json({ ok: false, message: error.message || 'Could not process your subscription.' })

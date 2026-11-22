@@ -35,10 +35,11 @@ export default function TestimonialsSection({ testimonials = [] }) {
     setSubmitError('')
 
     try {
-      const response = await fetch('/api/testimonials/submit', {
+      const response = await fetch('/api/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          type: 'testimonial',
           name: form.name.trim(),
           email: form.email.trim(),
           role: form.role.trim(),

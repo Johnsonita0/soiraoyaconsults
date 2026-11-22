@@ -1,15 +1,14 @@
 import { getServiceClient } from '../_lib/admin.js'
-import { emailLayout, escapeHtml, resendFromEmail, siteUrl } from '../_lib/email.js'
+import { emailLayout, escapeHtml, newsletterUnsubscribeButton, resendFromEmail, siteUrl } from '../_lib/email.js'
 
-const batchSize = 50
+const batchSize = 100
 
 function campaignHtml(campaign, unsubscribeUrl) {
   const paragraphs = campaign.body.split(/\n\s*\n/).map((paragraph) => `<p style="font-size:16px;line-height:1.7">${escapeHtml(paragraph).replace(/\n/g, '<br>')}</p>`).join('')
   const image = campaign.image_url
     ? `<img src="${escapeHtml(campaign.image_url)}" alt="" width="528" style="display:block;width:100%;height:auto;margin:0 0 24px;border-radius:8px">`
     : ''
-  const unsubscribe = `<a href="${escapeHtml(unsubscribeUrl)}" style="color:#102b3f">Unsubscribe from this newsletter</a>`
-  return emailLayout(campaign.subject, `${image}${paragraphs}`, campaign.preview_text || campaign.subject, unsubscribe)
+  return emailLayout(campaign.subject, `${image}${paragraphs}`, campaign.preview_text || campaign.subject, newsletterUnsubscribeButton(unsubscribeUrl))
 }
 
 export default async function handler(request, response) {
@@ -31,7 +30,7 @@ export default async function handler(request, response) {
 
     const subscriberQuery = supabase.from('newsletter_subscribers')
       .select('id,email,unsubscribe_token')
-      .in('status', ['active', 'pending'])
+      .eq('status', 'active')
       .order('id', { ascending: true })
       .limit(batchSize + 1)
     const { data: subscribers, error: subscriberError } = campaign.last_subscriber_id

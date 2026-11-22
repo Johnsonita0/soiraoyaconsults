@@ -59,3 +59,7 @@ export function htmlResponse(response, content, status = 200) {
 export function plainText(value = '') {
   return String(value).replace(/\r\n/g, '\n').split('\n').map((line) => escapeHtml(line)).join('<br>')
 }
+
+export function newsletterUnsubscribeButton(url) {
+  return `<a href="${escapeHtml(url)}" style="display:inline-block;padding:12px 20px;border-radius:999px;background:#102b3f;color:#fff;text-decoration:none;font-size:13px;font-weight:bold">Unsubscribe from this newsletter</a>`
+}

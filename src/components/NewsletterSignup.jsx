@@ -12,6 +12,7 @@ export default function NewsletterSignup() {
   const [website, setWebsite] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [message, setMessage] = useState('')
+  const [messageIsWarning, setMessageIsWarning] = useState(false)
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -34,6 +35,7 @@ export default function NewsletterSignup() {
       setIsOpen(true)
       setError('')
       setMessage('')
+      setMessageIsWarning(false)
       try {
         sessionStorage.setItem(shownKey, 'true')
       } catch (storageError) {
@@ -60,6 +62,7 @@ export default function NewsletterSignup() {
     event.preventDefault()
     setError('')
     setMessage('')
+    setMessageIsWarning(false)
     setIsSubmitting(true)
     try {
       const response = await fetch('/api/newsletter/subscribe', {
@@ -69,6 +72,7 @@ export default function NewsletterSignup() {
       })
       const result = await readApiJson(response)
       if (!response.ok || !result.ok) throw new Error(result.message || 'Could not process your subscription.')
+      setMessageIsWarning(result.notificationSent === false)
       setMessage(result.message || "You're subscribed. Thank you for joining our newsletter.")
       setEmail('')
     } catch (submitError) {
@@ -89,7 +93,7 @@ export default function NewsletterSignup() {
       <p className="eyebrow">S.O. Iraoya Consulting</p>
       <h2 id="newsletter-title">A considered view on property.</h2>
       <p className="newsletter-description">Get occasional property insights, investment perspectives and company updates in your inbox.</p>
-      {message ? <div className="newsletter-message newsletter-success" role="status">{message}</div> : <form onSubmit={subscribe}>
+      {message ? <div className={`newsletter-message ${messageIsWarning ? 'newsletter-error' : 'newsletter-success'}`} role={messageIsWarning ? 'alert' : 'status'}>{message}</div> : <form onSubmit={subscribe}>
         <label className="newsletter-email-label" htmlFor="newsletter-email">Email address</label>
         <input id="newsletter-email" type="email" autoComplete="email" required maxLength={254} value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" />
         <label className="newsletter-consent"><input type="checkbox" required /> <span>I agree to receive email updates. I can unsubscribe at any time.</span></label>

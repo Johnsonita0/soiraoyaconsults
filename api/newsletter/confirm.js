@@ -1,4 +1,4 @@
-import { emailLayout, htmlResponse, sendEmail, siteUrl } from '../_lib/email.js'
+import { emailLayout, htmlResponse, newsletterUnsubscribeButton, sendEmail, siteUrl } from '../_lib/email.js'
 import { getServiceClient } from '../_lib/admin.js'
 
 function confirmationPage(message, success = false) {
@@ -36,7 +36,16 @@ export default async function handler(request, response) {
         to: subscriber.email,
         subject: 'You are subscribed to S.O. Iraoya Consulting updates',
         text: `Your subscription is confirmed. You can unsubscribe any time: ${unsubscribeUrl}`,
-        html: emailLayout('You are on the list', `<p>Your subscription is confirmed. We will share considered property insights and company updates with you.</p><p><a href="${unsubscribeUrl}" style="color:#102b3f">Unsubscribe from this newsletter</a></p>`),
+        html: emailLayout(
+          'You are on the list',
+          '<p>Your subscription is confirmed. We will share considered property insights and company updates with you.</p>',
+          'Your S.O. Iraoya Consulting newsletter subscription is confirmed.',
+          newsletterUnsubscribeButton(unsubscribeUrl),
+        ),
+        headers: {
+          'List-Unsubscribe': `<${unsubscribeUrl}>`,
+          'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+        },
       })
     } catch (emailError) {
       console.error('Newsletter welcome email failed', emailError)
